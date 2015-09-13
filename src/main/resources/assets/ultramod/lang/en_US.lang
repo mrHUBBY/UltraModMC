@@ -1,0 +1,122 @@
+# Item Groups
+itemGroup.ultra=Ultra Inventory
+
+# Items
+item.ultraItemBasicSword.name=Ultra Basic Sword
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Blocks
+tile.nitro.name=Nitro Block
+tile.nitroChest.name=Nitro Chest
+tile.nitroAcid.name=Nitro Acid
+tile.nitroFireOre.name=Nitro Fire Ore
+
+# Items
+item.nitroAxe.name=Nitro Axe
+item.nitroFireAxe.name=Nitro Fire Axe
+item.nitroFireHoe.name=Nitro Fire Hoe
+item.nitroBucket.name=Nitro Acid Bucket
+item.nitroFirePickaxe.name=Nitro Fire Pick Axe
+item.nitroFireSpade.name=Nitro Spade
+item.nitroFireHelmet.name=Nitro Fire Helmet
+item.nitroFireChestplate.name=Nitro Fire Chestplate
+item.nitroFireLeggings.name=Nitro Fire Leggings
+item.nitroFireBoots.name=Nitro Fire Boots
+item.nitroPlaceholderHelmet.name=
+item.nitroPlaceholderChestplate.name=
+item.nitroPlaceholderLeggings.name=
+item.nitroPlaceholderBoots.name=
+item.nitroHelmet.name=Nitro Helmet
+item.nitroChestplate.name=Nitro Chestplate
+item.nitroLeggings.name=Nitro Leggings
+item.nitroBoots.name=Nitro Boots
+item.nitroFireSword.name=Nitro Fire Sword
+item.nitroHoe.name=Nitro Hoe
+item.nitroIngot.name=Nitro Ingot
+item.nitroItemChest.name=Nitro Chest
+item.nitroItemFireball.name=Nitro Fireball
+item.nitroItemGrenade.name=Nitro Item Grenade
+item.nitroItemBackpack.name=Nitro Small Backpack
+item.nitroItemBackpack2.name=Nitro Mediume Backpack
+item.nitroItemBackpack3.name=Nitro Large Backpack
+item.nitroItemNightGoggles.name=Nitro Night Vision Goggles
+item.nitroItemSnorkel.name=Nitro Snorkel
+item.nitroItemPotion.name=Nitro Elixir
+item.nitroItemPotionSplash.name=Nitro Splash Elixir
+
+
+
+
+
+
+
+# Old Items...
+tile.nitro.name=Nitro
+tile.nitroOre.name=Nitro Ore
+tile.nitroFireOre.name=Nitro Fire Ore
+tile.nitroBlockChest.name=Nitro Chest
+tile.nitroBlockFluid.name=Nitro Fluid
+
+item.nitroIngot.name=Nitro Ingot
+item.nitroFireIngot.name=Nitro Fire Ingot
+item.nitroHelmet.name=Nitro Armor Helemt
+item.nitroChest.name=Nitro Armor Chestplate
+item.nitroLegs.name=Nitro Armor Leggings
+item.nitroBoots.name=Nitro Armor Boots
+item.nitroFireHelmet.name=Nitro Fire Armor Helmet
+item.nitroFireChest.name=Nitro Fire Armor Chestplate
+item.nitroFireLegs.name=Nitro Fire Armor Leggings
+item.nitroFireBoots.name=Nitro Fire Armor Boots
+item.potionNitro.name=Nitro Potion
+item.nitroGrenade.name=Nitro Grenade
+item.nitroAxe.name=Nitro Axe
+item.nitroSpade.name=Nitro Shovel
+item.nitroPickaxe.name=Nitro PickAxe
+item.nitroHoe.name=Nitro Hoe
+item.nitroGlowStick.name=Nitro Glow Stick
+item.nitroSword.name=Nitro Sword
+item.nitroFireSword.name=Nitro Fire Sword
+item.nitroFireball.name=Nitro Fireball
+item.nitroChest.name=Nitro Chest
+item.nitroBucketFluid.name=Nitro Bucket
+item.nitroFireAxe.name=Nitro Fire Axe
+item.nitroFireSpade.name=Nitro Fire Shovel
+item.nitroFireHoe.name=Nitro Fire Hoe
+item.nitroFirePickaxe.name=Nitro Fire PickAxe
+item.nitroBackpack.name=Nitro Backpack
+item.nitroSnorkel.name=Nitro Snorkel
+item.nitroTeleporter.name=Nitro Teleporter
+item.nitroNightGoggles.name=Nitro Night Vision Goggles
+
+potion.nitro=Nitro Effects
+
+potion.nitro.postfix=Potion of Nitro Effects
+
+itemGroup.nitro=Nitro Group
+
+entity.nitroEntityDestroyer.name=Nitro Destroyer
+entity.nitroEntityDeathPhantom.name=Nitro Death Phantom
+entity.nitroEntityZombie.name=Nitro Zombie
+
+key.nitroRain=Nitro Rain
+key.nitroLights=Nitro Lights
+key.nitroTime=Nitro Time
+key.nitroOptions=Nitro Options
+key.nitroEffects=Nitro Fx
+key.nitroBackpack=Nitro Backpack
+key.nitroTeleport=Nitro Teleport
+key.categories.nitro=Nitro
+
+container.nitro=Nitro Inventory
+container.nitroBackoack=Nitro Backpack
