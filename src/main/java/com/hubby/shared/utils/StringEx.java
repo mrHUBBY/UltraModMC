@@ -1,6 +1,7 @@
 package com.hubby.shared.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,10 +9,10 @@ import java.io.InputStreamReader;
 public class StringEx {
     public static String str() {
         StackTraceElement element = new RuntimeException().getStackTrace()[1];
+        //String name = "/Users/davidleistiko/Documents/MyCode/Git/UltraModMC/src/main/java/";
         String name = element.getClassName().replace('.', '/') + ".java";
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
         String s = convertStreamToString(in, element.getLineNumber());
-
         return s.substring(s.indexOf("/*") + 2, s.indexOf("*/"));
     }
 

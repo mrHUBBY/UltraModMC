@@ -129,6 +129,14 @@ public class ConfigHelper {
 			}
 		}
 		
+		// If we do not have any categories then we assume that we have a config
+		// that has not had its default values set yet. Sending this message to
+		// the listeners with a null Property indicates that the listeners should
+		// apply their default values
+		if (categories.size() == 0) {
+			notifyListeners(null, "", "", "", "");
+		}
+		
 		// finally, we save the configuration file so that any default
 		// values that were written to the config will now be saved as
 		// part of the config, ready for future use

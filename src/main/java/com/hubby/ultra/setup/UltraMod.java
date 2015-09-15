@@ -2,8 +2,9 @@ package com.hubby.ultra.setup;
 
 import com.hubby.shared.utils.ConfigHelper;
 import com.hubby.shared.utils.DefaultConfigPropertyListener;
-import com.hubby.shared.utils.Utils;
+import com.hubby.ultra.UltraCommandHooks;
 
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -50,7 +51,7 @@ public class UltraMod {
 		helper.openConfiguration(event.getSuggestedConfigurationFile(), "1.0");
 
 		// Register custom event hooks
-		//FMLCommonHandler.instance().bus().register(new NitroCommandHooks());
+		FMLCommonHandler.instance().bus().register(new UltraCommandHooks());
 		//MinecraftForge.EVENT_BUS.register(new NitroEventHooks());
 		//MinecraftForge.EVENT_BUS.register(new NitroRenderEntityPlayer());
 	}

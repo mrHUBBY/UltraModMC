@@ -1,12 +1,12 @@
 package com.hubby.ultra.items;
 
+import com.hubby.shared.utils.INamedObject;
+import com.hubby.shared.utils.Utils;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
  * A custom implementation of a ItemSword
  * @author davidleistiko
  */
-public class UltraItemBasicSword extends ItemSword {
+public class UltraItemBasicSword extends ItemSword implements INamedObject {
 
 	/**
 	 * The name of this item, used for identifying resource files
@@ -37,8 +37,15 @@ public class UltraItemBasicSword extends ItemSword {
 		this.setUnlocalizedName(NAME);
 		this.setCreativeTab(UltraRegistry.ultraCreativeTab);
 		
-		// actually register the item with forge
-		GameRegistry.registerItem(this, NAME);
+		// actually register the item with forge and mc for rendering
+		Utils.registerNamedItem(UltraMod.MOD_ID, this);
+	}
+	
+	/**
+	 * Implement INamedObject, return object name
+	 */
+	public String getName() {
+		return NAME;
 	}
 	
 	/**

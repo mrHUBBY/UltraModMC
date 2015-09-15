@@ -1,17 +1,14 @@
 package com.hubby.ultra.setup;
 
-import com.hubby.shared.utils.Utils;
+import com.hubby.ultra.UltraTeleportWaypointGuiScreen;
 import com.hubby.ultra.items.UltraItemBasicSword;
+import com.hubby.ultra.items.UltraItemTeleportArtifact;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 
 import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * This class stores the references to all blocks/items/recipes/etc for the mod
@@ -29,11 +26,22 @@ public class UltraRegistry {
 	// endregion
 	
 	// region - Items
-	public static UltraItemBasicSword ultraItemBasicSword = null; 
+	public static UltraItemBasicSword ultraItemBasicSword = null;
+	public static UltraItemTeleportArtifact ultraItemTeleportArtifact = null;
 	// endregion
 	
+	// region - GuiScreen's
+	public static UltraTeleportWaypointGuiScreen ultraTeleportWaypointGuiScreen = null;
+	
+	/**
+	 * This method is responsible for loading all items, blocks, recipes, potions
+	 * and more. Each item is instantiated and then registered with the appropriate
+	 * systems to ensure that they function in-game perfectly
+	 */
 	public static void register() {
 
+		// creates the ultra creative tab that will be used by all ultra items
+		// as the tab that they render on when viewing the inventory in creative mode
 		ultraCreativeTab = new CreativeTabs(UltraMod.MOD_NAME) {
 			@Override
 			public Item getTabIconItem() {
@@ -41,10 +49,17 @@ public class UltraRegistry {
 			}
 		};
 		
-		ultraToolMaterial = EnumHelper.addToolMaterial(UltraMod.MOD_ID, 3, 500, 20.0F, 20.0F, 25);
-		ultraItemBasicSword = new UltraItemBasicSword(ultraToolMaterial);
+		// region - Materials
+		ultraToolMaterial = EnumHelper.addToolMaterial(UltraMod.MOD_NAME, 3, 500, 20.0F, 20.0F, 25);
+		// endregion
 		
-		//RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-		//renderItem.getItemModelMesher().register(ultraItemBasicSword, 0, new ModelResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, ultraItemBasicSword.getName()), "inventory"));
+		// region - Items
+		ultraItemBasicSword = new UltraItemBasicSword(ultraToolMaterial);
+		ultraItemTeleportArtifact = new UltraItemTeleportArtifact();
+		// endregion
+		
+		// region - Gui Screens
+		ultraTeleportWaypointGuiScreen = new UltraTeleportWaypointGuiScreen();
+		// endregion
 	}
 }

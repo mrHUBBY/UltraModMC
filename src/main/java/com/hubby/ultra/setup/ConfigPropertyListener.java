@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.hubby.shared.utils.ConfigHelper;
 import com.hubby.shared.utils.IConfigPropertyListener;
 import com.hubby.shared.utils.StringEx;
+import com.hubby.shared.utils.Utils;
 
 import net.minecraft.client.settings.KeyBinding;
 
@@ -23,6 +24,8 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 	public static final String CATEGORY_INPUT = "input";
 	public static final String KEY_KEYBINDINGS = "keys";
 	public static final String KEYBINDING_DELIMITER = "=";
+	public static final String ALTERNATE_DELIMITER =":";
+	public static final String KEY_BINDING_OPEN_TELEPORT_GUI = "openTeleportGuiKey";
 	// endregion
 	
 	// region - members
@@ -45,6 +48,11 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 	 */
 	@Override
 	public void onConfigPropertyRead(Property prop, String category, String key, String value, String comment) {
+		
+		if (prop == null) {
+			applyDefaultValues();
+		}
+		
 		// Handle the key-bindings
 		if (category.matches(CATEGORY_INPUT) && key.matches(KEY_KEYBINDINGS)) {
 			_keyBindings.clear();
@@ -58,22 +66,42 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 	 */
 	private List<KeyBinding> parseKeyBindings(String value, String bindingKeyCategory) {
 		
-		ConfigHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS, 
-				StringEx.str(/*
-				key.rain=19,key.lights=38,
-				key.time=44,key.options=24,
-				key.effects=33,key.backpack=48,
-				key.cheat=46,key.teleport=45,
-				key.everything=47,key.super=25,
-				key.nightGoggles=34
-				*/));
-		
+		// iterate over the list of key bindings by splitting the value
+		// using the appropriate delimiter keys
 		ArrayList<KeyBinding> list = new ArrayList<KeyBinding>();
 		String[] keys = value.split(ConfigHelper.DELIMITER);
 		for (String binding : keys) {
 			String[] nameAndKey = binding.split(KEYBINDING_DELIMITER);
-			list.add(new KeyBinding(nameAndKey[0], Integer.parseInt(nameAndKey[1]), bindingKeyCategory));
+			String[] keyAndAlias = nameAndKey[1].split(ALTERNATE_DELIMITER);
+			Integer keyID = Integer.parseInt(keyAndAlias[0]);
+			String keyAlias = keyAndAlias.length > 1 ? keyAndAlias[1] : keyID.toString();
+			KeyBinding keyBinding = new KeyBinding(nameAndKey[0], Integer.parseInt(nameAndKey[1]), bindingKeyCategory);
+			list.add(keyBinding);
+			
+			Utils.regiterKeyBinding(keyAlias, keyBinding);
 		}
 		return list;
+	}
+	
+	/**
+	 * This function applies the default values to the config file
+	 */
+	private void applyDefaultValues() {
+		
+		// Set the default values for the key bindings
+		ConfigHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS, 
+				StringEx.str(/*
+				key.rain=19:toggleRainKey,
+				key.lights=38:togleLightsKey,
+				key.time=44:toggleTimeKey,
+				key.options=24:openOptionsKey,
+				key.effects=33:toggleEffectsKey,
+				key.backpack=48:openBackpackInvenytoryKey,
+				key.cheat=46:giveCheatsKey,
+				key.teleport=45:openTeleportGuiKey,
+				key.everything=47:openEverythingInventoryKey,
+				key.super=25:openSuperInventoryKey,
+				key.nightGoggles=34:toggleNightGogglesKey
+				*/));
 	}
 }
