@@ -3,10 +3,10 @@ package com.hubby.ultra;
 import java.util.ArrayList;
 
 import com.google.common.collect.ImmutableList;
-import com.hubby.shared.utils.Color;
-import com.hubby.shared.utils.Color.ColorMode;
-import com.hubby.shared.utils.INamedObject;
-import com.hubby.shared.utils.SavePersistentDataHelper;
+import com.hubby.shared.utils.HubbyColor;
+import com.hubby.shared.utils.HubbyColor.ColorMode;
+import com.hubby.shared.utils.HubbyNamedObjectInterface;
+import com.hubby.shared.utils.HubbySavePersistentDataHelper;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -22,7 +22,7 @@ public class UltraTeleportWaypoint {
 	// region - Members
 	protected BlockPos _pos;
 	protected int _id;
-	protected Color _color;
+	protected HubbyColor _color;
 	protected float _rotationY;
 	protected float _rotationX;
 	protected String _name;
@@ -50,7 +50,7 @@ public class UltraTeleportWaypoint {
 		_rotationY = rotationX;
 		_rotationX = rotationY;
 		_id = ++_idCounter;
-		_color = new Color(color, ColorMode.MINECRAFT);
+		_color = new HubbyColor(color, ColorMode.MINECRAFT);
 		_name = name;
 		_hasChanges = true;
 		
@@ -62,7 +62,7 @@ public class UltraTeleportWaypoint {
 	 * Default constructor
 	 */
 	public UltraTeleportWaypoint() {
-		this(INamedObject.MISSING_NAME, 0xFFFFFF, new BlockPos(0.0d, 0.0d, 0.0d), 0.0f, 0.0f);
+		this(HubbyNamedObjectInterface.MISSING_NAME, 0xFFFFFF, new BlockPos(0.0d, 0.0d, 0.0d), 0.0f, 0.0f);
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class UltraTeleportWaypoint {
 		// If we have some changes then we should probably save those now
 		// before they get overwritten when this saved data is loaded
 		if (_hasChanges) {
-			SavePersistentDataHelper.getInstance().saveTagCompound(
+			HubbySavePersistentDataHelper.getInstance().saveTagCompound(
 					UltraTeleportWaypoint.SAVE_FILENAME,
 					UltraTeleportWaypoint.writeToNBT());
 		}
@@ -238,6 +238,6 @@ public class UltraTeleportWaypoint {
 		_name = tagCompound.getString("name");
 		_rotationX = tagCompound.getFloat("rotationX");
 		_rotationY = tagCompound.getFloat("rotationY");
-		_color = new Color(tagCompound.getInteger("color"), ColorMode.MINECRAFT);
+		_color = new HubbyColor(tagCompound.getInteger("color"), ColorMode.MINECRAFT);
 	}
 }

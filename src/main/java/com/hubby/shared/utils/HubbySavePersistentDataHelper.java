@@ -24,7 +24,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
  * of minecraft.
  * @author davidleistiko
  */
-public class SavePersistentDataHelper {
+public class HubbySavePersistentDataHelper {
 
 	/**
 	 * Exception used to identify the case where save data has been misplaced
@@ -40,10 +40,10 @@ public class SavePersistentDataHelper {
 	/**
 	 * Access to the singleton instance of the save helper
 	 */
-	private static SavePersistentDataHelper _instance = null;
-	public static final SavePersistentDataHelper getInstance() {
+	private static HubbySavePersistentDataHelper _instance = null;
+	public static final HubbySavePersistentDataHelper getInstance() {
 		if (_instance == null) { 
-			_instance = new SavePersistentDataHelper(); 
+			_instance = new HubbySavePersistentDataHelper(); 
 		}
 		return _instance;
 	}

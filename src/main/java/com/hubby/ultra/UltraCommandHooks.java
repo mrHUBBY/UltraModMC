@@ -1,6 +1,6 @@
 package com.hubby.ultra;
 
-import com.hubby.shared.utils.Utils;
+import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.ConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
 
@@ -65,7 +65,7 @@ public class UltraCommandHooks {
         
     	// If the use pressed the teleport gui key then we want to show that gui
     	// to the player now
-        if (Utils.isKeyPressed(ConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
+        if (HubbyUtils.isKeyPressed(ConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
         	Minecraft.getMinecraft().displayGuiScreen(UltraRegistry.ultraTeleportWaypointGuiScreen);
         }
 

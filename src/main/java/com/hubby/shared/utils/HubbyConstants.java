@@ -1,5 +1,5 @@
 package com.hubby.shared.utils;
 
-public class Constants {
+public class HubbyConstants {
 	public static final String EMPTY_STRING = "";
 }

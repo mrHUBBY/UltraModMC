@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hubby.shared.utils.ConfigHelper;
-import com.hubby.shared.utils.IConfigPropertyListener;
-import com.hubby.shared.utils.StringEx;
-import com.hubby.shared.utils.Utils;
+import com.hubby.shared.utils.HubbyConfigurationHelper;
+import com.hubby.shared.utils.HubbyConfigurationPropertyListenerInterface;
+import com.hubby.shared.utils.HubbyStringEx;
+import com.hubby.shared.utils.HubbyUtils;
 
 import net.minecraft.client.settings.KeyBinding;
 
@@ -18,7 +18,7 @@ import net.minecraftforge.common.config.Property;
  * is encountered during the reading of the config file
  * @author davidleistiko
  */
-public class ConfigPropertyListener implements IConfigPropertyListener {
+public class ConfigPropertyListener implements HubbyConfigurationPropertyListenerInterface {
 	
 	// region - constants
 	public static final String CATEGORY_INPUT = "input";
@@ -69,7 +69,7 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 		// iterate over the list of key bindings by splitting the value
 		// using the appropriate delimiter keys
 		ArrayList<KeyBinding> list = new ArrayList<KeyBinding>();
-		String[] keys = value.split(ConfigHelper.DELIMITER);
+		String[] keys = value.split(HubbyConfigurationHelper.DELIMITER);
 		for (String binding : keys) {
 			String[] nameAndKey = binding.split(KEYBINDING_DELIMITER);
 			String[] keyAndAlias = nameAndKey[1].split(ALTERNATE_DELIMITER);
@@ -78,7 +78,7 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 			KeyBinding keyBinding = new KeyBinding(nameAndKey[0], Integer.parseInt(keyAndAlias[0]), bindingKeyCategory);
 			list.add(keyBinding);
 			
-			Utils.regiterKeyBinding(keyAlias, keyBinding);
+			HubbyUtils.regiterKeyBinding(keyAlias, keyBinding);
 		}
 		return list;
 	}
@@ -89,7 +89,7 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 	private void applyDefaultValues() {
 		
 		// Set the default values for the key bindings
-		ConfigHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS,
+		HubbyConfigurationHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS,
 				"key.rain=19:toggleRainKey," +
 				"key.lights=38:togleLightsKey," +
 				"key.time=44:toggleTimeKey," +

@@ -1,7 +1,7 @@
 package com.hubby.ultra.setup;
 
-import com.hubby.shared.utils.ConfigHelper;
-import com.hubby.shared.utils.DefaultConfigPropertyListener;
+import com.hubby.shared.utils.HubbyConfigurationHelper;
+import com.hubby.shared.utils.HubbyConfigurationPropertyListener;
 import com.hubby.ultra.UltraCommandHooks;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -45,8 +45,8 @@ public class UltraMod {
 
 		//NitroInterface.setupDefaultKeyBindings();
 		
-		ConfigHelper helper = ConfigHelper.getInstance();
-		helper.addPropertyListener(new DefaultConfigPropertyListener());
+		HubbyConfigurationHelper helper = HubbyConfigurationHelper.getInstance();
+		helper.addPropertyListener(new HubbyConfigurationPropertyListener());
 		helper.addPropertyListener(new ConfigPropertyListener());
 		helper.openConfiguration(event.getSuggestedConfigurationFile(), "1.0");
 

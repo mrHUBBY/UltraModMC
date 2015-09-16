@@ -8,6 +8,6 @@ import net.minecraftforge.common.config.Property;
  * @author davidleistiko
  *
  */
-public interface IConfigPropertyListener {
+public interface HubbyConfigurationPropertyListenerInterface {
 	public void onConfigPropertyRead(Property prop, String category, String key, String value, String comment);
 }

@@ -9,19 +9,19 @@ import org.lwjgl.opengl.GL11;
  * to give more control to the user
  * @author davidleistiko
  */
-public class Color {
+public class HubbyColor {
 
 	// region - Constants
-	public static final Color WHITE = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-	public static final Color RED = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-	public static final Color BLUE = new Color(0.0f, 0.0f, 1.0f, 1.0f);
-	public static final Color GREEN = new Color(0.0f, 1.0f, 0.0f, 1.0f);
-	public static final Color SKY_BLUE = new Color(0x3FA2FFFFL, ColorMode.DEFAULT);
-	public static final Color LIGHT_PURPLE = new Color(0xAE7FFFL, ColorMode.DEFAULT);
-	public static final Color BROWN = new Color(0x491B0FL, ColorMode.DEFAULT);
-	public static final Color YELLOW = new Color(0xFFED4CL, ColorMode.DEFAULT);
-	public static final Color PINK = new Color(0xFF9BACL, ColorMode.DEFAULT);
-	public static final Color LIGHT_GREEN = new Color(0x9BFFA0L, ColorMode.DEFAULT);
+	public static final HubbyColor WHITE = new HubbyColor(1.0f, 1.0f, 1.0f, 1.0f);
+	public static final HubbyColor RED = new HubbyColor(1.0f, 0.0f, 0.0f, 1.0f);
+	public static final HubbyColor BLUE = new HubbyColor(0.0f, 0.0f, 1.0f, 1.0f);
+	public static final HubbyColor GREEN = new HubbyColor(0.0f, 1.0f, 0.0f, 1.0f);
+	public static final HubbyColor SKY_BLUE = new HubbyColor(0x3FA2FFFFL, ColorMode.DEFAULT);
+	public static final HubbyColor LIGHT_PURPLE = new HubbyColor(0xAE7FFFL, ColorMode.DEFAULT);
+	public static final HubbyColor BROWN = new HubbyColor(0x491B0FL, ColorMode.DEFAULT);
+	public static final HubbyColor YELLOW = new HubbyColor(0xFFED4CL, ColorMode.DEFAULT);
+	public static final HubbyColor PINK = new HubbyColor(0xFF9BACL, ColorMode.DEFAULT);
+	public static final HubbyColor LIGHT_GREEN = new HubbyColor(0x9BFFA0L, ColorMode.DEFAULT);
 	// endregion
 	
 	// region - Members
@@ -45,7 +45,7 @@ public class Color {
 	 * @param b - the blue value
 	 * @param a - the alpha value
 	 */
-	public Color(float r, float g, float b, float a) {
+	public HubbyColor(float r, float g, float b, float a) {
 		setChannels(r, g, b, a);
 	}
 
@@ -54,7 +54,7 @@ public class Color {
 	 * @param value - the packed color value
 	 * @param isMinecraftColor - should we treat this in a special way
 	 */
-	public Color(long value, ColorMode mode) {
+	public HubbyColor(long value, ColorMode mode) {
 		unpackColor(value, mode);
 	}
 	
@@ -66,10 +66,10 @@ public class Color {
 	 * @param a - the alpha component
 	 */
 	public void setChannels(float r, float g, float b, float a) {
-		_red = Utils.clamp(r, 0.0f, 1.0f);
-		_green = Utils.clamp(g, 0.0f, 1.0f);
-		_blue = Utils.clamp(b, 0.0f, 1.0f);
-		_alpha = Utils.clamp(a, 0.0f, 1.0f);
+		_red = HubbyUtils.clamp(r, 0.0f, 1.0f);
+		_green = HubbyUtils.clamp(g, 0.0f, 1.0f);
+		_blue = HubbyUtils.clamp(b, 0.0f, 1.0f);
+		_alpha = HubbyUtils.clamp(a, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -77,7 +77,7 @@ public class Color {
 	 * @param r - the red value
 	 */
 	public void setRed(float r) {
-		_red = Utils.clamp(r, 0.0f, 1.0f);
+		_red = HubbyUtils.clamp(r, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class Color {
 	 * @param g - the green value
 	 */
 	public void setGreen(float g) {
-		_green = Utils.clamp(g, 0.0f, 1.0f);
+		_green = HubbyUtils.clamp(g, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class Color {
 	 * @param b - the blue value
 	 */
 	public void setBlue(float b) {
-		_blue = Utils.clamp(b, 0.0f, 1.0f);
+		_blue = HubbyUtils.clamp(b, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -101,7 +101,7 @@ public class Color {
 	 * @param a - the alpha value
 	 */
 	public void setAlpha(float a) {
-		_alpha = Utils.clamp(a, 0.0f, 1.0f);
+		_alpha = HubbyUtils.clamp(a, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -149,10 +149,10 @@ public class Color {
 	 */
 	public void convertToSepia() {
 		convertToGrayScale();
-		float r = Utils.clamp(_red * 1.2f, 0.0f, 1.0f);
-		float g = Utils.clamp(_green * 1.0f, 0.0f, 1.0f);
-		float b = Utils.clamp(_blue * 0.8f, 0.0f, 1.0f);
-		float a = Utils.clamp(_alpha, 0.0f, 1.0f);
+		float r = HubbyUtils.clamp(_red * 1.2f, 0.0f, 1.0f);
+		float g = HubbyUtils.clamp(_green * 1.0f, 0.0f, 1.0f);
+		float b = HubbyUtils.clamp(_blue * 0.8f, 0.0f, 1.0f);
+		float a = HubbyUtils.clamp(_alpha, 0.0f, 1.0f);
 		setChannels(r, g, b, a);
 	}
 	
@@ -163,7 +163,7 @@ public class Color {
 	 * @param ratio - how much should we desaturate?
 	 */
 	public void desaturate(float ratio) {
-		ratio = Utils.clamp(ratio, 0.0f, 1.0f);
+		ratio = HubbyUtils.clamp(ratio, 0.0f, 1.0f);
 		float coefficient = (_red * 0.299f) + (_green * 0.587f) + (_blue * 0.114f);
 		float r = (coefficient * ratio) + (_red * (1.0f - ratio));
 		float g = (coefficient * ratio) + (_green * (1.0f - ratio));

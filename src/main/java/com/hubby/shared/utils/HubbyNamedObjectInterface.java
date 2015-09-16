@@ -1,6 +1,6 @@
 package com.hubby.shared.utils;
 
-public interface INamedObject {
+public interface HubbyNamedObjectInterface {
 
 	/**
 	 * Access directly to the field, can be overriden in any classes

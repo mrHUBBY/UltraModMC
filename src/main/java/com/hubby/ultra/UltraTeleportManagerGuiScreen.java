@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
-import com.hubby.shared.utils.Color;
-import com.hubby.shared.utils.Color.ColorMode;
-import com.hubby.shared.utils.InputFilter;
-import com.hubby.shared.utils.SavePersistentDataHelper;
-import com.hubby.shared.utils.Utils;
-import com.hubby.shared.utils.Utils.GradientMode;
+import com.hubby.shared.utils.HubbyColor;
+import com.hubby.shared.utils.HubbyColor.ColorMode;
+import com.hubby.shared.utils.HubbyInputFilter;
+import com.hubby.shared.utils.HubbySavePersistentDataHelper;
+import com.hubby.shared.utils.HubbyUtils;
+import com.hubby.shared.utils.HubbyUtils.GradientMode;
 import com.hubby.ultra.setup.UltraMod;
 
 import net.minecraft.block.Block;
@@ -40,14 +40,14 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
     protected static final int COLOR_INPUT_FIELD_ID = 2;
     protected static final int SIZE_X = 176;
     protected static final int SIZE_Y = 45;
-    protected static final InputFilter KEY_FILTER = new InputFilter("eE");
+    protected static final HubbyInputFilter KEY_FILTER = new HubbyInputFilter("eE");
     // endregion
 
     // region - Members
     protected GuiTextField _inputField = null;
     protected GuiTextField _colorField = null;
-    protected ResourceLocation _backgroundResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_manager_background.png"));
-    protected ResourceLocation _blankResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_blank.png"));
+    protected ResourceLocation _backgroundResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_manager_background.png"));
+    protected ResourceLocation _blankResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_blank.png"));
     // TODO:
     // Is this the right value to use?
     protected RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
@@ -113,7 +113,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         
         // Save any changes that may have occurred while this gui was open
         NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
-        SavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
+        HubbySavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
     }
 
     /** 
@@ -256,7 +256,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         int x1 = (width - SIZE_X) / 2;
         int y1 = (height - SIZE_Y) / 2;
         this.mc.renderEngine.bindTexture(_backgroundResource);
-        Utils.drawTexturedRectHelper(0, x1, y1, SIZE_X, SIZE_Y, 0, 0, SIZE_X, SIZE_Y * (256 / 64));
+        HubbyUtils.drawTexturedRectHelper(0, x1, y1, SIZE_X, SIZE_Y, 0, 0, SIZE_X, SIZE_Y * (256 / 64));
     }
 
     /**
@@ -275,11 +275,11 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         
         // draw name subtitle
         String nameTitle = "Name";
-        this.fontRendererObj.drawStringWithShadow(nameTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 9, (int)Color.LIGHT_GREEN.getPackedColor(ColorMode.DEFAULT));
+        this.fontRendererObj.drawStringWithShadow(nameTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 9, (int)HubbyColor.LIGHT_GREEN.getPackedColor(ColorMode.DEFAULT));
 
         // draw color subtitle
         String colorTitle = "Color";
-        this.fontRendererObj.drawStringWithShadow(colorTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 27, (int)Color.LIGHT_PURPLE.getPackedColor(ColorMode.DEFAULT));
+        this.fontRendererObj.drawStringWithShadow(colorTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 27, (int)HubbyColor.LIGHT_PURPLE.getPackedColor(ColorMode.DEFAULT));
 
         // draw color selection
         String colorStr = _colorField.getText();
@@ -300,12 +300,12 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         int top = (height - SIZE_Y) / 2 + 29;
         int right = left + 16;
         int bottom = top + 9;
-        Color colorOne = new Color((long) colorValue, ColorMode.MINECRAFT);
-        Color colorTwo = new Color((long) colorValue, ColorMode.MINECRAFT);
+        HubbyColor colorOne = new HubbyColor((long) colorValue, ColorMode.MINECRAFT);
+        HubbyColor colorTwo = new HubbyColor((long) colorValue, ColorMode.MINECRAFT);
         colorOne.setAlpha(1.0f);
         colorTwo.setAlpha(1.0f);
         Minecraft.getMinecraft().renderEngine.bindTexture(_blankResource);
-        Utils.drawGradientRectHelper(GradientMode.HORIZONTAL, colorOne, colorTwo, left, top, right, bottom);
+        HubbyUtils.drawGradientRectHelper(GradientMode.HORIZONTAL, colorOne, colorTwo, left, top, right, bottom);
 
         // draw the block we are standing on
         int sX = (width - SIZE_X) / 2 + 148;

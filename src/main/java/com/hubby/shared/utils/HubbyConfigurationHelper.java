@@ -18,18 +18,18 @@ import net.minecraftforge.common.config.Property;
  * from disk that help to determine the behavior of the mod
  * @author davidleistiko
  */
-public class ConfigHelper {
+public class HubbyConfigurationHelper {
 		
 	/**
 	 * The list of registered listeners that will be notified
 	 * when a config property is encountered
 	 */
-	private ArrayList<IConfigPropertyListener> _configListeners = new ArrayList<IConfigPropertyListener>();
+	private ArrayList<HubbyConfigurationPropertyListenerInterface> _configListeners = new ArrayList<HubbyConfigurationPropertyListenerInterface>();
 	
 	/**
 	 * The instance of the config helper used for the singleton pattern
 	 */
-	private static ConfigHelper _instance = null;
+	private static HubbyConfigurationHelper _instance = null;
 	
 	/**
 	 * The instance of the actual configuration file
@@ -47,9 +47,9 @@ public class ConfigHelper {
 	 * to load mod info.
 	 * @return Configuration - the configuration instance
 	 */
-	public static final ConfigHelper getInstance() {
+	public static final HubbyConfigurationHelper getInstance() {
 		if (_instance == null) {
-			_instance = new ConfigHelper();
+			_instance = new HubbyConfigurationHelper();
 		}
 		return _instance;
 	}
@@ -60,7 +60,7 @@ public class ConfigHelper {
 	 * points to a valid minecraft mod configuration file
 	 * @param src
 	 */
-	protected ConfigHelper() {
+	protected HubbyConfigurationHelper() {
 		_config = null;
 	}
 	
@@ -68,7 +68,7 @@ public class ConfigHelper {
 	 * Registers a config property listener
 	 * @param listener - the listener to add
 	 */
-	public void addPropertyListener(IConfigPropertyListener listener) {
+	public void addPropertyListener(HubbyConfigurationPropertyListenerInterface listener) {
 		_configListeners.add(listener);
 	}
 	
@@ -76,7 +76,7 @@ public class ConfigHelper {
 	 * Unregisters a config listener
 	 * @param listener - the listener to remove
 	 */
-	public void removePropertyListener(IConfigPropertyListener listener) {
+	public void removePropertyListener(HubbyConfigurationPropertyListenerInterface listener) {
 		_configListeners.remove(listener);
 	}
 	
@@ -220,7 +220,7 @@ public class ConfigHelper {
 	 * @return boolean - was the setting successful?
 	 */
 	public boolean setPropertyConstraints(String category, String key, String[] constraints) {
-		Property prop = _config.get(category, key, Constants.EMPTY_STRING);
+		Property prop = _config.get(category, key, HubbyConstants.EMPTY_STRING);
 		if (prop == null) {
 			return false;
 		}
@@ -237,7 +237,7 @@ public class ConfigHelper {
 	 * @return boolean - was the setting successful?
 	 */
 	public boolean setPropertyComment(String category, String key, String comment) {
-		Property prop = _config.get(category, key, Constants.EMPTY_STRING);
+		Property prop = _config.get(category, key, HubbyConstants.EMPTY_STRING);
 		if (prop == null) {
 			return false;
 		}
@@ -256,7 +256,7 @@ public class ConfigHelper {
 	 * @param comment - the comment
 	 */
 	private final void notifyListeners(Property prop, String category, String key, String value, String comment) {
-		for (IConfigPropertyListener listener : _configListeners) {
+		for (HubbyConfigurationPropertyListenerInterface listener : _configListeners) {
 			listener.onConfigPropertyRead(prop, category, key, value, comment);
 		}
 	}

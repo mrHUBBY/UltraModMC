@@ -9,8 +9,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableList;
-import com.hubby.shared.utils.SavePersistentDataHelper;
-import com.hubby.shared.utils.Utils;
+import com.hubby.shared.utils.HubbySavePersistentDataHelper;
+import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraMod;
 
 import net.minecraft.block.Block;
@@ -50,11 +50,11 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	public static int cellStartX = 9;
 	public static int cellStartY = 18;
 	private final float textScale = 0.75f;
-	private final static ResourceLocation rl = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_background.png"));
-	private final static ResourceLocation sliderResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_slider.png"));
-	private final static ResourceLocation sliderFullResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_slider_91.png"));
-	private final static ResourceLocation buttonOnResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_delete_button_on.png"));
-	private final static ResourceLocation buttonOffResource = new ResourceLocation(Utils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_delete_button_off.png"));
+	private final static ResourceLocation rl = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_background.png"));
+	private final static ResourceLocation sliderResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_slider.png"));
+	private final static ResourceLocation sliderFullResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_slider_91.png"));
+	private final static ResourceLocation buttonOnResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_delete_button_on.png"));
+	private final static ResourceLocation buttonOffResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_waypoint_delete_button_off.png"));
 
 	private int scrollOffsetX = 68;
 	private int scrollOffsetY = -33;
@@ -83,7 +83,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	    deleteButton = new GuiButton(0, (width - buttonSize) / 2, (height + ySize) / 2 + 12, buttonSize, 20, "Delete Selected Waypoints");
 	    
 	    // load the saved waypoint data to initialize this gui
-	    NBTTagCompound compoundToLoad = SavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
+	    NBTTagCompound compoundToLoad = HubbySavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
 	    UltraTeleportWaypoint.readFromNBT(compoundToLoad);
 	}
 
@@ -201,7 +201,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 		int y1 = (height - ySizeScroll) / 2;
 		
 		// draw the scroll bar
-		Utils.drawTexturedRectHelper(0.0f, x1 + scrollOffsetX, y1 + scrollOffsetY + curScrollValue, xSizeScroll, ySizeScrollToUse, 0, 0, (256 / xTextureSize) * xSizeScroll, (256 / yTextureSize) * ySizeScrollToUse);
+		HubbyUtils.drawTexturedRectHelper(0.0f, x1 + scrollOffsetX, y1 + scrollOffsetY + curScrollValue, xSizeScroll, ySizeScrollToUse, 0, 0, (256 / xTextureSize) * xSizeScroll, (256 / yTextureSize) * ySizeScrollToUse);
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
     			    GL11.glPushMatrix();
                     GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     			    this.mc.renderEngine.bindTexture(selected ? buttonOnResource : buttonOffResource);
-    			    Utils.drawTexturedRectHelper(0, x + cellSizeX + 18, y - 3, 16, 16, 0, 0, 256, 256);
+    			    HubbyUtils.drawTexturedRectHelper(0, x + cellSizeX + 18, y - 3, 16, 16, 0, 0, 256, 256);
     			    GL11.glPopMatrix();
     			}
     			else if (i == 1) {
@@ -513,7 +513,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 		int maxX = minX + xSizeScroll;
 		int minY = (height - ySizeScroll) / 2 + scrollOffsetY + curScrollValue;
 		int maxY = minY + ySizeScroll;
-		return Utils.isWithinRange(mouseX, minX, maxX) && Utils.isWithinRange(mouseY, minY, maxY);
+		return HubbyUtils.isWithinRange(mouseX, minX, maxX) && HubbyUtils.isWithinRange(mouseY, minY, maxY);
 	}
 
 	/**
@@ -613,7 +613,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 		
         // Save any changes that may have occurred while this gui was open
         NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
-        SavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
+        HubbySavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
 	}
 
 	/**
@@ -651,7 +651,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	    int start = this.getStartCell();
 	    index += start;
 	    
-	    boolean inRangeX = Utils.isWithinRange(mouseX, posX, posX + cellSizeX);
+	    boolean inRangeX = HubbyUtils.isWithinRange(mouseX, posX, posX + cellSizeX);
 	    if (index >= 0 && index < UltraTeleportWaypoint.getWaypoints().size() && inRangeX) {
 	        return UltraTeleportWaypoint.getWaypoints().get(index);
 	    }

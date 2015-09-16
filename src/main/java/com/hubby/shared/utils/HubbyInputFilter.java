@@ -13,7 +13,7 @@ import com.google.common.primitives.Chars;
  * their super implementation
  * @author davidleistiko
  */
-public class InputFilter {
+public class HubbyInputFilter {
 
 	// region - Members
 	protected boolean _enabled = true;
@@ -23,14 +23,14 @@ public class InputFilter {
 	/**
 	 * Default constructor
 	 */
-	public InputFilter() {
+	public HubbyInputFilter() {
 	}
 	
 	/**
 	 * Constructor
 	 * @param value - the string of chars to add to the filter
 	 */
-	public InputFilter(String value) {
+	public HubbyInputFilter(String value) {
 		addCharFilter(value);
 	}
 	
@@ -38,7 +38,7 @@ public class InputFilter {
 	 * Constructor
 	 * @param value - the list of characters to add to the filter
 	 */
-	public InputFilter(List<Character> value) {
+	public HubbyInputFilter(List<Character> value) {
 		addCharFilter(value);
 	}
 	
@@ -46,7 +46,7 @@ public class InputFilter {
 	 * Constructor
 	 * @param value - the single character to add to the filter
 	 */
-	public InputFilter(Character value) {
+	public HubbyInputFilter(Character value) {
 		addCharFilter(value);
 	}
 	

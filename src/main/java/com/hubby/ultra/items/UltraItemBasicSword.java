@@ -1,7 +1,7 @@
 package com.hubby.ultra.items;
 
-import com.hubby.shared.utils.INamedObject;
-import com.hubby.shared.utils.Utils;
+import com.hubby.shared.utils.HubbyNamedObjectInterface;
+import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
 
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
  * A custom implementation of a ItemSword
  * @author davidleistiko
  */
-public class UltraItemBasicSword extends ItemSword implements INamedObject {
+public class UltraItemBasicSword extends ItemSword implements HubbyNamedObjectInterface {
 
 	/**
 	 * The name of this item, used for identifying resource files
@@ -38,7 +38,7 @@ public class UltraItemBasicSword extends ItemSword implements INamedObject {
 		this.setCreativeTab(UltraRegistry.ultraCreativeTab);
 		
 		// actually register the item with forge and mc for rendering
-		Utils.registerNamedItem(UltraMod.MOD_ID, this);
+		HubbyUtils.registerNamedItem(UltraMod.MOD_ID, this);
 	}
 	
 	/**

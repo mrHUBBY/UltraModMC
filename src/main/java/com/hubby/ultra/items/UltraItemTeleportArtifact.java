@@ -1,7 +1,7 @@
 package com.hubby.ultra.items;
 
-import com.hubby.shared.utils.INamedObject;
-import com.hubby.shared.utils.Utils;
+import com.hubby.shared.utils.HubbyNamedObjectInterface;
+import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraTeleportManagerGuiScreen;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
@@ -12,7 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
-public class UltraItemTeleportArtifact extends Item implements INamedObject {
+public class UltraItemTeleportArtifact extends Item implements HubbyNamedObjectInterface {
 	
 	/**
 	 * The item name
@@ -27,7 +27,7 @@ public class UltraItemTeleportArtifact extends Item implements INamedObject {
 		this.setCreativeTab(UltraRegistry.ultraCreativeTab);
 		
 		// actually register the item with forge and mc for rendering
-		Utils.registerNamedItem(UltraMod.MOD_ID, this);
+		HubbyUtils.registerNamedItem(UltraMod.MOD_ID, this);
 	}
 	
 	/**

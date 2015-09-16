@@ -7,7 +7,7 @@ import net.minecraftforge.common.config.Property;
  * is encountered during the reading of the config file
  * @author davidleistiko
  */
-public class DefaultConfigPropertyListener implements IConfigPropertyListener {
+public class HubbyConfigurationPropertyListener implements HubbyConfigurationPropertyListenerInterface {
 	/**
 	 * Implementation for the callback listener method. Simply logs the property
 	 * to the console and then returns. Others, can implement their own callback

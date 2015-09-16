@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
  * useful tasks making life a little bit easier
  * @author davidleistiko
  */
-public class Utils {
+public class HubbyUtils {
 	
 	/**
 	 * Enumerate the options for the draw gradient method
@@ -68,10 +68,10 @@ public class Utils {
 	 * to ensure that the item can be properly rendered in-game
 	 * @param obj - the item to be registered
 	 */
-	public static <T extends Item & INamedObject> void registerNamedItem(String modID, T item) {
+	public static <T extends Item & HubbyNamedObjectInterface> void registerNamedItem(String modID, T item) {
 		GameRegistry.registerItem(item, item.getName());
 		RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-		renderItem.getItemModelMesher().register(item, 0, new ModelResourceLocation(Utils.getResourceLocation(modID, item.getName()), INVENTORY_MODEL));
+		renderItem.getItemModelMesher().register(item, 0, new ModelResourceLocation(HubbyUtils.getResourceLocation(modID, item.getName()), INVENTORY_MODEL));
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public class Utils {
      * @param right - the right x position
      * @param bottom - the bottom y position
      */
-    public static void drawGradientRectHelper(GradientMode mode, Color colorOne, Color colorTwo, double left, double top, double right, double bottom) {
+    public static void drawGradientRectHelper(GradientMode mode, HubbyColor colorOne, HubbyColor colorTwo, double left, double top, double right, double bottom) {
 		float r1 = colorOne.getRed();
 		float g1 = colorOne.getGreen();
 		float b1 = colorOne.getBlue();
@@ -251,12 +251,12 @@ public class Utils {
      * @param alpha - the value for the alpha channel
      * @return Color - the random color
      */
-	public static Color getRandomColor(float alpha) {
+	public static HubbyColor getRandomColor(float alpha) {
 		final Random random = new Random();
 		float red = random.nextFloat() % 256.0f;
 		float green = random.nextFloat() % 256.0f;
 		float blue = random.nextFloat() % 256.0f;
-		return new Color(red, green, blue, alpha);
+		return new HubbyColor(red, green, blue, alpha);
 	}
 	
 	/**
