@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 import com.hubby.shared.utils.Color;
 import com.hubby.shared.utils.Color.ColorMode;
 import com.hubby.shared.utils.InputFilter;
+import com.hubby.shared.utils.SavePersistentDataHelper;
 import com.hubby.shared.utils.Utils;
 import com.hubby.shared.utils.Utils.GradientMode;
 import com.hubby.ultra.setup.UltraMod;
@@ -16,10 +17,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
@@ -107,6 +110,10 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
     public void onGuiClosed() {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
+        
+        // Save any changes that may have occurred while this gui was open
+        NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
+        SavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
     }
 
     /** 
@@ -133,7 +140,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         switch (button.id) {
         // When the user clicks the save button, then
         // we get their selected color, name and the player's position
-        // and we build a waypoint structue from that
+        // and we build a waypoint structure from that
         case SAVE_WAYPOINT_BUTTON_ID:
             String waypointName = _inputField.getText();
             String colorStr = _colorField.getText();
@@ -262,6 +269,10 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         String text = "Nitro Waypoint Creator";
         this.drawCenteredString(this.fontRendererObj, text, width / 2, (height - SIZE_Y) / 2 - 18, 0xFFFFFF);
 
+        // This is needed in order to keep the strings and block icon
+        // from rendering a shaded gray color
+        RenderHelper.enableGUIStandardItemLighting();
+        
         // draw name subtitle
         String nameTitle = "Name";
         this.fontRendererObj.drawStringWithShadow(nameTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 9, (int)Color.LIGHT_GREEN.getPackedColor(ColorMode.DEFAULT));
@@ -316,7 +327,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         if (itemToRender == null) {
             itemToRender = Item.getItemFromBlock((Block) Block.blockRegistry.getObject(3));
         }
-
+        
         ItemStack stack = new ItemStack(itemToRender, 1, 0);
         renderItem.renderItemIntoGUI(stack, sX, sY);
         renderItem.renderItemOverlayIntoGUI(this.fontRendererObj, stack, sX, sY, ""); // TODO: is this right to leave the string empty?

@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableList;
+import com.hubby.shared.utils.SavePersistentDataHelper;
 import com.hubby.shared.utils.Utils;
 import com.hubby.ultra.setup.UltraMod;
 
@@ -24,6 +25,7 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
@@ -62,7 +64,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	private int lastScrollPosY = 0;
 	private int selectedCell = -1;
 	private int startCell = 0;
-	private ScaledResolution scaledRes2 = null;
+	private ScaledResolution resolutionResolver = null;
 	private ArrayList<Boolean> selectedList = new ArrayList<Boolean>();
 	private RenderItem itemRender = Minecraft.getMinecraft().getRenderItem();
 	private GuiButton deleteButton = null;
@@ -79,6 +81,10 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	    selectedList.clear();
 
 	    deleteButton = new GuiButton(0, (width - buttonSize) / 2, (height + ySize) / 2 + 12, buttonSize, 20, "Delete Selected Waypoints");
+	    
+	    // load the saved waypoint data to initialize this gui
+	    NBTTagCompound compoundToLoad = SavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
+	    UltraTeleportWaypoint.readFromNBT(compoundToLoad);
 	}
 
 	/**
@@ -139,13 +145,18 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 
-		if (scaledRes2 == null) {
+		if (resolutionResolver == null) {
 			return;
 		}
 
 		drawBackground();
 		drawScrollBar();
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		
+        // This is needed in order to keep the strings and block icon
+        // from rendering a shaded gray color
+        RenderHelper.enableGUIStandardItemLighting();
+        
 		drawWaypoints();
 
 	    // draw the tooltip if we one
@@ -176,7 +187,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	private void drawScrollBar() {
 
 	    scrollOffsetX = 68;
-	    scrollOffsetY = scaledRes2.getScaledHeight() % 2 == 1 ? -33 : -32;
+	    scrollOffsetY = resolutionResolver.getScaledHeight() % 2 == 1 ? -33 : -32;
 
 	    ResourceLocation rl = getContentHeight() > getViewableHeight() ? sliderResource : sliderFullResource;
 	    int ySizeScrollToUse = getContentHeight() > getViewableHeight() ? ySizeScroll : ySizeScrollFull;
@@ -229,7 +240,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 		int x1 = (width - xSize) / 2;
 		int y1 = (height - ySize) / 2;
 
-		float scissorFactor = (float) scaledRes2.getScaleFactor() / 2.0f;
+		float scissorFactor = (float) resolutionResolver.getScaleFactor() / 2.0f;
 
 		int glLeft = (int) ((x1 + 10) * 2.0f * scissorFactor);
 		int glWidth = (int) ((xSize - (10 + 25)) * 2.0f * scissorFactor);
@@ -537,9 +548,9 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		scaledRes2 = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-		this.width = scaledRes2.getScaledWidth();
-		this.height = scaledRes2.getScaledHeight();
+		resolutionResolver = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+		this.width = resolutionResolver.getScaledWidth();
+		this.height = resolutionResolver.getScaledHeight();
 
 		// Handle when the player clicked on a cell
 		if (selectedCell != -1) {
@@ -599,6 +610,10 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	@Override
 	public void onGuiClosed() {
 		super.onGuiClosed();
+		
+        // Save any changes that may have occurred while this gui was open
+        NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
+        SavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
 	}
 
 	/**

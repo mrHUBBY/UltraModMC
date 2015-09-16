@@ -75,7 +75,7 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 			String[] keyAndAlias = nameAndKey[1].split(ALTERNATE_DELIMITER);
 			Integer keyID = Integer.parseInt(keyAndAlias[0]);
 			String keyAlias = keyAndAlias.length > 1 ? keyAndAlias[1] : keyID.toString();
-			KeyBinding keyBinding = new KeyBinding(nameAndKey[0], Integer.parseInt(nameAndKey[1]), bindingKeyCategory);
+			KeyBinding keyBinding = new KeyBinding(nameAndKey[0], Integer.parseInt(keyAndAlias[0]), bindingKeyCategory);
 			list.add(keyBinding);
 			
 			Utils.regiterKeyBinding(keyAlias, keyBinding);
@@ -89,19 +89,30 @@ public class ConfigPropertyListener implements IConfigPropertyListener {
 	private void applyDefaultValues() {
 		
 		// Set the default values for the key bindings
-		ConfigHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS, 
-				StringEx.str(/*
-				key.rain=19:toggleRainKey,
-				key.lights=38:togleLightsKey,
-				key.time=44:toggleTimeKey,
-				key.options=24:openOptionsKey,
-				key.effects=33:toggleEffectsKey,
-				key.backpack=48:openBackpackInvenytoryKey,
-				key.cheat=46:giveCheatsKey,
-				key.teleport=45:openTeleportGuiKey,
-				key.everything=47:openEverythingInventoryKey,
-				key.super=25:openSuperInventoryKey,
-				key.nightGoggles=34:toggleNightGogglesKey
-				*/));
+		ConfigHelper.getInstance().setPropertyDefaultValue(CATEGORY_INPUT, KEY_KEYBINDINGS,
+				"key.rain=19:toggleRainKey," +
+				"key.lights=38:togleLightsKey," +
+				"key.time=44:toggleTimeKey," +
+				"key.options=24:openOptionsKey," +
+				"key.effects=33:toggleEffectsKey," +
+				"key.backpack=48:openBackpackInvenytoryKey," +
+				"key.cheat=46:giveCheatsKey," +
+				"key.teleport=45:openTeleportGuiKey," +
+				"key.everything=47:openEverythingInventoryKey," +
+				"key.super=25:openSuperInventoryKey," +
+				"key.nightGoggles=34:toggleNightGogglesKey");
+//				StringEx.str(/*
+//				key.rain=19:toggleRainKey,
+//				key.lights=38:togleLightsKey,
+//				key.time=44:toggleTimeKey,
+//				key.options=24:openOptionsKey,
+//				key.effects=33:toggleEffectsKey,
+//				key.backpack=48:openBackpackInvenytoryKey,
+//				key.cheat=46:giveCheatsKey,
+//				key.teleport=45:openTeleportGuiKey,
+//				key.everything=47:openEverythingInventoryKey,
+//				key.super=25:openSuperInventoryKey,
+//				key.nightGoggles=34:toggleNightGogglesKey
+//				*/));
 	}
 }

@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 /**
@@ -79,6 +81,7 @@ public class Utils {
 	 * @param binding - the actual binding
 	 */
 	public static void regiterKeyBinding(String alias, KeyBinding binding) {
+	    ClientRegistry.registerKeyBinding(binding);
 		KEY_BINDINGS.put(alias, binding);
 	}
 	
