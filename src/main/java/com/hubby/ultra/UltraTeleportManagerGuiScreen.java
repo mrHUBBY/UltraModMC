@@ -34,24 +34,24 @@ import net.minecraft.util.ResourceLocation;
  */
 public class UltraTeleportManagerGuiScreen extends GuiScreen {
 
-	// region - Constants
+	/**
+	 * Constant values
+	 */
     protected static final int SAVE_WAYPOINT_BUTTON_ID = 0;
     protected static final int NAME_INPUT_FIELD_ID = 1;
     protected static final int COLOR_INPUT_FIELD_ID = 2;
     protected static final int SIZE_X = 176;
     protected static final int SIZE_Y = 45;
     protected static final HubbyInputFilter KEY_FILTER = new HubbyInputFilter("eE");
-    // endregion
 
-    // region - Members
+    /**
+     * Members
+     */
     protected GuiTextField _inputField = null;
     protected GuiTextField _colorField = null;
     protected ResourceLocation _backgroundResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_manager_background.png"));
     protected ResourceLocation _blankResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_blank.png"));
-    // TODO:
-    // Is this the right value to use?
     protected RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-    // endregion
 
     /**
      * Default constructor
@@ -310,14 +310,15 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         // draw the block we are standing on
         int sX = (width - SIZE_X) / 2 + 148;
         int sY = (height - SIZE_Y) / 2 + 6;
-        BlockPos pos = UltraCommandHooks.theServerPlayer.getPosition();
+        //BlockPos pos = UltraCommandHooks.theServerPlayer.getPosition();
+        BlockPos pos = HubbyUtils.getServerPlayer().getPosition();
         Item itemToRender = null;
         int yOffset = -1;
 
         // determine first block beneath the player's feet
         while (itemToRender == null && yOffset > (int)-pos.getY()) {
         	BlockPos offsetPos = pos.add(0, yOffset, 0.0f);
-            Block block = UltraCommandHooks.theServerWorld.getBlockState(offsetPos).getBlock();
+            Block block = HubbyUtils.getServerWorld().getBlockState(offsetPos).getBlock();
             if (block != null) {
                 itemToRender = Item.getItemFromBlock(block);
             }

@@ -21,16 +21,20 @@ public class UltraRegistry {
 	 */
 	public static CreativeTabs ultraCreativeTab =  null;
 	
-	// region - Materials
+	/**
+	 * Materials
+	 */
 	public static ToolMaterial ultraToolMaterial = null;
-	// endregion
-	
-	// region - Items
+
+	/**
+	 * Items
+	 */
 	public static UltraItemBasicSword ultraItemBasicSword = null;
 	public static UltraItemTeleportArtifact ultraItemTeleportArtifact = null;
-	// endregion
-	
-	// region - GuiScreen's
+
+	/**
+	 * GuiScreens
+	 */
 	public static UltraTeleportWaypointGuiScreen ultraTeleportWaypointGuiScreen = null;
 	
 	/**
@@ -40,8 +44,9 @@ public class UltraRegistry {
 	 */
 	public static void register() {
 
-		// creates the ultra creative tab that will be used by all ultra items
-		// as the tab that they render on when viewing the inventory in creative mode
+	    /**
+	     * Creative-tabs
+	     */
 		ultraCreativeTab = new CreativeTabs(UltraMod.MOD_NAME) {
 			@Override
 			public Item getTabIconItem() {
@@ -49,17 +54,20 @@ public class UltraRegistry {
 			}
 		};
 		
-		// region - Materials
+		/**
+		 * Materials
+		 */
 		ultraToolMaterial = EnumHelper.addToolMaterial(UltraMod.MOD_NAME, 3, 500, 20.0F, 20.0F, 25);
-		// endregion
-		
-		// region - Items
+
+		/**
+		 * Items
+		 */
 		ultraItemBasicSword = new UltraItemBasicSword(ultraToolMaterial);
 		ultraItemTeleportArtifact = new UltraItemTeleportArtifact();
-		// endregion
-		
-		// region - Gui Screens
+
+		/**
+		 * GuiScreens
+		 */
 		ultraTeleportWaypointGuiScreen = new UltraTeleportWaypointGuiScreen();
-		// endregion
 	}
 }

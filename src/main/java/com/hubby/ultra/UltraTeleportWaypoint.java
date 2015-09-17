@@ -19,7 +19,9 @@ import net.minecraft.util.BlockPos;
  */
 public class UltraTeleportWaypoint {
 
-	// region - Members
+	/**
+	 * Members
+	 */
 	protected BlockPos _pos;
 	protected int _id;
 	protected HubbyColor _color;
@@ -30,12 +32,12 @@ public class UltraTeleportWaypoint {
 	protected static boolean _loaded = false;
 	protected static boolean _hasChanges = false;
 	protected static int _idCounter = 1;
-	// endregion
 
-	// region - Constants
+	/**
+	 * Constants
+	 */
 	private static final ArrayList<UltraTeleportWaypoint> WAYPOINTS = new ArrayList<UltraTeleportWaypoint>();
 	public static final String SAVE_FILENAME = "nitroTeleportData.dat";
-	// endregion
 
 	/**
 	 * Constructor

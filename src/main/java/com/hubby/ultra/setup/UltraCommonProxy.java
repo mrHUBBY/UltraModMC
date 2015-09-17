@@ -7,13 +7,22 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
-public class CommonProxy implements IGuiHandler {
+/**
+ * The proxy used for the server
+ * @author davidleistiko
+ */
+public class UltraCommonProxy implements IGuiHandler {
 
-    // Client stuff
+    /**
+     * Register any renderers used
+     */
     public void registerRenderers() {
     	// Nothing here as the server doesn't render graphics or entities!
     }
 
+    /**
+     * Get the server gui element at the specified position
+     */
    	 @Override
      public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
    		 BlockPos pos = new BlockPos(x, y, z);
@@ -30,7 +39,9 @@ public class CommonProxy implements IGuiHandler {
          return null;
      }
 
-     //returns an instance of the Gui you made earlier
+   	 /**
+   	  * Get the client side gui element
+   	  */
      @Override
      public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
     	 BlockPos pos = new BlockPos(x, y, z);
@@ -45,8 +56,18 @@ public class CommonProxy implements IGuiHandler {
          return null;
      }
 
-     // Register packet handler
+     /**
+      * Register any needed packet handlers
+      */
      public void registerPacketHandler() {
 // 		NitroInterface.networkChannel.register(new NitroServerPacketHandler());
+     }
+     
+     /**
+      * Return if we are in single player mode
+      * @return boolean - always return false for the server
+      */
+     public boolean isSinglePlayer() {
+         return false;
      }
 }

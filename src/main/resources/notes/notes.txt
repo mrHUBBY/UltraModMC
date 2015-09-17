@@ -1,0 +1,28 @@
+Minecraft Notres
+----------------------------------------------------------------------------------------------------
+1) Running mc-server
+   a) Download the server jar from https://mcversions.net/ or https://minecraft.net
+   b) java -Xmx1024M -Xms1024M -jar minecraft_server.1.8.jar
+   c) modify eula.txt by setting 'eula=true'
+   d) java -Xmx1024M -Xms1024M -jar minecraft_server.1.8.jar
+   e) modify server.properties by setting 'online-mode=false' (this is needed to connect to server in forge)
+   f) run Minecraft
+   g) choose Multiplayer
+   h) choose Add Server
+   i) set server address to 'localhost'
+   j) connect to your server and enjoy
+
+2) Decompiling Minecraft Source
+   a) download MinecraftCoderPack (MCP) at http://www.modcoderpack.com/website/releases
+   b) copy minecraft.jar file
+      1) /sers/davidleistiko/Library/Application\ Support/minecraft/versions/1.8/1.8.jar
+   c) make sure we are using python2.7 as the scripts depend on it
+   d) ./decompile.sh 1.8.jar
+   e) source files found in ./src/minecraft (with this folder living wherever you ran the
+      decompile command)
+
+
+
+ Things to remember
+ ----------------------------------------------------------------------------------------------------
+ 1) CommandHandler

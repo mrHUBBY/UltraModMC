@@ -1,17 +1,13 @@
 package com.hubby.shared.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Callable;
-
-import net.minecraft.client.settings.KeyBinding;
 
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.common.config.Property.Type;
 
 /**
  * This class is responsible for loading the configurations
@@ -113,6 +109,8 @@ public class HubbyConfigurationHelper {
 	 * that they can respond to the loaded properties
 	 */
 	protected void parseConfigurationFile() {
+		
+		attemptToGenerateDefaultConfigurationFile();
 
 		// iterate over all categories and keys to read in all
 		// configuration properties, passing these values along
@@ -125,7 +123,7 @@ public class HubbyConfigurationHelper {
 				Property prop = category.get(key);
 				String value = prop.getString();
 				String comment = prop.comment;
-				notifyListeners(prop, cat, key, value, comment);
+				notifyListeners(prop, cat, key, value, prop.getType(), comment);
 			}
 		}
 		
@@ -134,13 +132,27 @@ public class HubbyConfigurationHelper {
 		// the listeners with a null Property indicates that the listeners should
 		// apply their default values
 		if (categories.size() == 0) {
-			notifyListeners(null, "", "", "", "");
+			notifyListeners(null, "", "", "", null, "");
 		}
 		
 		// finally, we save the configuration file so that any default
 		// values that were written to the config will now be saved as
 		// part of the config, ready for future use
 		_config.save();
+	}
+	
+	/**
+	 * This function tries to collect information about all of the categories
+	 * and properties for those categories. In the case that the config file
+	 * is empty, this class will call all of the config listeners, expecting them
+	 * to add their default values if they have any
+	 */
+	protected void attemptToGenerateDefaultConfigurationFile() {
+		getCategories();
+		Set<String> categories = _config.getCategoryNames();
+		for (String cat : categories) {
+			getPropertiesForCategory(cat);
+		}
 	}
 	
 	/**
@@ -157,7 +169,7 @@ public class HubbyConfigurationHelper {
 		// from adding a new property if it currently does not exist.
 		// If you want to add missing properties then call 'addProperty' instead
 		Property prop = _config.get(category, key, (String)null, comment);
-		notifyListeners(prop, category, key, prop.getString(), comment);
+		notifyListeners(prop, category, key, prop.getString(), prop.getType(), comment);
 		_config.save();
 		return prop;
 	}
@@ -172,7 +184,7 @@ public class HubbyConfigurationHelper {
 	 */
 	public Property addProperty(String category, String key, String defaultValue, String comment) {
 		Property prop = _config.get(category, key, defaultValue, comment);
-		notifyListeners(prop, category, key, prop.getString(), comment);
+		notifyListeners(prop, category, key, prop.getString(), prop.getType(), comment);
 		_config.save();
 		return prop;
 	}
@@ -247,6 +259,45 @@ public class HubbyConfigurationHelper {
 	}
 	
 	/**
+	 * Returns a list of all category names
+	 * @return ArrayList - the category names
+	 */
+	public ArrayList<String> getCategories() {
+		Set<String> categories = _config.getCategoryNames();
+		if (categories.size() == 0) {
+			boolean created = false;
+			for (HubbyConfigurationPropertyListenerInterface listener : _configListeners) {
+				created |= listener.createDefaultCategories(_config);
+			}
+			return created ? getCategories() : new ArrayList<String>();
+		}
+		return new ArrayList<String>(categories);
+	}
+	
+	/**
+	 * Returns a list of property names for the category passed in. In the
+	 * case that the category does not exist an empty list is returned
+	 * @param category - the name of the category
+	 * @return ArrayList - the list of properties for the specified category
+	 */
+	public ArrayList<String> getPropertiesForCategory(String category) {
+		ArrayList<String> cats = getCategories();
+		if (cats.contains(category)) {
+			ConfigCategory configCategory = _config.getCategory(category);
+			Set<String> keys = configCategory.keySet();
+			if (keys.size() == 0) {
+				boolean created = false;
+				for (HubbyConfigurationPropertyListenerInterface listener : _configListeners) {
+					created |= listener.createDefaultPropertiesForCategory(_config, category);
+				}
+				return created ? getPropertiesForCategory(category) : new ArrayList<String>();
+			}
+			return new ArrayList<String>(configCategory.keySet());
+		}
+		return new ArrayList<String>();
+	}
+	
+	/**
 	 * Helper routine that notifies all listeners about the property
 	 * passed in
 	 * @param prop - the property we are examining
@@ -255,9 +306,15 @@ public class HubbyConfigurationHelper {
 	 * @param value - the value for the prop
 	 * @param comment - the comment
 	 */
-	private final void notifyListeners(Property prop, String category, String key, String value, String comment) {
+	private final void notifyListeners(Property prop, String category, String key, String value, Type type, String comment) {
+		// nothing to do without a valid property
+		if (prop == null) {
+			return;
+		}
+		
+		// notify all listeners about the property that was just parsed
 		for (HubbyConfigurationPropertyListenerInterface listener : _configListeners) {
-			listener.onConfigPropertyRead(prop, category, key, value, comment);
+			listener.onConfigPropertyRead(prop, category, key, value, type, comment);
 		}
 	}
 }

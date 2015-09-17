@@ -1,12 +1,10 @@
 package com.hubby.ultra;
 
 import com.hubby.shared.utils.HubbyUtils;
-import com.hubby.ultra.setup.ConfigPropertyListener;
+import com.hubby.ultra.setup.UltraConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -18,9 +16,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class UltraCommandHooks {
 
     private double lastFireArmorParticleTime = 0.0F;
-    
-    public static EntityPlayerMP theServerPlayer = null;
-    public static World theServerWorld = null;
 
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
@@ -28,9 +23,21 @@ public class UltraCommandHooks {
         //NitroInterface.nitroWorld = event.player.worldObj;
         //NitroSuperGui.loadUtilityInventory();
     }
+    
+    @SubscribeEvent
+    public void onServerTickEvent(TickEvent.ServerTickEvent event) {
+    }
 
+    /**
+     * This function to called each time a tick occurs in the
+     * minecraft world. We can use this function to generate a
+     * delta time and elapsed time which we can use for things
+     * that need per frame updating.
+     * @param event
+     */
     @SubscribeEvent
     public void onTickEvent(TickEvent.ClientTickEvent event) {
+         //int seconds = HubbyUtils.
 
 //        // Update our delta time
 //        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-2"));
@@ -65,7 +72,7 @@ public class UltraCommandHooks {
         
     	// If the use pressed the teleport gui key then we want to show that gui
     	// to the player now
-        if (HubbyUtils.isKeyPressed(ConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
+        if (HubbyUtils.isKeyPressed(UltraConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
         	Minecraft.getMinecraft().displayGuiScreen(UltraRegistry.ultraTeleportWaypointGuiScreen);
         }
 
@@ -116,17 +123,13 @@ public class UltraCommandHooks {
 //            NitroItemNightGoggles.gogglesOn = !NitroItemNightGoggles.gogglesOn;
 //        }
     }
+    
+    @SubscribeEvent
+    public void onWorldTickEvent(TickEvent.WorldTickEvent event) {
+    }
 
     @SubscribeEvent
     public void onPlayerTickEvent(TickEvent.PlayerTickEvent event) throws Exception {
-
-    	// TODO:
-    	// Find out the right way to get the instance of the server player??
-    	if (event.player instanceof EntityPlayerMP) {
-    		UltraCommandHooks.theServerPlayer = (EntityPlayerMP)event.player;
-    		UltraCommandHooks.theServerWorld = UltraCommandHooks.theServerPlayer.worldObj;
-    	}
-    	
     	
 //        if (event.player instanceof EntityPlayerMP
 //            && NitroInterface.nitroServerPlayer == null) {

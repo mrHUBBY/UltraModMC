@@ -1,6 +1,6 @@
 package com.hubby.shared.utils;
 
-import java.util.Properties;
+import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
@@ -11,7 +11,9 @@ import org.lwjgl.opengl.GL11;
  */
 public class HubbyColor {
 
-	// region - Constants
+	/**
+	 * Constants
+	 */
 	public static final HubbyColor WHITE = new HubbyColor(1.0f, 1.0f, 1.0f, 1.0f);
 	public static final HubbyColor RED = new HubbyColor(1.0f, 0.0f, 0.0f, 1.0f);
 	public static final HubbyColor BLUE = new HubbyColor(0.0f, 0.0f, 1.0f, 1.0f);
@@ -22,21 +24,37 @@ public class HubbyColor {
 	public static final HubbyColor YELLOW = new HubbyColor(0xFFED4CL, ColorMode.DEFAULT);
 	public static final HubbyColor PINK = new HubbyColor(0xFF9BACL, ColorMode.DEFAULT);
 	public static final HubbyColor LIGHT_GREEN = new HubbyColor(0x9BFFA0L, ColorMode.DEFAULT);
-	// endregion
-	
-	// region - Members
+
+	/**
+	 * Members
+	 */
 	protected float _red = 1.0f;
 	protected float _green = 1.0f;
 	protected float _blue = 1.0f;
 	protected float _alpha = 1.0f;
-	// endregion
-	
-	// region - Enums
+
+	/**
+	 * Enumeration for color-modes
+	 * @author davidleistiko
+	 *
+	 */
 	public enum ColorMode {
 		DEFAULT,
 		MINECRAFT
 	}
-	// endregion
+	
+    /**
+     * Returns a pseudo-randomly generated color value with a specific alpha
+     * @param alpha - the value for the alpha channel
+     * @return Color - the random color
+     */
+    public static HubbyColor getRandomColor(float alpha) {
+        final Random random = new Random(System.currentTimeMillis());
+        float r = ((random.nextInt() % 256) / 255.0f);
+        float g = ((random.nextInt() % 256) / 255.0f);
+        float b = ((random.nextInt() % 256) / 255.0f);
+        return new HubbyColor(r, g, b, alpha);
+    }
 
 	/**
 	 * Constructor that takes in specific values for each color channel
@@ -66,10 +84,10 @@ public class HubbyColor {
 	 * @param a - the alpha component
 	 */
 	public void setChannels(float r, float g, float b, float a) {
-		_red = HubbyUtils.clamp(r, 0.0f, 1.0f);
-		_green = HubbyUtils.clamp(g, 0.0f, 1.0f);
-		_blue = HubbyUtils.clamp(b, 0.0f, 1.0f);
-		_alpha = HubbyUtils.clamp(a, 0.0f, 1.0f);
+		_red = HubbyMath.clamp(r, 0.0f, 1.0f);
+		_green = HubbyMath.clamp(g, 0.0f, 1.0f);
+		_blue = HubbyMath.clamp(b, 0.0f, 1.0f);
+		_alpha = HubbyMath.clamp(a, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -77,7 +95,7 @@ public class HubbyColor {
 	 * @param r - the red value
 	 */
 	public void setRed(float r) {
-		_red = HubbyUtils.clamp(r, 0.0f, 1.0f);
+		_red = HubbyMath.clamp(r, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -85,7 +103,7 @@ public class HubbyColor {
 	 * @param g - the green value
 	 */
 	public void setGreen(float g) {
-		_green = HubbyUtils.clamp(g, 0.0f, 1.0f);
+		_green = HubbyMath.clamp(g, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -93,7 +111,7 @@ public class HubbyColor {
 	 * @param b - the blue value
 	 */
 	public void setBlue(float b) {
-		_blue = HubbyUtils.clamp(b, 0.0f, 1.0f);
+		_blue = HubbyMath.clamp(b, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -101,7 +119,7 @@ public class HubbyColor {
 	 * @param a - the alpha value
 	 */
 	public void setAlpha(float a) {
-		_alpha = HubbyUtils.clamp(a, 0.0f, 1.0f);
+		_alpha = HubbyMath.clamp(a, 0.0f, 1.0f);
 	}
 	
 	/**
@@ -149,10 +167,10 @@ public class HubbyColor {
 	 */
 	public void convertToSepia() {
 		convertToGrayScale();
-		float r = HubbyUtils.clamp(_red * 1.2f, 0.0f, 1.0f);
-		float g = HubbyUtils.clamp(_green * 1.0f, 0.0f, 1.0f);
-		float b = HubbyUtils.clamp(_blue * 0.8f, 0.0f, 1.0f);
-		float a = HubbyUtils.clamp(_alpha, 0.0f, 1.0f);
+		float r = HubbyMath.clamp(_red * 1.2f, 0.0f, 1.0f);
+		float g = HubbyMath.clamp(_green * 1.0f, 0.0f, 1.0f);
+		float b = HubbyMath.clamp(_blue * 0.8f, 0.0f, 1.0f);
+		float a = HubbyMath.clamp(_alpha, 0.0f, 1.0f);
 		setChannels(r, g, b, a);
 	}
 	
@@ -163,7 +181,7 @@ public class HubbyColor {
 	 * @param ratio - how much should we desaturate?
 	 */
 	public void desaturate(float ratio) {
-		ratio = HubbyUtils.clamp(ratio, 0.0f, 1.0f);
+		ratio = HubbyMath.clamp(ratio, 0.0f, 1.0f);
 		float coefficient = (_red * 0.299f) + (_green * 0.587f) + (_blue * 0.114f);
 		float r = (coefficient * ratio) + (_red * (1.0f - ratio));
 		float g = (coefficient * ratio) + (_green * (1.0f - ratio));

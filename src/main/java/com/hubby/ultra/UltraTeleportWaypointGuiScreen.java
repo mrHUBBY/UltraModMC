@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableList;
+import com.hubby.shared.utils.HubbyMath;
 import com.hubby.shared.utils.HubbySavePersistentDataHelper;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraMod;
@@ -22,7 +23,6 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,6 +38,9 @@ import net.minecraft.world.World;
  */
 public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 
+    /**
+     * Members
+     */
 	public final static int guiID = 100;
 	public final static int xSize = 164;
 	public final static int ySize = 116;
@@ -513,7 +516,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 		int maxX = minX + xSizeScroll;
 		int minY = (height - ySizeScroll) / 2 + scrollOffsetY + curScrollValue;
 		int maxY = minY + ySizeScroll;
-		return HubbyUtils.isWithinRange(mouseX, minX, maxX) && HubbyUtils.isWithinRange(mouseY, minY, maxY);
+		return HubbyMath.isWithinRange(mouseX, minX, maxX) && HubbyMath.isWithinRange(mouseY, minY, maxY);
 	}
 
 	/**
@@ -554,10 +557,10 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 
 		// Handle when the player clicked on a cell
 		if (selectedCell != -1) {
-			// make sure we have our player
-			// TODO:
-			// How do you get the server player?
-			if (UltraCommandHooks.theServerPlayer != null) {
+		    
+			// make sure we have our player or otherwise we will
+		    // not be able to set the correct position for the player
+			if (HubbyUtils.getServerPlayer() != null) {
 				int cellIndex = startCell + selectedCell;
 				if (cellIndex < UltraTeleportWaypoint.getWaypointCount()) {
 				    UltraTeleportWaypoint p = UltraTeleportWaypoint.getWaypoints().get(cellIndex);
@@ -567,10 +570,8 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 				    float yaw = p.getRotationY();
 				    float pitch = p.getRotationX();
 
-				    // TODO:
-				    // Get the client world
-				    //World w = NitroInterface.nitroClientWorld;
-				    World world = Minecraft.getMinecraft().theWorld;
+				    // Get the client world to be able to find the proper block for teleporting
+				    World world = HubbyUtils.getClientWorld();
 				    if (world != null) {
 				        while (true) {
 				        	BlockPos pos = new BlockPos(posX, posY, posZ);
@@ -581,7 +582,10 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 				        }
 				    }
 
-				    ((EntityPlayerMP)UltraCommandHooks.theServerPlayer).playerNetServerHandler.setPlayerLocation(posX, posY, posZ, yaw, pitch);
+				    // Update the player's location on the server and then
+				    // that will pass down to the client player and update his
+				    // position as well
+				    HubbyUtils.getServerPlayer().playerNetServerHandler.setPlayerLocation(posX, posY, posZ, yaw, pitch);
 				}
 			}
 
@@ -651,7 +655,7 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
 	    int start = this.getStartCell();
 	    index += start;
 	    
-	    boolean inRangeX = HubbyUtils.isWithinRange(mouseX, posX, posX + cellSizeX);
+	    boolean inRangeX = HubbyMath.isWithinRange(mouseX, posX, posX + cellSizeX);
 	    if (index >= 0 && index < UltraTeleportWaypoint.getWaypoints().size() && inRangeX) {
 	        return UltraTeleportWaypoint.getWaypoints().get(index);
 	    }

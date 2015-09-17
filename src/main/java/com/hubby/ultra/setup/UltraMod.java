@@ -13,8 +13,11 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-//import cpw.mods.fml.common.network.NetworkMod; // not used in 1.7
-
+/**
+ * The primary mod class that sets the required data to register
+ * the mod with forge
+ * @author davidleistiko
+ */
 @Mod(modid = "ultramod", name = "The Ultra MOD", version = "1.8")
 // @NetworkMod(clientSideRequired=true) // not used in 1.7
 public class UltraMod {
@@ -24,14 +27,18 @@ public class UltraMod {
 	public static UltraMod instance;
 
 	// Says where the client and server 'proxy' code is loaded.
-	@SidedProxy(clientSide = "com.hubby.ultra.setup.client.ClientProxy", serverSide = "com.hubby.ultra.setup.CommonProxy")
-	public static CommonProxy proxy;
+	@SidedProxy(clientSide = "com.hubby.ultra.setup.client.UltraClientProxy", serverSide = "com.hubby.ultra.setup.UltraCommonProxy")
+	public static UltraCommonProxy proxy;
 	
 	// Access to the information about this MOD
 	public static final String MOD_ID = UltraMod.class.getAnnotation(Mod.class).modid();
 	public static final String MOD_VERSION = UltraMod.class.getAnnotation(Mod.class).version();
 	public static final String MOD_NAME = "ultra";
 
+	/**
+	 * Pre-init method called to register for events
+	 * @param event - the init event
+	 */
 	@EventHandler
 	// used in 1.6.2
 	// @PreInit // used in 1.5.2
@@ -47,7 +54,7 @@ public class UltraMod {
 		
 		HubbyConfigurationHelper helper = HubbyConfigurationHelper.getInstance();
 		helper.addPropertyListener(new HubbyConfigurationPropertyListener());
-		helper.addPropertyListener(new ConfigPropertyListener());
+		helper.addPropertyListener(new UltraConfigPropertyListener());
 		helper.openConfiguration(event.getSuggestedConfigurationFile(), "1.0");
 
 		// Register custom event hooks
@@ -56,6 +63,11 @@ public class UltraMod {
 		//MinecraftForge.EVENT_BUS.register(new NitroRenderEntityPlayer());
 	}
 
+	/**
+	 * The actual init method
+	 * @param event - the init method
+	 * @throws Exception
+	 */
 	@EventHandler
 	// used in 1.6.2
 	// @Init // used in 1.5.2
@@ -193,6 +205,10 @@ public class UltraMod {
 		proxy.registerPacketHandler();
 	}
 
+	/**
+	 * The post init method
+	 * @param event - the event
+	 */
 	@EventHandler
 	// used in 1.6.2
 	// @PostInit // used in 1.5.2

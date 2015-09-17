@@ -1,6 +1,5 @@
 package com.hubby.shared.utils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,10 +14,11 @@ import com.google.common.primitives.Chars;
  */
 public class HubbyInputFilter {
 
-	// region - Members
+	/**
+	 * Members
+	 */
 	protected boolean _enabled = true;
 	protected Set<Character> _filteredCharList = new HashSet<Character>(32);
-	// endregion
 	
 	/**
 	 * Default constructor
