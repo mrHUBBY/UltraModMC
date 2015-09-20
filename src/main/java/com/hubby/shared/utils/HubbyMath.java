@@ -70,4 +70,25 @@ public class HubbyMath {
         double msd = (double)ms;
         return msd / 1000.0D;
     }
+    
+    /**
+     * Returns the full ticks that have elasped based on the
+     * number of seconds passed in
+     * @param seconds
+     * @return
+     */
+    public static Integer secondsToTicks(double seconds) {
+        return (int)Math.floor(seconds * HubbyConstants.TICKS_PER_SECOND);
+    }
+    
+    /**
+     * Returns the partial ticks which is the value after
+     * the decimal point for the number of seconds that have elapsed
+     * @param seconds - the number of seconds to convert
+     * @return
+     */
+    public static Double secondsToPartialTicks(double seconds) {
+        double ticks = seconds * HubbyConstants.TICKS_PER_SECOND;
+        return ticks - Math.floor(ticks);
+    }
 }

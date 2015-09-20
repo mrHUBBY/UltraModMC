@@ -167,11 +167,27 @@ public abstract class HubbyRefreshedObjectInterface {
         for (Integer priority : sortedKeys) {
             List<HubbyRefreshedObjectInterface> listForPriority = _registeredObjects.get(priority);
             for (HubbyRefreshedObjectInterface obj : listForPriority) {
-
-                // actually refresh the object
                 obj.refresh(_deltaTime, _elapsedTime);
             }
         }
+    }
+    
+    /**
+     * Returns the elapsed time in full ticks
+     * @return Integer - the number of full ticks that have elapsed
+     */
+    public static Integer getElapsedTicks() {
+        double seconds = HubbyMath.msToSeconds(_elapsedTime);
+        return HubbyMath.secondsToTicks(seconds);
+    }
+    
+    /**
+     * Returns the elapsed time in partial ticks
+     * @return Double - the partial ticks for the elapsed time
+     */
+    public static Double getElapsedPartialTicks() {
+        double seconds = HubbyMath.msToSeconds(_elapsedTime);
+        return HubbyMath.secondsToPartialTicks(seconds);
     }
 
     /**
