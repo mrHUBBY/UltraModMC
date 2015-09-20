@@ -2,6 +2,7 @@ package com.hubby.ultra.setup;
 
 import com.hubby.shared.utils.HubbyConfigurationHelper;
 import com.hubby.shared.utils.HubbyConfigurationPropertyListener;
+import com.hubby.shared.utils.HubbyRefreshedObjectInterface;
 import com.hubby.ultra.UltraCommandHooks;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -76,8 +77,12 @@ public class UltraMod {
 		// Register renderers
 		proxy.registerRenderers();
 		
+		// register all items, blocks, materials, recipes, armor
 		UltraRegistry.register();
-
+		
+		// Begin giving update calls to any refreshed objects that need it
+		HubbyRefreshedObjectInterface.start();
+		
 		//NitroInterface.registerFluids();
 
 		// Register blocks

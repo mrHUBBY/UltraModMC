@@ -60,4 +60,14 @@ public class HubbyMath {
     public static boolean isWithinRange(float value, float min, float max) {
         return value >= min && value <= max;
     }
+    
+    /**
+     * Convert long milliseconds to double seconds
+     * @param ms - the number of milliseconds
+     * @return double - the converted number of seconds
+     */
+    public static double msToSeconds(Long ms) {
+        double msd = (double)ms;
+        return msd / 1000.0D;
+    }
 }
