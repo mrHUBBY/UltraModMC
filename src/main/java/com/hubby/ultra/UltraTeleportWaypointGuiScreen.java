@@ -128,14 +128,15 @@ public class UltraTeleportWaypointGuiScreen extends GuiScreen {
      * that have been flagged for deletion
      */
 	private void deleteSelectedWaypoints() {
+	    ArrayList<String> waypointsToRemove = new ArrayList<String>();
 	    int size = selectedList.size();
 	    for (int i = selectedList.size() - 1; i >= 0; --i) {
             boolean selected = selectedList.get(i);
             if (selected) {
-                selectedList.remove(i);
-                UltraTeleportWaypoint.getWaypoints().remove(i);
+                waypointsToRemove.add(UltraTeleportWaypoint.getWaypoints().get(i).getWaypointName());
             }
         }
+	    UltraTeleportWaypoint.removeWaypoints(waypointsToRemove);
 	    UltraTeleportWaypoint.notufyHasChanges();
 	}
 

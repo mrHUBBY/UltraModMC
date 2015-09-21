@@ -43,6 +43,8 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
     protected static final int SIZE_X = 176;
     protected static final int SIZE_Y = 45;
     protected static final HubbyInputFilter KEY_FILTER = new HubbyInputFilter("eE");
+    protected static final String INPUT_PLACEHOLDER = "Enter name...";
+    protected static final String COLOR_PLACEHOLDER = "Enter color...";
 
     /**
      * Members
@@ -51,7 +53,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
     protected GuiTextField _colorField = null;
     protected ResourceLocation _backgroundResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_teleport_manager_background.png"));
     protected ResourceLocation _blankResource = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_blank.png"));
-    protected RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
+    protected RenderItem _renderItem = Minecraft.getMinecraft().getRenderItem();
 
     /**
      * Default constructor
@@ -78,9 +80,9 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         _inputField = new GuiTextField(NAME_INPUT_FIELD_ID, this.fontRendererObj, inputX, inputY, 78, 14);
         _inputField.setMaxStringLength(64);
         _inputField.setEnableBackgroundDrawing(false);
-        _inputField.setFocused(true);
-        _inputField.setText("Enter name...");
-        _inputField.setTextColor((int) 0xFFFFFFFF);
+        _inputField.setFocused(false);
+        _inputField.setText(INPUT_PLACEHOLDER);
+        _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0xFFFFFFFF));
         _inputField.setCanLoseFocus(true);
         _inputField.setFocused(false);
         _inputField.setCursorPosition(0);
@@ -88,9 +90,9 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         _colorField = new GuiTextField(COLOR_INPUT_FIELD_ID, this.fontRendererObj, colorX, colorY, 78, 14);
         _colorField.setMaxStringLength(16);
         _colorField.setEnableBackgroundDrawing(false);
-        _colorField.setFocused(true);
-        _colorField.setText("Enter hex...");
-        _colorField.setTextColor((int) 0xFFFFFFFF);
+        _colorField.setFocused(false);
+        _colorField.setText(COLOR_PLACEHOLDER);
+        _colorField.setTextColor(HubbyColor.convertToMinecraftColor(0xFFFFFFFF));
         _colorField.setCanLoseFocus(true);
         _colorField.setFocused(false);
         _colorField.setCursorPosition(0);
@@ -100,7 +102,15 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(SAVE_WAYPOINT_BUTTON_ID, buttonX, buttonY, 128, 20, "Save Waypoint"));
         
+        // Button will remain disabled until the user enters valid text
+        GuiButton btn = (GuiButton)this.buttonList.get(0);
+        btn.enabled = false;
+        
         Keyboard.enableRepeatEvents(true);
+        
+        // load the saved waypoint data to initialize this gui
+        NBTTagCompound compoundToLoad = HubbySavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
+        UltraTeleportWaypoint.readFromNBT(compoundToLoad);
     }
 
     /**
@@ -181,33 +191,45 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         _colorField.mouseClicked(mouseX, mouseY, mouseButton);
 
         // if the input field has focus then remove the placeholder text
+        updateInputFields();
+
+        // call default behavior
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+    
+    /**
+     * Updates the input fields so that their state matches what the user
+     * is doing in terms of input
+     */
+    protected void updateInputFields() {
+        
+        // if the input field has focus then remove the placeholder text
         if (_inputField.isFocused()) {
-            if (_inputField.getText().equals("Enter name...")) {
+            if (_inputField.getText().equals(INPUT_PLACEHOLDER)) {
                 _inputField.setText("");
+                _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0xFF0000FF));
             }
         }
         // otherwise, set the placeholder text if the current value is the empty string
         else {
             if (_inputField.getText().equals("")) {
                 _inputField.setText("Enter name...");
+                _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0xFFFFFFFF));
             }
         }
         
         // if the color field has focus then remove the placeholder text
         if (_colorField.isFocused()) {
-            if (_colorField.getText().equals("Enter hex...")) {
+            if (_colorField.getText().equals(COLOR_PLACEHOLDER)) {
                 _colorField.setText("");
             }
         }
         // otherwise, set the placeholder text if the current value is the emoty string
         else {
             if (_colorField.getText().equals("")) {
-                _colorField.setText("Enter hex...");
+                _colorField.setText(COLOR_PLACEHOLDER);
             }
         }
-
-        // call default behavior
-        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     /**
@@ -217,8 +239,8 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
      */
     @Override
     protected void keyTyped(char keyChar, int keyCode) throws IOException {
-        _inputField.textboxKeyTyped(keyChar, keyCode);
-        _colorField.textboxKeyTyped(keyChar, keyCode);
+        boolean addedInput = _inputField.textboxKeyTyped(keyChar, keyCode);
+        boolean addedColor = _colorField.textboxKeyTyped(keyChar, keyCode);
 
         // Don't pass the typed key to the parent if the character
         // in question is within the filtered character list as we
@@ -227,6 +249,51 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         if (!KEY_FILTER.isFiltered(keyChar)) {
             super.keyTyped(keyChar, keyCode);
         }
+        
+        // Handle cycling between inputs
+        if (keyCode == Keyboard.KEY_TAB) {
+            if (_inputField.isFocused()) {
+                _inputField.setFocused(false);
+                _colorField.setFocused(true);
+                
+            }
+            else if (_colorField.isFocused()) {
+                _colorField.setFocused(false);
+                _inputField.setFocused(true);
+            }
+            updateInputFields();
+            return;
+        }
+        
+        // updates the color of the input field to let the user
+        // know that they have entered a name that is already being used
+        boolean isValid = isInputValid(_inputField.getText());
+        GuiButton btn = (GuiButton)this.buttonList.get(0);
+        btn.enabled = isValid && !_inputField.getText().equals(INPUT_PLACEHOLDER);
+        
+        // Do we have valid input? If so set the appropriate color, if disabled
+        // then determine if we have bad input or no input at all
+        if (addedInput && isValid) {
+            _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0x00FF00FF));
+        }
+        else if (addedInput && !isValid) {           
+           if (_inputField.getText().length() > 0) {
+                _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0xFF0000FF));
+            }
+            else {
+                _inputField.setTextColor(HubbyColor.convertToMinecraftColor(0xFFFFFFFF));
+            }
+        }
+    }
+    
+    /**
+     * Returns whether or not the input is considered valid by checking
+     * to see if we currently have any waypoints listed by the name that
+     * is in the input field
+     * @return boolean - is the input valid?
+     */
+    protected boolean isInputValid(String text) {
+        return !UltraTeleportWaypoint.containsWaypoint(text) && text.length() > 0;
     }
 
     /**
@@ -275,22 +342,37 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         
         // draw name subtitle
         String nameTitle = "Name";
-        this.fontRendererObj.drawStringWithShadow(nameTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 9, (int)HubbyColor.LIGHT_GREEN.getPackedColor(ColorMode.DEFAULT));
+        this.fontRendererObj.drawStringWithShadow(nameTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 9, (int)HubbyColor.LIGHT_GREEN.getPackedColor(ColorMode.STANDARD));
 
         // draw color subtitle
         String colorTitle = "Color";
-        this.fontRendererObj.drawStringWithShadow(colorTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 27, (int)HubbyColor.LIGHT_PURPLE.getPackedColor(ColorMode.DEFAULT));
+        this.fontRendererObj.drawStringWithShadow(colorTitle, (width - SIZE_X) / 2 + 9, (height - SIZE_Y) / 2 + 27, (int)HubbyColor.LIGHT_PURPLE.getPackedColor(ColorMode.STANDARD));
 
         // draw color selection
         String colorStr = _colorField.getText();
         int colorValue = 0xFFFFFFFF;
 
+        boolean isHexColor = false;
         if (colorStr.startsWith("0x")) {
+            isHexColor = true;
             colorStr = colorStr.substring(2);
         }
 
         try {
-            colorValue = Integer.parseInt(colorStr, 16);
+            if (isHexColor) {
+                float red = Integer.parseInt((String) colorStr.subSequence(0, 2), 16) / 255.0f;
+                float green = Integer.parseInt((String) colorStr.subSequence(2, 4), 16) / 255.0f;
+                float blue = Integer.parseInt((String) colorStr.subSequence(4, 6), 16) / 255.0f;
+                float alpha = Integer.parseInt((String) colorStr.subSequence(6, 8), 16) / 255.0f;
+                HubbyColor color = new HubbyColor(red, green, blue, alpha);
+                colorValue = (int)color.getPackedColor(ColorMode.MINECRAFT);
+            }
+            else if (!colorStr.matches(".*\\d.*")) {
+                colorValue = (int)HubbyColor.getColorFromString(colorStr).getPackedColor(ColorMode.MINECRAFT);
+            }
+            else {
+                colorValue = Integer.parseInt(colorStr);
+            }
         }
         catch (Exception e2) {
         }
@@ -330,8 +412,8 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         }
         
         ItemStack stack = new ItemStack(itemToRender, 1, 0);
-        renderItem.renderItemIntoGUI(stack, sX, sY);
-        renderItem.renderItemOverlayIntoGUI(this.fontRendererObj, stack, sX, sY, ""); // TODO: is this right to leave the string empty?
+        _renderItem.renderItemIntoGUI(stack, sX, sY);
+        _renderItem.renderItemOverlayIntoGUI(this.fontRendererObj, stack, sX, sY, ""); // TODO: is this right to leave the string empty?
     }
 
     /**

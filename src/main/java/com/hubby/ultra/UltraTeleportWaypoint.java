@@ -1,8 +1,13 @@
 package com.hubby.ultra;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.hubby.shared.utils.HubbyColor;
 import com.hubby.shared.utils.HubbyColor.ColorMode;
 import com.hubby.shared.utils.HubbyNamedObjectInterface;
@@ -22,16 +27,16 @@ public class UltraTeleportWaypoint {
 	/**
 	 * Members
 	 */
-	protected BlockPos _pos;
-	protected int _id;
-	protected HubbyColor _color;
-	protected float _rotationY;
-	protected float _rotationX;
-	protected String _name;
+    private BlockPos _pos;
+	private int _id;
+	private HubbyColor _color;
+	private float _rotationY;
+	private float _rotationX;
+	private String _name;
 	
-	protected static boolean _loaded = false;
-	protected static boolean _hasChanges = false;
-	protected static int _idCounter = 1;
+	private static boolean _loaded = false;
+	private static boolean _hasChanges = false;
+	private static int _idCounter = 1;
 
 	/**
 	 * Constants
@@ -64,7 +69,7 @@ public class UltraTeleportWaypoint {
 	 * Default constructor
 	 */
 	public UltraTeleportWaypoint() {
-		this(HubbyNamedObjectInterface.MISSING_NAME, 0xFFFFFF, new BlockPos(0.0d, 0.0d, 0.0d), 0.0f, 0.0f);
+		this(HubbyNamedObjectInterface.MISSING_NAME, 0xFFFFFFFF, new BlockPos(0.0d, 0.0d, 0.0d), 0.0f, 0.0f);
 	}
 
 	/**
@@ -73,6 +78,75 @@ public class UltraTeleportWaypoint {
 	 */
 	public static ImmutableList<UltraTeleportWaypoint> getWaypoints() {
 		return ImmutableList.copyOf(WAYPOINTS);
+	}
+	
+	/**
+	 * Save any changes that may have occurred while this gui was open
+	 */
+	public static void save() {
+        NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
+        HubbySavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
+	}
+	
+	/**
+	 * Loads the teleport waypoints from the saved filename
+	 */
+	public static void load() {
+	    NBTTagCompound compound = HubbySavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
+	    UltraTeleportWaypoint.readFromNBT(compound);
+	}
+	
+	/**
+	 * Removes all waypoints that have a matching name to that of the
+	 * name of that is passed into this function
+	 * @param waypointName - the name to match against
+	 * @return
+	 */
+	public static Integer removeWaypointByName(final String waypointName) {
+	    List<UltraTeleportWaypoint> matches = UltraTeleportWaypoint.search(waypointName);
+	    Iterator<UltraTeleportWaypoint> it = matches.iterator();
+	    while (it.hasNext()) {
+	        WAYPOINTS.remove(it.next());
+	    }
+	    
+	    save();
+	    return matches.size();
+	}
+	
+	/**
+	 * Remove all waypoints by name that are in the contained list
+	 * @param waypoints - the names of the waypoints to remove
+	 * @return Integer - the number of waypoints actually removed
+	 */
+	public static Integer removeWaypoints(List<String> waypoints) {
+	    Integer count = 0;
+	    Iterator<String> it = waypoints.iterator();
+	    while (it.hasNext()) {
+	        count += removeWaypointByName(it.next());
+	    }
+	    
+	    save();
+	    return count;
+	}
+	
+	/*
+	 * Removes all current waypoints
+	 */
+	public static Integer removeAllWaypoints() {
+	    Integer count = WAYPOINTS.size();
+	    WAYPOINTS.clear();
+	    save();
+	    return count;
+	}
+	
+	/**
+	 * Checks if we have a waypoint that exists with the name provided
+	 * @param name - the name to search for
+	 * @return boolean - does the name exist in the list
+	 */
+	public static boolean containsWaypoint(String name) {
+	    List<UltraTeleportWaypoint> matches = UltraTeleportWaypoint.search(name);
+	    return matches.size() > 0;
 	}
 
 	/**
@@ -241,5 +315,21 @@ public class UltraTeleportWaypoint {
 		_rotationX = tagCompound.getFloat("rotationX");
 		_rotationY = tagCompound.getFloat("rotationY");
 		_color = new HubbyColor(tagCompound.getInteger("color"), ColorMode.MINECRAFT);
+	}
+	
+	/**
+	 * Searches the waypoints, looking for any with the name provided
+	 * @param name - the name to filter the results by
+	 * @return
+	 */
+	private static List<UltraTeleportWaypoint> search(final String name) {
+        final Predicate<UltraTeleportWaypoint> predicate = new Predicate<UltraTeleportWaypoint>() {
+            @Override
+            public boolean apply(UltraTeleportWaypoint waypoint) {
+                return name.equals(waypoint._name);
+            }
+         };
+         Iterable<UltraTeleportWaypoint> iter = Iterables.filter(WAYPOINTS, predicate);
+         return Lists.newArrayList(iter.iterator());
 	}
 }

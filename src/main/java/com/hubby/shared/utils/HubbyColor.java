@@ -1,5 +1,7 @@
 package com.hubby.shared.utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
@@ -18,12 +20,19 @@ public class HubbyColor {
 	public static final HubbyColor RED = new HubbyColor(1.0f, 0.0f, 0.0f, 1.0f);
 	public static final HubbyColor BLUE = new HubbyColor(0.0f, 0.0f, 1.0f, 1.0f);
 	public static final HubbyColor GREEN = new HubbyColor(0.0f, 1.0f, 0.0f, 1.0f);
-	public static final HubbyColor SKY_BLUE = new HubbyColor(0x3FA2FFFFL, ColorMode.DEFAULT);
-	public static final HubbyColor LIGHT_PURPLE = new HubbyColor(0xAE7FFFL, ColorMode.DEFAULT);
-	public static final HubbyColor BROWN = new HubbyColor(0x491B0FL, ColorMode.DEFAULT);
-	public static final HubbyColor YELLOW = new HubbyColor(0xFFED4CL, ColorMode.DEFAULT);
-	public static final HubbyColor PINK = new HubbyColor(0xFF9BACL, ColorMode.DEFAULT);
-	public static final HubbyColor LIGHT_GREEN = new HubbyColor(0x9BFFA0L, ColorMode.DEFAULT);
+	public static final HubbyColor SKY_BLUE = new HubbyColor(0x3FA2FFFFFFL, ColorMode.STANDARD);
+	public static final HubbyColor LIGHT_PURPLE = new HubbyColor(0xAE7FFFFFL, ColorMode.STANDARD);
+	public static final HubbyColor BROWN = new HubbyColor(0x491B0FFFL, ColorMode.STANDARD);
+	public static final HubbyColor YELLOW = new HubbyColor(0xFFED4CFFL, ColorMode.STANDARD);
+	public static final HubbyColor PINK = new HubbyColor(0xFF9BACFFL, ColorMode.STANDARD);
+	public static final HubbyColor LIGHT_GREEN = new HubbyColor(0x9BFFA0FFL, ColorMode.STANDARD);
+	public static final HubbyColor CYAN = new HubbyColor(0x00FFFFFFL, ColorMode.STANDARD);
+	public static final HubbyColor MAGENTA = new HubbyColor(0xFF00FFFFL, ColorMode.STANDARD);
+	public static final HubbyColor BLACK = new HubbyColor(0x000000FFL, ColorMode.STANDARD);
+	public static final HubbyColor GREY = new HubbyColor(0x888888FFL, ColorMode.STANDARD);
+	public static final HubbyColor ORANGE = new HubbyColor(0xFF6000FFL, ColorMode.STANDARD);
+	
+	private static final Map<String, HubbyColor> _colorLookupByName = new HashMap<String, HubbyColor>();
 
 	/**
 	 * Members
@@ -39,8 +48,32 @@ public class HubbyColor {
 	 *
 	 */
 	public enum ColorMode {
-		DEFAULT,
+		STANDARD,
 		MINECRAFT
+	}
+	
+	/**
+	 * Builds a collection of common colors that can be looked
+	 * up by name
+	 */
+	public static void buildColorCollection() {
+	    if (_colorLookupByName.size() == 0) {
+    	    _colorLookupByName.put("red", RED);
+    	    _colorLookupByName.put("blue", BLUE);
+    	    _colorLookupByName.put("green", GREEN);
+    	    _colorLookupByName.put("yellow", YELLOW);
+    	    _colorLookupByName.put("cyan", CYAN);
+    	    _colorLookupByName.put("magenta", MAGENTA);
+    	    _colorLookupByName.put("skyblue", SKY_BLUE);
+    	    _colorLookupByName.put("lightpurple", LIGHT_PURPLE);
+    	    _colorLookupByName.put("brown", BROWN);
+    	    _colorLookupByName.put("pink", PINK);
+    	    _colorLookupByName.put("lightgreen", LIGHT_GREEN);
+    	    _colorLookupByName.put("white", WHITE);
+    	    _colorLookupByName.put("black", BLACK);
+    	    _colorLookupByName.put("grey", GREY);
+    	    _colorLookupByName.put("orange", ORANGE);
+	    }
 	}
 	
     /**
@@ -54,6 +87,64 @@ public class HubbyColor {
         float g = ((random.nextInt() % 256) / 255.0f);
         float b = ((random.nextInt() % 256) / 255.0f);
         return new HubbyColor(r, g, b, alpha);
+    }
+    
+    /**
+     * Converts the regular color value to a minecraft color
+     * @param color - the color to convert
+     * @return Integer - the color value
+     */
+    public static Integer convertToMinecraftColor(Integer color) {
+        float r = (float)((color >> 24) & 255) / 255.0f;
+        float g = (float)((color >> 16) & 255) / 255.0f;
+        float b = (float)((color >> 8) & 255) / 255.0f;
+        float a = (float)((color >> 0) & 255) / 255.0f;
+        
+        Integer mcColor = 0;
+        mcColor |= ((int)(a * 255)) << 24;
+        mcColor |= ((int)(r * 255)) << 16;
+        mcColor |= ((int)(g * 255)) << 8;
+        mcColor |= ((int)(b * 255)) << 0;
+        return mcColor;
+    }
+
+    /**
+     * Converts the minecraft color to a regular color format
+     * @param color - the color to convert
+     * @return Integer - the color value
+     */
+    public static Integer convertToStandardColor(Integer color) {
+        float r = (float)((color >> 16) & 255) / 255.0f;
+        float g = (float)((color >> 8) & 255) / 255.0f;
+        float b = (float)((color >> 0) & 255) / 255.0f;
+        float a = (float)((color >> 24) & 255) / 255.0f;
+        
+        Integer standardColor = 0;
+        standardColor |= ((int)(r * 255)) << 24;
+        standardColor |= ((int)(g * 255)) << 16;
+        standardColor |= ((int)(b * 255)) << 8;
+        standardColor |= ((int)(a * 255)) << 0;
+        return standardColor;
+    }
+    
+    /**
+     * Attempts to fecth a color from the collection by name,
+     * if the name is not registered then a random color is added
+     * @param colorStr
+     * @return
+     */
+    public static HubbyColor getColorFromString(String colorStr) {
+        HubbyColor color = _colorLookupByName.get(colorStr);
+        return color == null ? WHITE : color;
+    }
+    
+    /**
+     * Adds a custom color to the collection which can be used later
+     * @param colorName - the name of the color
+     * @param color - the color to store
+     */
+    public static void addColorToCollection(String colorName, HubbyColor color) {
+        _colorLookupByName.put(colorName, color);
     }
 
 	/**
@@ -74,6 +165,16 @@ public class HubbyColor {
 	 */
 	public HubbyColor(long value, ColorMode mode) {
 		unpackColor(value, mode);
+	}
+	
+	/**
+	 * Converts the color from whatever it's current mode is to
+	 * the mode passed into this function
+	 * @param mode - the color mode to convert to
+	 */
+	public void convertTo(ColorMode mode) {
+	    ColorMode sourceMode = mode == ColorMode.STANDARD ? ColorMode.MINECRAFT : ColorMode.STANDARD;
+	    unpackColor(getPackedColor(sourceMode), mode);
 	}
 	
 	/**
@@ -195,7 +296,7 @@ public class HubbyColor {
 	 */
 	public long getPackedColor(ColorMode mode) {
 		long color = 0;
-		if (mode == ColorMode.DEFAULT) {
+		if (mode == ColorMode.STANDARD) {
 			color |= (long)(_red * 255.0F) << 24L;
 			color |= (long)(_green * 255.0F) << 16L;
 			color |= (long)(_blue * 255.0F) << 8L;
@@ -209,17 +310,6 @@ public class HubbyColor {
 		}
 		return color;
 	}
-	
-	// Odd color variation used in font renderer for strings reads the color
-	// values as ARBG instead of ARGB
-//	long getMinecraftStringColor() {
-//		long color = 0;
-//		color |= (long)(alpha * 255.0f) << 24L;
-//		color |= (long)(red * 255.0F) << 16L;
-//		color |= (long)(green * 255.0F) << 0L;
-//		color |= (long)(blue * 255.0F) << 8L;
-//		return color;
-//	}
 
 	/**
 	 * Unpacks the color based on the color mode and
@@ -234,7 +324,7 @@ public class HubbyColor {
 			_blue = (float)((color >> 0) & 255) / 255.0f;
 			_alpha = (float)((color >> 24) & 255) / 255.0f;
 		}
-		else if (mode == ColorMode.DEFAULT) {
+		else if (mode == ColorMode.STANDARD) {
 			_red = (float)((color >> 24) & 255) / 255.0f;
 			_green = (float)((color >> 16) & 255) / 255.0f;
 			_blue = (float)((color >> 8) & 255) / 255.0f;

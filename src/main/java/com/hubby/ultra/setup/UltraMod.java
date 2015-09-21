@@ -1,5 +1,6 @@
 package com.hubby.ultra.setup;
 
+import com.hubby.shared.utils.HubbyColor;
 import com.hubby.shared.utils.HubbyConfigurationHelper;
 import com.hubby.shared.utils.HubbyConfigurationPropertyListener;
 import com.hubby.shared.utils.HubbyRefreshedObjectInterface;
@@ -79,6 +80,9 @@ public class UltraMod {
 		
 		// register all items, blocks, materials, recipes, armor
 		UltraRegistry.register();
+		
+	    // Init all registered colors 
+        HubbyColor.buildColorCollection();
 		
 		// Begin giving update calls to any refreshed objects that need it
 		HubbyRefreshedObjectInterface.start();
