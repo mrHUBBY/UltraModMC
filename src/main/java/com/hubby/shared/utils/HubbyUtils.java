@@ -379,10 +379,7 @@ public class HubbyUtils {
      * @param mat - the material to check
      * @return boolean - is the entity inside of the material?
      */
-    public static boolean isEntityStandingInLiquid(EntityLivingBase entity, Material mat) {
-        // if (entity instanceof EntityPlayer) {
-        // entity.worldObj.isMaterialInBB(entity.getEntityBoundingBox().expand(-0.1f, -0.4f, -0.1f), mat);
-        // }
+    public static boolean isEntityStandingInMaterial(EntityLivingBase entity, Material mat) {
         return entity.worldObj.isMaterialInBB(entity.getEntityBoundingBox().expand(-0.1f, -0.4f, -0.1f), mat);
     }
 
@@ -432,7 +429,7 @@ public class HubbyUtils {
         
         // query if entity is standing in any of the liquids that we discovered
         for (Material mat : filtered) {
-            if (isEntityStandingInLiquid(entity, mat)) {
+            if (isEntityStandingInMaterial(entity, mat)) {
                 return mat;
             }
         }

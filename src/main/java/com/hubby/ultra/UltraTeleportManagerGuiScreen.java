@@ -150,24 +150,14 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         case SAVE_WAYPOINT_BUTTON_ID:
             String waypointName = _inputField.getText();
             String colorStr = _colorField.getText();
-
-            if (colorStr.startsWith("0x")) {
-                colorStr = colorStr.substring(2);
-            }
-
-            // Attempt to read the color
-            int color = 0xFFFFFF;
-            try {
-                color = Integer.parseInt(colorStr, 16);
-            }
-            catch (Exception e2) {
-            }
+            HubbyColor color = HubbyColor.parseColor(colorStr);
+            int mcColorValue = (int) color.getPackedColor(ColorMode.MINECRAFT);
             
             EntityPlayer thePlayer = Minecraft.getMinecraft().thePlayer;
             BlockPos pos = thePlayer.getPosition();
             float rotationY = thePlayer.rotationYaw;
             float rotationX = thePlayer.rotationPitch;
-            UltraTeleportWaypoint waypoint = new UltraTeleportWaypoint(waypointName, color, pos, rotationX, rotationY);
+            UltraTeleportWaypoint waypoint = new UltraTeleportWaypoint(waypointName, mcColorValue, pos, rotationX, rotationY);
             break;
         }
 
@@ -346,32 +336,8 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
 
         // draw color selection
         String colorStr = _colorField.getText();
-        int colorValue = 0xFFFFFFFF;
-
-        boolean isHexColor = false;
-        if (colorStr.startsWith("0x")) {
-            isHexColor = true;
-            colorStr = colorStr.substring(2);
-        }
-
-        try {
-            if (isHexColor) {
-                float red = Integer.parseInt((String) colorStr.subSequence(0, 2), 16) / 255.0f;
-                float green = Integer.parseInt((String) colorStr.subSequence(2, 4), 16) / 255.0f;
-                float blue = Integer.parseInt((String) colorStr.subSequence(4, 6), 16) / 255.0f;
-                float alpha = Integer.parseInt((String) colorStr.subSequence(6, 8), 16) / 255.0f;
-                HubbyColor color = new HubbyColor(red, green, blue, alpha);
-                colorValue = (int)color.getPackedColor(ColorMode.MINECRAFT);
-            }
-            else if (!colorStr.matches(".*\\d.*")) {
-                colorValue = (int)HubbyColor.getColorFromString(colorStr).getPackedColor(ColorMode.MINECRAFT);
-            }
-            else {
-                colorValue = Integer.parseInt(colorStr);
-            }
-        }
-        catch (Exception e2) {
-        }
+        HubbyColor color = HubbyColor.parseColor(colorStr);
+        int colorValue = (int) color.getPackedColor(ColorMode.MINECRAFT);
 
         // draw color rect
         int left = (width - SIZE_X) / 2 + 148;

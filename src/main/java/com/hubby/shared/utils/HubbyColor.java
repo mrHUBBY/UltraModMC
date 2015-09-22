@@ -76,6 +76,41 @@ public class HubbyColor {
 	    }
 	}
 	
+	/**
+	 * Parses the string value and generates a HubbyColor based on the
+	 * contents of the string
+	 * @param colorStr
+	 * @return
+	 */
+	public static HubbyColor parseColor(String colorStr) {
+
+	    // Check if we are a hex color
+	    boolean isHexColor = false;
+        if (colorStr.startsWith("0x")) {
+            colorStr = colorStr.substring(2);
+            isHexColor = true;
+        }
+        
+        // if we are a hex-color then parse the string to get the components
+        if (isHexColor) {
+            float red = Integer.parseInt((String) colorStr.subSequence(0, 2), 16) / 255.0f;
+            float green = Integer.parseInt((String) colorStr.subSequence(2, 4), 16) / 255.0f;
+            float blue = Integer.parseInt((String) colorStr.subSequence(4, 6), 16) / 255.0f;
+            float alpha = Integer.parseInt((String) colorStr.subSequence(6, 8), 16) / 255.0f;
+            return new HubbyColor(red, green, blue, alpha);
+        }
+        // if we have no digits, then we assume that we are a valid
+        // string value that can be used to lookup an existing color
+        else if (!colorStr.matches(".*\\d.*")) {
+            return HubbyColor.getColorFromString(colorStr);
+        }
+        
+        // If we get here then we assume that we are a integer value
+        // and we parse that to generate the packed color value
+        int colorValue = Integer.parseInt(colorStr);
+        return new HubbyColor((long)colorValue, ColorMode.STANDARD);
+	}
+	
     /**
      * Returns a pseudo-randomly generated color value with a specific alpha
      * @param alpha - the value for the alpha channel

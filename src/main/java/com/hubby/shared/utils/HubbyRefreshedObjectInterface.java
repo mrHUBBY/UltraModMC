@@ -97,13 +97,19 @@ public abstract class HubbyRefreshedObjectInterface {
      * This method must be called in order to initialize the
      * refreshed object manager so that objects will begin to
      * receive updates and we can start tracking time.
+     * @param refreshRate - the number of milliseconds that should pass between calls to <code>refresh</code>
      */
-    public static void start() {
+    public static void start(Long refreshRate) {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-2"));
         _startTime = cal.getTimeInMillis();
         _nextTime = _startTime;
         _elapsedTime = 0L;
         _deltaTime = 0L;
+        
+        // if the user did not pass in a specific refresh rate then we will try to update
+        // based on the TARGET_FRAME_RATE value which is 30 FPS, meaning that we should
+        // roughly handle 30 refreshes each second of real time.
+        long ms = (long) (refreshRate != null ? refreshRate : (1.0f / (float)HubbyConstants.TARGTE_FRAME_RATE) * 1000.0f);
 
         // schedule the timer to repeat after the amount of time
         // for one frame has passed
@@ -113,7 +119,7 @@ public abstract class HubbyRefreshedObjectInterface {
             public void run() {
                 HubbyRefreshedObjectInterface.refresh();
             }
-        }, 0L, (long) ((1.0f / (float)HubbyConstants.TARGTE_FRAME_RATE) * 1000.0f));
+        }, 0L, ms);
     }
 
     /**`
