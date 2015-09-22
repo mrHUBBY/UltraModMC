@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.hubby.shared.utils.HubbyConstants.ArmorType;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -31,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -339,7 +341,8 @@ public class HubbyUtils {
      * @return boolean - are we the server side?
      */
     public static boolean isServerSide() {
-        return !Minecraft.getMinecraft().theWorld.isRemote;
+        return !HubbyUtils.getClientWorld().isRemote;
+        //return MinecraftServer.getServer().isDedicatedServer();
     }
 
     /**
@@ -436,5 +439,44 @@ public class HubbyUtils {
 
         // No luck! :(
         return null;
+    }
+    
+    /**
+     * Checks if the entity passed in is wearing the armor item identified
+     * both by specific a <code>ItemArmor</code> class and the designated <code>ArmorType</code>
+     * @param entity - the entity to check
+     * @param klass - the class of armor
+     * @param armor - the armor type
+     * @return boolean - is the entity wearing the piece of armor
+     */
+    public boolean isWearingArmor(EntityLivingBase entity, Class<? extends ItemArmor> klass, ArmorType armor) {
+        ItemStack armorItem = entity.getCurrentArmor(armor.getInventorySlot() - 1);
+        return armorItem != null && klass.isInstance(armorItem.getItem());
+    }
+    
+    /**
+     * Checks if the entity passed in is wearing an entire set of armor
+     * as identified by the armor class type passed in
+     * @param entity - the entity to check
+     * @param klass - the ItemArmor class to check
+     * @return boolean - is the entity decked out in the specific armor?
+     */
+    public boolean isWearingWholeArmor(EntityLivingBase entity, Class<? extends ItemArmor> klass) {
+        return isWearingArmor(entity, klass, ArmorType.HELMET) &&
+               isWearingArmor(entity, klass, ArmorType.CHESTPLATE) &&
+               isWearingArmor(entity, klass, ArmorType.LEGGINGS) &&
+               isWearingArmor(entity, klass, ArmorType.BOOTS);
+    }
+    
+    /**
+     * Gives the specified armor to the entity passed in
+     * @param entity - the entity to give the armor to
+     * @param armor - the armor to give to the entity
+     * @param type - the type of armor that is being applied
+     */
+    public <T extends ItemArmor> void addArmorToEntity(EntityLivingBase entity, T armor) {
+        ArmorType type = ArmorType.values()[armor.armorType];
+        ItemStack stack = new ItemStack(armor, 1);
+        entity.setCurrentItemOrArmor(type.getInventorySlot(), stack);
     }
 }
