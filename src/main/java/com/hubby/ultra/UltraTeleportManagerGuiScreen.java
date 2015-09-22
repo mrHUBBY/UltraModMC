@@ -7,7 +7,6 @@ import org.lwjgl.input.Keyboard;
 import com.hubby.shared.utils.HubbyColor;
 import com.hubby.shared.utils.HubbyColor.ColorMode;
 import com.hubby.shared.utils.HubbyInputFilter;
-import com.hubby.shared.utils.HubbySavePersistentDataHelper;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.shared.utils.HubbyUtils.GradientMode;
 import com.hubby.ultra.setup.UltraMod;
@@ -22,7 +21,6 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
@@ -109,8 +107,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         Keyboard.enableRepeatEvents(true);
         
         // load the saved waypoint data to initialize this gui
-        NBTTagCompound compoundToLoad = HubbySavePersistentDataHelper.getInstance().loadTagCompound(UltraTeleportWaypoint.SAVE_FILENAME);
-        UltraTeleportWaypoint.readFromNBT(compoundToLoad);
+        UltraTeleportWaypoint.load();
     }
 
     /**
@@ -122,8 +119,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         Keyboard.enableRepeatEvents(false);
         
         // Save any changes that may have occurred while this gui was open
-        NBTTagCompound compoundToSave = UltraTeleportWaypoint.writeToNBT();
-        HubbySavePersistentDataHelper.getInstance().saveTagCompound(UltraTeleportWaypoint.SAVE_FILENAME, compoundToSave);
+        UltraTeleportWaypoint.save();
     }
 
     /** 
