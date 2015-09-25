@@ -59,6 +59,14 @@ public class HubbyConstants {
         public Integer getInventorySlot() {
             return _inventorySlot;
         }
+        
+        /**
+         * Returns the valid enum count
+         * @return
+         */
+        public static Integer validLength() {
+            return 4;
+        }
     }
     
     /**

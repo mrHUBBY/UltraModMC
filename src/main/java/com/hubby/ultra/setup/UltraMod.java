@@ -10,6 +10,7 @@ import com.hubby.shared.utils.HubbyScheduler;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraCommandHooks;
 import com.hubby.ultra.UltraEventHooks;
+import com.hubby.ultra.render.UltraRenderEntityPlayer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -71,9 +72,14 @@ public class UltraMod {
         // Register custom event hooks
         FMLCommonHandler.instance().bus().register(new UltraCommandHooks());
         MinecraftForge.EVENT_BUS.register(new UltraEventHooks());
-        // MinecraftForge.EVENT_BUS.register(new NitroRenderEntityPlayer());
+        
+        // TODO:
+        // Figure out the new way for rendering the backpack model on the player
+        MinecraftForge.EVENT_BUS.register(new UltraRenderEntityPlayer());
     }
 
+    // TODO:
+    // Remove temp code
     public void checkPlayer() {
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         if (player != null) {

@@ -91,4 +91,23 @@ public class HubbyMath {
         double ticks = seconds * HubbyConstants.TICKS_PER_SECOND;
         return ticks - Math.floor(ticks);
     }
+    
+    /**
+     * Converts degrees to radians
+     * @param degrees - the degrees to convert
+     * @return double - the radians
+     */
+    public static double toRadians(double degrees) {
+        return Math.PI * degrees / 180.0;
+    }
+    
+    /**
+     * Converts radians to degrees
+     * @param radians - the radians to convert
+     * @return double - the degrees
+     */
+    public static double toDegrees(double radians) {
+        return radians * 180.0 / Math.PI;
+    }
 }
+

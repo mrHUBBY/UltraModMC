@@ -3,8 +3,10 @@ package com.hubby.ultra.setup;
 import com.hubby.shared.utils.HubbyConstants.ArmorType;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants;
+import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.UltraTeleportWaypointGuiScreen;
 import com.hubby.ultra.items.UltraItemAdvancedArmor;
+import com.hubby.ultra.items.UltraItemBackpackArmor;
 import com.hubby.ultra.items.UltraItemBasicSword;
 import com.hubby.ultra.items.UltraItemTeleportArtifact;
 
@@ -31,6 +33,7 @@ public class UltraRegistry {
 	 */
 	public static ToolMaterial ultraToolMaterial = null;
 	public static ItemArmor.ArmorMaterial ultraAdvancedArmorMaterial = null;
+	public static ItemArmor.ArmorMaterial[] ultraBackpackArmorMaterial = null;
 
 	/**
 	 * Items
@@ -45,6 +48,9 @@ public class UltraRegistry {
 	public static UltraItemAdvancedArmor ultraItemAdvancedArmorChestplate = null;
 	public static UltraItemAdvancedArmor ultraItemAdvancedArmorLeggings = null;
 	public static UltraItemAdvancedArmor ultraItemAdvancedArmorBoots = null;
+	public static UltraItemBackpackArmor ultraItemBackpackArmorSmall = null;
+	public static UltraItemBackpackArmor ultraItemBackpackArmorMedium = null;
+	public static UltraItemBackpackArmor ultraItemBackpackArmorLarge = null;
 
 	/**
 	 * GuiScreens
@@ -75,6 +81,18 @@ public class UltraRegistry {
 		ultraAdvancedArmorMaterial = EnumHelper.addArmorMaterial("ultraItemAdvancedArmorMaterial", 
 	                                 HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/models/armor/ultra_advanced_armor"), 
 	                                 UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_DURABILITY, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_DAMAGE_REDUCTIONS, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_ENCHANTABILITY);
+		ultraBackpackArmorMaterial = new ItemArmor.ArmorMaterial[] { 
+		                                    EnumHelper.addArmorMaterial("ultraItemBackpackArmorMaterial",
+		                                        null, // we pass in null for the ResourceLocation since we draw the backpack manually
+		                                        UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DURABILITY, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DAMAGE_REDUCTIONS, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_ENCHANTABILITY),
+		                                    EnumHelper.addArmorMaterial("ultraItemBackpackArmorMaterial",
+	                                            null, // we pass in null for the ResourceLocation since we draw the backpack manually
+	                                            UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DURABILITY, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DAMAGE_REDUCTIONS, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_ENCHANTABILITY),
+		                                    EnumHelper.addArmorMaterial("ultraItemBackpackArmorMaterial",
+	                                            null, // we pass in null for the ResourceLocation since we draw the backpack manually
+	                                            UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DURABILITY, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_DAMAGE_REDUCTIONS, UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_ENCHANTABILITY),
+		                             };
+		
 
 		/**
 		 * Items
@@ -89,6 +107,10 @@ public class UltraRegistry {
 		ultraItemAdvancedArmorChestplate = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.CHESTPLATE);
 		ultraItemAdvancedArmorLeggings = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.LEGGINGS);
 		ultraItemAdvancedArmorBoots = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.BOOTS);
+		ultraItemBackpackArmorSmall = new UltraItemBackpackArmor(ultraBackpackArmorMaterial[BackpackType.SMALL.getValue()], UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_RENDER_INDEX, BackpackType.SMALL);
+		ultraItemBackpackArmorMedium = new UltraItemBackpackArmor(ultraBackpackArmorMaterial[BackpackType.MEDIUM.getValue()], UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_RENDER_INDEX, BackpackType.MEDIUM);
+		ultraItemBackpackArmorLarge = new UltraItemBackpackArmor(ultraBackpackArmorMaterial[BackpackType.LARGE.getValue()], UltraConstants.ULTRA_ITEM_BACKPACK_ARMOR_RENDER_INDEX, BackpackType.LARGE);
+		
 
 		/**
 		 * GuiScreens
