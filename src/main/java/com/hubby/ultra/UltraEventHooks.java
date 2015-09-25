@@ -1,13 +1,11 @@
 package com.hubby.ultra;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.hubby.shared.utils.HubbyUtils;
+import com.hubby.ultra.items.UltraItemTeleportArtifact;
 
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.Item.ToolMaterial;
 
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -25,32 +23,39 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class UltraEventHooks {
+    
+    private int _entityId = 0;
+    private EntityLivingBase _ent = null;
 
+    /**
+     * This event is fired when an entity is spawned and joining the world
+     * for the first time.
+     * @param event - The <code>Event</code> being fired
+     */
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
-	    //HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entity, ToolMaterial.GOLD);
+	    
+	    // Check for the client
+	    if (!HubbyUtils.isClientSide(event.world)) {
+	        return;
+	    }
+	    
+	    // TODO:
+	    // Change this as this is just test code
+	    // If we have this item in our possession then new entities should get some
+	    // dazzling golden armor just for fun
+        if (HubbyUtils.isItemInInventory(UltraItemTeleportArtifact.class) >= 0) {
+            if (EntitySkeleton.class.isInstance(event.entity) || EntityZombie.class.isInstance(event.entity)) {
+                HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entity, ToolMaterial.GOLD); 
+            }
+        }
 	}
 	
 	@SubscribeEvent
-	public void onEntityLivingSpawned(LivingSpawnEvent event) {
-	    
-	    WorldClient world = HubbyUtils.getClientWorld();
-	    List entities = world != null ? world.loadedEntityList : null;
-	    ArrayList<Object> copyEnts = (entities != null) ? new ArrayList<Object>(entities) : null;
-	    if (copyEnts != null) {
-	        Iterator it = (Iterator) copyEnts.iterator();
-	        while (it.hasNext()) {
-	            Object ent = it.next();
-     	        if (EntitySkeleton.class.isInstance(ent)) {
-     	            EntitySkeleton skeleton = (EntitySkeleton)ent;
-     	            HubbyUtils.addFullVanillaArmorToEntity(skeleton, ToolMaterial.IRON);
-     	        }
-    	    }
-	    }
-	    
-	    //HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entityLiving, ToolMaterial.IRON);
+	public void onEntityLivingSpawned(LivingSpawnEvent event) { 
 	}
 
+	@SubscribeEvent
 	public void onAttemptEntityDespawn(AllowDespawn event) {
 	}
 
@@ -77,21 +82,6 @@ public class UltraEventHooks {
 
 	@SubscribeEvent
 	public void onEntityUpdate(LivingUpdateEvent event) {
-//		boolean isPlayer = event.entityLiving instanceof EntityPlayer;
-//
-//		if (event.entityLiving instanceof EntityLiving) {
-//			if (event.entityLiving.isPotionActive(NitroInterface.nitroPotion)) {
-//				if (!isPlayer) {
-//                    event.entityLiving.attackEntityFrom(NitroInterface.nitroDamageSource, NitroInterface.nitroPotionDamagePerTick);
-//				}
-//
-//				// Check if this potion has expired
-//                PotionEffect effect = event.entityLiving.getActivePotionEffect(NitroInterface.nitroPotion);
-//				if (effect != null && effect.getDuration() == 0) {
-//                    event.entityLiving.removePotionEffect(NitroInterface.nitroPotion.id);
-//				}
-//			}
-//		}
 	}
 
 	@SubscribeEvent

@@ -19,6 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.hubby.shared.utils.HubbyConstants.ArmorType;
+import com.hubby.shared.utils.HubbyConstants.Direction;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -29,7 +30,9 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -39,6 +42,9 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.RegistryNamespaced;
 import net.minecraft.world.World;
@@ -328,8 +334,11 @@ public class HubbyUtils {
      * @return EntityPlayerMP - the server-side version of the client player
      */
     public static EntityPlayerMP getServerPlayer() {
-        UUID id = Minecraft.getMinecraft().thePlayer.getUniqueID();
-        return MinecraftServer.getServer().getConfigurationManager().getPlayerByUUID(id);
+        if (Minecraft.getMinecraft().thePlayer != null) {
+            UUID id = Minecraft.getMinecraft().thePlayer.getUniqueID();
+            return MinecraftServer.getServer().getConfigurationManager().getPlayerByUUID(id);
+        }
+        return null;
     }
 
     /**
@@ -337,7 +346,11 @@ public class HubbyUtils {
      * @return WorldServer - the world on the server
      */
     public static WorldServer getServerWorld() {
-        return HubbyUtils.getServerPlayer().getServerForPlayer();
+        EntityPlayerMP serverPlayer = HubbyUtils.getServerPlayer();
+        if (serverPlayer != null) {
+            return serverPlayer.getServerForPlayer();
+        }
+        return null;
     }
 
     /**
@@ -355,6 +368,15 @@ public class HubbyUtils {
      */
     public static boolean isClienSide() {
         return !HubbyUtils.isServerSide();
+    }
+    
+    /**
+     * Check if we are on the client based on the world passed in
+     * @param world - The <code>World</code> to check
+     * @return boolean - true if we are the client
+     */
+    public static boolean isClientSide(World world) {
+        return !world.isRemote;
     }
 
     /**
@@ -457,7 +479,7 @@ public class HubbyUtils {
         ItemStack armorItem = entity.getCurrentArmor(armor.getInventorySlot() - 1);
         return armorItem != null && klass.isInstance(armorItem.getItem());
     }
-    
+
     /**
      * Checks if we are wearing a vanilla Minecraft armor with a specific <code>ToolMaterial</code>
      * @param entity - the <code>Entity</code> we are checking
@@ -467,7 +489,7 @@ public class HubbyUtils {
      */
     public boolean isWearingVanillaArmor(EntityLivingBase entity, ToolMaterial material, ArmorType armor) {
         ItemStack armorItem = entity.getCurrentArmor(armor.getInventorySlot() - 1);
-        return armorItem != null && ((ItemArmor)armorItem.getItem()).getArmorMaterial().name() == material.name();
+        return armorItem != null && ((ItemArmor) armorItem.getItem()).getArmorMaterial().name() == material.name();
     }
 
     /**
@@ -478,10 +500,9 @@ public class HubbyUtils {
      * @return boolean - is the entity decked out in the specific armor?
      */
     public boolean isWearingWholeArmor(EntityLivingBase entity, Class<? extends ItemArmor> klass) {
-        return isWearingArmor(entity, klass, ArmorType.HELMET) && isWearingArmor(entity, klass, ArmorType.CHESTPLATE) && 
-            isWearingArmor(entity, klass, ArmorType.LEGGINGS) && isWearingArmor(entity, klass, ArmorType.BOOTS);
+        return isWearingArmor(entity, klass, ArmorType.HELMET) && isWearingArmor(entity, klass, ArmorType.CHESTPLATE) && isWearingArmor(entity, klass, ArmorType.LEGGINGS) && isWearingArmor(entity, klass, ArmorType.BOOTS);
     }
-    
+
     /**
      * Checks if we are wearing a vanilla Minecraft armor with a specific <code>ToolMaterial</code>
      * @param entity - the <code>Entity</code> we are checking
@@ -489,8 +510,7 @@ public class HubbyUtils {
      * @return boolean - are we wearing the entire vanilla armor set?
      */
     public boolean isWearingWholeVanillaArmor(EntityLivingBase entity, ToolMaterial material) {
-        return isWearingVanillaArmor(entity, material, ArmorType.HELMET) && isWearingVanillaArmor(entity, material, ArmorType.CHESTPLATE) && 
-            isWearingVanillaArmor(entity, material, ArmorType.LEGGINGS) && isWearingVanillaArmor(entity, material, ArmorType.BOOTS);
+        return isWearingVanillaArmor(entity, material, ArmorType.HELMET) && isWearingVanillaArmor(entity, material, ArmorType.CHESTPLATE) && isWearingVanillaArmor(entity, material, ArmorType.LEGGINGS) && isWearingVanillaArmor(entity, material, ArmorType.BOOTS);
     }
 
     /**
@@ -504,7 +524,7 @@ public class HubbyUtils {
         ItemStack stack = new ItemStack(armor, 1);
         entity.setCurrentItemOrArmor(type.getInventorySlot(), stack);
     }
-    
+
     /**
      * Adds the generic Minecraft armor identified by the <code>ToolMaterial</code>
      * passed in
@@ -513,38 +533,38 @@ public class HubbyUtils {
      * @return boolean - did we add any armor?
      */
     public static boolean addFullVanillaArmorToEntity(EntityLivingBase entity, ToolMaterial armorMaterial) {
-        
+
         // Find the itemRegistry that is a map containing all of the generic Minecraft items
         boolean success = false;
         List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
-        
+
         // This shouldn't happen, but who know, maybe Mojang will change how
         // they register their items... for now, we are good to assume that
         // the registry we are looking for will be the only entry in this list
         if (allRegistries.size() == 0) {
             return false;
         }
-        
-        RegistryNamespaced registry = (RegistryNamespaced)allRegistries.get(0);
+
+        RegistryNamespaced registry = (RegistryNamespaced) allRegistries.get(0);
         Set keys = registry.getKeys();
-        
+
         // Iterate over all of the item keys, looking for armor
         for (Object key : keys) {
-            Item item = (Item)registry.getObject(key);
+            Item item = (Item) registry.getObject(key);
             if (ItemArmor.class.isInstance(item)) {
-                ItemArmor armorItem = (ItemArmor)item;
-                
+                ItemArmor armorItem = (ItemArmor) item;
+
                 // Make sure that the armor is of the correct material
                 if (armorItem.getArmorMaterial().name() == armorMaterial.name()) {
-                    HubbyUtils.addArmorToEntity(entity, (ItemArmor)item);
+                    HubbyUtils.addArmorToEntity(entity, (ItemArmor) item);
                     success = true;
                 }
             }
         }
-        
+
         return success;
     }
-    
+
     /**
      * Searches for all fields belonging to the <code>sourceClass</code> that is
      * contained within the package identified by <code>packageName</code>
@@ -555,9 +575,9 @@ public class HubbyUtils {
      * @return
      */
     public static <T> List<T> searchForFieldsOfType(String packageName, final Class sourceClass, final Object instance, final Class searchClass) {
-        
+
         final List<T> foundObjects = new ArrayList<T>();
-        
+
         // Lets search for all fields contained in the named package
         // that belong to the class passed in
         Reflections r = new Reflections(packageName);
@@ -568,7 +588,7 @@ public class HubbyUtils {
                     // Check each field to see the object matches the searchClass
                     Object obj = f.get(instance);
                     if (obj.getClass().isAssignableFrom(searchClass) || searchClass.isInstance(obj)) {
-                        foundObjects.add((T)obj);
+                        foundObjects.add((T) obj);
                         return true;
                     }
                     return false;
@@ -582,5 +602,74 @@ public class HubbyUtils {
         // Return all objects that were found that were of mathcin class type
         return foundObjects;
     }
-}
+
+    /**
+     * Attempts to look at the block directly beneath the entity passed in
+     * @param entity - the entity to check
+     * @return Block - the block beneath the entity
+     */
+    public static Block findBlockUnderEntity(Entity entity) {
+        int blockX = MathHelper.floor_double(entity.posX);
+        int blockY = MathHelper.floor_double(entity.getEntityBoundingBox().minY) - 1;
+        int blockZ = MathHelper.floor_double(entity.posZ);
+        BlockPos pos = new BlockPos(blockX, blockY, blockZ);
+        Block block = entity.worldObj.getBlockState(pos).getBlock();
+        Item blockItem = Item.getItemFromBlock(block);
+        
+        // search for the first non-air block below us if indeed
+        // our current underneath block is air
+        int yOffset = -1;
+        while (blockItem == null && yOffset > (int)-pos.getY()) {
+            BlockPos offsetPos = pos.add(0, yOffset, 0.0f);
+            block = HubbyUtils.getServerWorld().getBlockState(offsetPos).getBlock();
+            if (block != null) {
+                blockItem = Item.getItemFromBlock(block);
+            }
+            yOffset -= 1;
+        }
+        
+        return block;
+    }
+
+    /**
+     * Returns the entity facing direction based on their current rotation
+     * @param entity - the entity to check
+     * @return Direction - the direction they are facing
+     */
+    public static Direction getFacingDirection(Entity entity) {
+        int d = MathHelper.floor_double((double) (entity.rotationYaw * 4.0F / 360) + 0.50) & 3;
+        return Direction.values()[d];
+    }
     
+    /**
+     * Attempts to get the block the user is looking at now
+     * @return Block - the <code>Block</code> being looked at (null if none)
+     */
+    public static Block getLookAtBlock() {
+        MovingObjectPosition pos = Minecraft.getMinecraft().getRenderViewEntity().rayTrace(200, 1.0F);
+        if (pos != null) {
+            EnumFacing blockHitSide = pos.sideHit;
+            Block blockLookingAt = HubbyUtils.getClientWorld().getBlockState(pos.getBlockPos()).getBlock(); 
+        }
+        return null;
+    }
+    
+    /**
+     * Returns the first slot of the main inventory that possesses the item with the
+     * specified class
+     * @param itemClass - the class of the item to search for
+     * @return int - the first found index (or -1 if not found)
+     */
+    public static int isItemInInventory(Class<? extends Item> itemClass) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        if (player != null) {
+            for (int i = 0; i < 9; ++i) {
+                ItemStack stack = player.inventory.mainInventory[i];
+                if (stack != null && stack.getItem() != null && stack.getItem().getClass().isAssignableFrom(itemClass)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+}

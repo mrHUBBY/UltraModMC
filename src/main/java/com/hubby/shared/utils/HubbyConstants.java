@@ -60,4 +60,15 @@ public class HubbyConstants {
             return _inventorySlot;
         }
     }
+    
+    /**
+     * Enumerates the ordinal directions
+     * @author davidleistiko
+     */
+    public enum Direction {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST
+    }
 }

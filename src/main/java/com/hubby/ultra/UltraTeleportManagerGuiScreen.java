@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -355,28 +354,12 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
         // draw the block we are standing on
         int sX = (width - SIZE_X) / 2 + 148;
         int sY = (height - SIZE_Y) / 2 + 6;
-        //BlockPos pos = UltraCommandHooks.theServerPlayer.getPosition();
-        BlockPos pos = HubbyUtils.getServerPlayer().getPosition();
-        Item itemToRender = null;
-        int yOffset = -1;
-
-        // determine first block beneath the player's feet
-        while (itemToRender == null && yOffset > (int)-pos.getY()) {
-        	BlockPos offsetPos = pos.add(0, yOffset, 0.0f);
-            Block block = HubbyUtils.getServerWorld().getBlockState(offsetPos).getBlock();
-            if (block != null) {
-                itemToRender = Item.getItemFromBlock(block);
-            }
-            yOffset -= 1;
-        }
-
-        if (itemToRender == null) {
-            itemToRender = Item.getItemFromBlock((Block) Block.blockRegistry.getObject(3));
-        }
-        
+        Block block = HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
+        Item itemToRender = Item.getItemFromBlock(block);        
         ItemStack stack = new ItemStack(itemToRender, 1, 0);
+        
         _renderItem.renderItemIntoGUI(stack, sX, sY);
-        _renderItem.renderItemOverlayIntoGUI(this.fontRendererObj, stack, sX, sY, ""); // TODO: is this right to leave the string empty?
+        _renderItem.renderItemOverlayIntoGUI(this.fontRendererObj, stack, sX, sY, "");
     }
 
     /**
