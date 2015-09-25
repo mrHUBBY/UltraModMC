@@ -2,7 +2,6 @@ package com.hubby.ultra.render;
 
 import org.lwjgl.opengl.GL11;
 
-import com.hubby.shared.utils.HubbyConstants.ArmorType;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.items.UltraItemBackpackArmor;
 import com.hubby.ultra.models.UltraModelBackpack;
@@ -49,7 +48,8 @@ public class UltraRenderEntityPlayer {
         }
 
         // render the backpack if we have one equipped
-        ItemStack backpack = HubbyUtils.getClientPlayer().inventory.armorInventory[ArmorType.CHESTPLATE.getInventorySlot() - 1];
+        //ItemStack backpack = HubbyUtils.getClientPlayer().inventory.armorInventory[ArmorType.CHESTPLATE.getInventorySlot() - 1];
+        ItemStack backpack = HubbyUtils.findItemInInventory(UltraItemBackpackArmor.class);
         if (backpack != null && backpack.getItem() instanceof UltraItemBackpackArmor) {
             String texture = ((UltraItemBackpackArmor) backpack.getItem()).getArmorTexture(backpack, event.entityPlayer, 1, "");
             Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(texture));

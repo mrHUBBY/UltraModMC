@@ -20,7 +20,7 @@ public class UltraModelBackpack extends ModelBiped {
      */
     private ModelRenderer _backpackTop;
     private ModelRenderer _backpackBottom;
-    private ModelRenderer _shape;
+    private ModelRenderer _backpackButton;
 
     /**
      * Constructor
@@ -39,28 +39,29 @@ public class UltraModelBackpack extends ModelBiped {
         textureWidth = 64;
         textureHeight = 32;
 
-        // Init the models and renderers
+        // The top fat part of the backpack
         _backpackTop = new ModelRenderer(this, 0, 0);
         _backpackTop.addBox(-4F, 0F, 0F, 8, 4, 5);
         _backpackTop.setRotationPoint(0F, 0F, 2F);
         _backpackTop.setTextureSize(64, 32);
-        //_backpackTop.mirror = true;
         _backpackTop.offsetY = 1.4f;
         setRotation(_backpackTop, 0.0f, 0.0f, (float)HubbyMath.toRadians(180.0));
+        
+        // The bottom-half of the backpack
         _backpackBottom = new ModelRenderer(this, 0, 10);
         _backpackBottom.addBox(-4F, 0F, 0F, 8, 7, 4);
         _backpackBottom.setRotationPoint(0F, 4F, 2F);
         _backpackBottom.setTextureSize(64, 32);
-        //_backpackBottom.mirror = true;
         _backpackBottom.offsetY = 0.9f;
         setRotation(_backpackBottom, 0.0f, 0.0f, (float)HubbyMath.toRadians(180.0));
-        _shape = new ModelRenderer(this, 9, 22);
-        _shape.addBox(-1F, 0F, 0F, 2, 1, 1);
-        _shape.setRotationPoint(0F, 3F, 7F);
-        _shape.setTextureSize(64, 32);
-        //_shape.mirror = true;
-        _shape.offsetY = 0.95f;
-        setRotation(_shape, 0.0f, 0.0f, 0.0f);
+        
+        // The button on the backpack
+        _backpackButton = new ModelRenderer(this, 9, 22);
+        _backpackButton.addBox(-1F, 0F, 0F, 2, 1, 1);
+        _backpackButton.setRotationPoint(0F, 3F, 7F);
+        _backpackButton.setTextureSize(64, 32);
+        _backpackButton.offsetY = 0.95f;
+        setRotation(_backpackButton, 0.0f, 0.0f, 0.0f);
     }
 
     /**
@@ -82,7 +83,7 @@ public class UltraModelBackpack extends ModelBiped {
         GlStateManager.rotate(angle, 0.0F, 1.0F, 0.0F);
         _backpackTop.render(f5);
         _backpackBottom.render(f5);
-        _shape.render(f5);
+        _backpackButton.render(f5);
         GlStateManager.popMatrix();
     }
 

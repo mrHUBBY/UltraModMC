@@ -672,4 +672,15 @@ public class HubbyUtils {
         }
         return -1;
     }
+    
+    /**
+     * Returns the first item found in the inventory that matches the class passed in.
+     * @param itemClass - the class of the <code>Item</code> we are searching for
+     * @return ItemStack - the item or null if not found
+     */
+    public static ItemStack findItemInInventory(Class<? extends Item> itemClass) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        int index = HubbyUtils.isItemInInventory(itemClass);
+        return index >= 0 ? player.inventory.mainInventory[index] : null;
+    }
 }
