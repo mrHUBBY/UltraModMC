@@ -8,10 +8,12 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 
 import org.lwjgl.opengl.GL11;
+import org.reflections.Reflections;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -32,11 +34,13 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.RegistryNamespaced;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
@@ -342,7 +346,7 @@ public class HubbyUtils {
      */
     public static boolean isServerSide() {
         return !HubbyUtils.getClientWorld().isRemote;
-        //return MinecraftServer.getServer().isDedicatedServer();
+        // return MinecraftServer.getServer().isDedicatedServer();
     }
 
     /**
@@ -413,13 +417,13 @@ public class HubbyUtils {
                 }
             }
         }
-        
+
         // Here is where we would add any custom Materials that are a part
         // of the current mod
         if (additionalMaterials != null) {
             materials.addAll(additionalMaterials);
         }
-        
+
         // This predicate will remove all Materials that are not liquids
         final Predicate<Material> predicate = new Predicate<Material>() {
             @Override
@@ -429,7 +433,7 @@ public class HubbyUtils {
         };
         Iterable<Material> iter = Iterables.filter(materials, predicate);
         ArrayList<Material> filtered = Lists.newArrayList(iter.iterator());
-        
+
         // query if entity is standing in any of the liquids that we discovered
         for (Material mat : filtered) {
             if (isEntityStandingInMaterial(entity, mat)) {
@@ -440,7 +444,7 @@ public class HubbyUtils {
         // No luck! :(
         return null;
     }
-    
+
     /**
      * Checks if the entity passed in is wearing the armor item identified
      * both by specific a <code>ItemArmor</code> class and the designated <code>ArmorType</code>
@@ -455,6 +459,18 @@ public class HubbyUtils {
     }
     
     /**
+     * Checks if we are wearing a vanilla Minecraft armor with a specific <code>ToolMaterial</code>
+     * @param entity - the <code>Entity</code> we are checking
+     * @param material - the <code>ToolMaterial</code> to match against
+     * @param armor - the specific piece of armor we are looking for
+     * @return
+     */
+    public boolean isWearingVanillaArmor(EntityLivingBase entity, ToolMaterial material, ArmorType armor) {
+        ItemStack armorItem = entity.getCurrentArmor(armor.getInventorySlot() - 1);
+        return armorItem != null && ((ItemArmor)armorItem.getItem()).getArmorMaterial().name() == material.name();
+    }
+
+    /**
      * Checks if the entity passed in is wearing an entire set of armor
      * as identified by the armor class type passed in
      * @param entity - the entity to check
@@ -462,21 +478,109 @@ public class HubbyUtils {
      * @return boolean - is the entity decked out in the specific armor?
      */
     public boolean isWearingWholeArmor(EntityLivingBase entity, Class<? extends ItemArmor> klass) {
-        return isWearingArmor(entity, klass, ArmorType.HELMET) &&
-               isWearingArmor(entity, klass, ArmorType.CHESTPLATE) &&
-               isWearingArmor(entity, klass, ArmorType.LEGGINGS) &&
-               isWearingArmor(entity, klass, ArmorType.BOOTS);
+        return isWearingArmor(entity, klass, ArmorType.HELMET) && isWearingArmor(entity, klass, ArmorType.CHESTPLATE) && 
+            isWearingArmor(entity, klass, ArmorType.LEGGINGS) && isWearingArmor(entity, klass, ArmorType.BOOTS);
     }
     
+    /**
+     * Checks if we are wearing a vanilla Minecraft armor with a specific <code>ToolMaterial</code>
+     * @param entity - the <code>Entity</code> we are checking
+     * @param material - the <code>ToolMaterial</code> to match against
+     * @return boolean - are we wearing the entire vanilla armor set?
+     */
+    public boolean isWearingWholeVanillaArmor(EntityLivingBase entity, ToolMaterial material) {
+        return isWearingVanillaArmor(entity, material, ArmorType.HELMET) && isWearingVanillaArmor(entity, material, ArmorType.CHESTPLATE) && 
+            isWearingVanillaArmor(entity, material, ArmorType.LEGGINGS) && isWearingVanillaArmor(entity, material, ArmorType.BOOTS);
+    }
+
     /**
      * Gives the specified armor to the entity passed in
      * @param entity - the entity to give the armor to
      * @param armor - the armor to give to the entity
      * @param type - the type of armor that is being applied
      */
-    public <T extends ItemArmor> void addArmorToEntity(EntityLivingBase entity, T armor) {
-        ArmorType type = ArmorType.values()[armor.armorType];
+    public static <T extends ItemArmor> void addArmorToEntity(EntityLivingBase entity, T armor) {
+        ArmorType type = ArmorType.values()[armor.armorType + 1];
         ItemStack stack = new ItemStack(armor, 1);
         entity.setCurrentItemOrArmor(type.getInventorySlot(), stack);
     }
+    
+    /**
+     * Adds the generic Minecraft armor identified by the <code>ToolMaterial</code>
+     * passed in
+     * @param entity - the <code>Entity</code> to apply the armor to
+     * @param armorMaterial - the material of the armor we want to add
+     * @return boolean - did we add any armor?
+     */
+    public static boolean addFullVanillaArmorToEntity(EntityLivingBase entity, ToolMaterial armorMaterial) {
+        
+        // Find the itemRegistry that is a map containing all of the generic Minecraft items
+        boolean success = false;
+        List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
+        
+        // This shouldn't happen, but who know, maybe Mojang will change how
+        // they register their items... for now, we are good to assume that
+        // the registry we are looking for will be the only entry in this list
+        if (allRegistries.size() == 0) {
+            return false;
+        }
+        
+        RegistryNamespaced registry = (RegistryNamespaced)allRegistries.get(0);
+        Set keys = registry.getKeys();
+        
+        // Iterate over all of the item keys, looking for armor
+        for (Object key : keys) {
+            Item item = (Item)registry.getObject(key);
+            if (ItemArmor.class.isInstance(item)) {
+                ItemArmor armorItem = (ItemArmor)item;
+                
+                // Make sure that the armor is of the correct material
+                if (armorItem.getArmorMaterial().name() == armorMaterial.name()) {
+                    HubbyUtils.addArmorToEntity(entity, (ItemArmor)item);
+                    success = true;
+                }
+            }
+        }
+        
+        return success;
+    }
+    
+    /**
+     * Searches for all fields belonging to the <code>sourceClass</code> that is
+     * contained within the package identified by <code>packageName</code>
+     * @param packageName - the package to look in
+     * @param sourceClass - the source class to search
+     * @param instance - the instance to lookup the fields on (can be null)
+     * @param searchClass - the class to match against
+     * @return
+     */
+    public static <T> List<T> searchForFieldsOfType(String packageName, final Class sourceClass, final Object instance, final Class searchClass) {
+        
+        final List<T> foundObjects = new ArrayList<T>();
+        
+        // Lets search for all fields contained in the named package
+        // that belong to the class passed in
+        Reflections r = new Reflections(packageName);
+        Set<Field> fields = r.getAllFields(sourceClass, new Predicate<Field>() {
+            @Override
+            public boolean apply(Field f) {
+                try {
+                    // Check each field to see the object matches the searchClass
+                    Object obj = f.get(instance);
+                    if (obj.getClass().isAssignableFrom(searchClass) || searchClass.isInstance(obj)) {
+                        foundObjects.add((T)obj);
+                        return true;
+                    }
+                    return false;
+                }
+                catch (Exception e) {
+                    return false;
+                }
+            }
+        });
+
+        // Return all objects that were found that were of mathcin class type
+        return foundObjects;
+    }
 }
+    

@@ -1,12 +1,17 @@
 package com.hubby.ultra.setup;
 
+import com.hubby.shared.utils.HubbyConstants.ArmorType;
+import com.hubby.shared.utils.HubbyUtils;
+import com.hubby.ultra.UltraConstants;
 import com.hubby.ultra.UltraTeleportWaypointGuiScreen;
+import com.hubby.ultra.items.UltraItemAdvancedArmor;
 import com.hubby.ultra.items.UltraItemBasicSword;
 import com.hubby.ultra.items.UltraItemTeleportArtifact;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.item.ItemArmor;
 
 import net.minecraftforge.common.util.EnumHelper;
 
@@ -25,12 +30,21 @@ public class UltraRegistry {
 	 * Materials
 	 */
 	public static ToolMaterial ultraToolMaterial = null;
+	public static ItemArmor.ArmorMaterial ultraAdvancedArmorMaterial = null;
 
 	/**
 	 * Items
 	 */
 	public static UltraItemBasicSword ultraItemBasicSword = null;
 	public static UltraItemTeleportArtifact ultraItemTeleportArtifact = null;
+	
+	/**
+	 * ItemArmor
+	 */
+	public static UltraItemAdvancedArmor ultraItemAdvancedArmorHelmet = null;
+	public static UltraItemAdvancedArmor ultraItemAdvancedArmorChestplate = null;
+	public static UltraItemAdvancedArmor ultraItemAdvancedArmorLeggings = null;
+	public static UltraItemAdvancedArmor ultraItemAdvancedArmorBoots = null;
 
 	/**
 	 * GuiScreens
@@ -58,12 +72,23 @@ public class UltraRegistry {
 		 * Materials
 		 */
 		ultraToolMaterial = EnumHelper.addToolMaterial(UltraMod.MOD_NAME, 3, 500, 20.0F, 20.0F, 25);
+		ultraAdvancedArmorMaterial = EnumHelper.addArmorMaterial("ultraItemAdvancedArmorMaterial", 
+	                                 HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/models/armor/ultra_advanced_armor"), 
+	                                 UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_DURABILITY, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_DAMAGE_REDUCTIONS, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_ENCHANTABILITY);
 
 		/**
 		 * Items
 		 */
 		ultraItemBasicSword = new UltraItemBasicSword(ultraToolMaterial);
 		ultraItemTeleportArtifact = new UltraItemTeleportArtifact();
+		
+		/**
+		 * ItemArmor
+		 */
+		ultraItemAdvancedArmorHelmet = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.HELMET);
+		ultraItemAdvancedArmorChestplate = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.CHESTPLATE);
+		ultraItemAdvancedArmorLeggings = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.LEGGINGS);
+		ultraItemAdvancedArmorBoots = new UltraItemAdvancedArmor(ultraAdvancedArmorMaterial, UltraConstants.ULTRA_ITEM_ADVANCED_ARMOR_RENDER_INDEX, ArmorType.BOOTS);
 
 		/**
 		 * GuiScreens

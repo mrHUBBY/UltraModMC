@@ -5,6 +5,12 @@ itemGroup.ultra=Ultra Inventory
 item.ultraItemBasicSword.name=Ultra Basic Sword
 item.ultraItemTeleportArtifact.name=Ultra Teleportation Talisman
 
+# Armor Items
+item.ultraItemAdvancedArmorBoots=Ultra Advanced Armor Boots
+item.ultraItemAdvancedArmorChestplate=Ultra Advanced Armor Chestplate
+item.ultraItemAdvancedArmorHelmet=Ultra Advanced Armor Helmet
+item.ultraItemAdvancedArmorLeggings=Ultra Advanced Armor Leggings
+
 
 
 

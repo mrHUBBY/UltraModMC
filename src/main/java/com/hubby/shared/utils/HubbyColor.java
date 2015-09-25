@@ -92,7 +92,7 @@ public class HubbyColor {
         }
         
         // if we are a hex-color then parse the string to get the components
-        if (isHexColor) {
+        if (isHexColor && colorStr.length() == 8) {
             float red = Integer.parseInt((String) colorStr.subSequence(0, 2), 16) / 255.0f;
             float green = Integer.parseInt((String) colorStr.subSequence(2, 4), 16) / 255.0f;
             float blue = Integer.parseInt((String) colorStr.subSequence(4, 6), 16) / 255.0f;

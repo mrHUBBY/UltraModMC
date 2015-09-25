@@ -9,10 +9,12 @@ import com.hubby.shared.utils.HubbyRefreshedObjectInterface;
 import com.hubby.shared.utils.HubbyScheduler;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraCommandHooks;
+import com.hubby.ultra.UltraEventHooks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -68,7 +70,7 @@ public class UltraMod {
 
         // Register custom event hooks
         FMLCommonHandler.instance().bus().register(new UltraCommandHooks());
-        // MinecraftForge.EVENT_BUS.register(new NitroEventHooks());
+        MinecraftForge.EVENT_BUS.register(new UltraEventHooks());
         // MinecraftForge.EVENT_BUS.register(new NitroRenderEntityPlayer());
     }
 
@@ -101,15 +103,7 @@ public class UltraMod {
         // Begin giving update calls to any refreshed objects that need it
         HubbyRefreshedObjectInterface.start(null);
 
-        // TODO:
-        // Remove this, it is temporary to see how to use the feature
-        HubbyScheduler.schedule("checkPlayer", new Callable<Boolean>() { 
-            @Override
-            public Boolean call() throws Exception {
-                checkPlayer();
-                return true;
-            }
-        }, 1000, true);
+        TEST_CODE_PLEASE_REMOVE();
 
         // NitroInterface.registerFluids();
 
@@ -246,6 +240,18 @@ public class UltraMod {
     // used in 1.6.2
     // @PostInit // used in 1.5.2
     public void postInit(FMLPostInitializationEvent event) {
+    }
+    
+    public void TEST_CODE_PLEASE_REMOVE() {
+        // TODO:
+        // Remove this, it is temporary to see how to use the feature
+        HubbyScheduler.schedule("checkPlayer", new Callable<Boolean>() { 
+            @Override
+            public Boolean call() throws Exception {
+                checkPlayer();
+                return true;
+            }
+        }, 1000, true);
     }
 
     // Make the getFlowDirection func public

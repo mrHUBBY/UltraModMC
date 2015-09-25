@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
@@ -247,7 +248,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
                 _colorField.setFocused(false);
                 _inputField.setFocused(true);
             }
-            updateInputFields();
+            updateInputFields();   
             return;
         }
         

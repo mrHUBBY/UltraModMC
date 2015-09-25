@@ -1,22 +1,15 @@
 package com.hubby.ultra;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import com.hubby.shared.utils.HubbyUtils;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPotion;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.item.Item.ToolMaterial;
+
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -24,15 +17,38 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.AllowDespawn;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class UltraEventHooks {
 
 	@SubscribeEvent
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
+	    //HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entity, ToolMaterial.GOLD);
+	}
+	
+	@SubscribeEvent
+	public void onEntityLivingSpawned(LivingSpawnEvent event) {
+	    
+	    WorldClient world = HubbyUtils.getClientWorld();
+	    List entities = world != null ? world.loadedEntityList : null;
+	    ArrayList<Object> copyEnts = (entities != null) ? new ArrayList<Object>(entities) : null;
+	    if (copyEnts != null) {
+	        Iterator it = (Iterator) copyEnts.iterator();
+	        while (it.hasNext()) {
+	            Object ent = it.next();
+     	        if (EntitySkeleton.class.isInstance(ent)) {
+     	            EntitySkeleton skeleton = (EntitySkeleton)ent;
+     	            HubbyUtils.addFullVanillaArmorToEntity(skeleton, ToolMaterial.IRON);
+     	        }
+    	    }
+	    }
+	    
+	    //HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entityLiving, ToolMaterial.IRON);
 	}
 
 	public void onAttemptEntityDespawn(AllowDespawn event) {
