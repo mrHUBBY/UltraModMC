@@ -1,9 +1,11 @@
 package com.hubby.ultra.render;
 
+import java.util.HashMap;
+
 import org.lwjgl.opengl.GL11;
 
 import com.hubby.shared.utils.HubbyUtils;
-import com.hubby.ultra.items.UltraItemBackpackArmor;
+import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.models.UltraModelBackpack;
 
 import net.minecraft.client.Minecraft;
@@ -48,10 +50,11 @@ public class UltraRenderEntityPlayer {
         }
 
         // render the backpack if we have one equipped
-        //ItemStack backpack = HubbyUtils.getClientPlayer().inventory.armorInventory[ArmorType.CHESTPLATE.getInventorySlot() - 1];
-        ItemStack backpack = HubbyUtils.findItemInInventory(UltraItemBackpackArmor.class);
-        if (backpack != null && backpack.getItem() instanceof UltraItemBackpackArmor) {
-            String texture = ((UltraItemBackpackArmor) backpack.getItem()).getArmorTexture(backpack, event.entityPlayer, 1, "");
+        HashMap<Integer, ItemStack> items = (HashMap<Integer, ItemStack>)HubbyUtils.getInventoryItem(UltraItemBackpack.class);
+        ItemStack backpack = items.size() > 0 ? (ItemStack)items.values().toArray()[0] : null;
+        if (backpack != null && backpack.getItem() instanceof UltraItemBackpack) {
+            UltraItemBackpack backpackItem = (UltraItemBackpack)backpack.getItem();
+            String texture = UltraItemBackpack.getModelTexture(backpackItem.getBackpackType());
             Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(texture));
             renderBackpack(event.entityPlayer, event.partialRenderTick);
         }

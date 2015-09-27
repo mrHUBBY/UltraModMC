@@ -18,6 +18,12 @@ import java.util.TreeSet;
 public abstract class HubbyRefreshedObjectInterface {
 
     /**
+     * Constants
+     */
+    public static final Integer HIGHEST_PRIORITY = 0;
+    public static final Integer LOWEST_PRIORITY = 99;
+    
+    /**
      * The registered objects that will receive an update call each minecraft tick
      */
     private static HashMap<Integer, ArrayList<HubbyRefreshedObjectInterface>> _registeredObjects = new HashMap<Integer, ArrayList<HubbyRefreshedObjectInterface>>();
@@ -81,7 +87,7 @@ public abstract class HubbyRefreshedObjectInterface {
      */
     public HubbyRefreshedObjectInterface(String id, int priority) {
         _id = id;
-        _priority = priority;
+        _priority = HubbyMath.clamp(priority, HIGHEST_PRIORITY, LOWEST_PRIORITY);
 
         if (_registeredObjects.containsKey(priority)) {
             _registeredObjects.get(_priority).add(this);

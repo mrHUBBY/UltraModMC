@@ -1,7 +1,5 @@
 package com.hubby.shared.utils;
 
-import java.util.ArrayList;
-
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.common.config.Property.Type;
@@ -38,4 +36,11 @@ public interface HubbyConfigurationPropertyListenerInterface {
 	 * @return boolean - did we create any properties for the category
 	 */
 	public boolean createDefaultPropertiesForCategory(Configuration config, String category);
+	
+	/**
+	 * This method should respond to the event of the configuration being cleared and
+	 * having all categories removed
+	 * @param config - the configuration file
+	 */
+	public void onConfigurationReset(Configuration config);
 }

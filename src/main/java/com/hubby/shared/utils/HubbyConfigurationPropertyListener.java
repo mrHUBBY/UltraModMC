@@ -1,7 +1,5 @@
 package com.hubby.shared.utils;
 
-import java.util.ArrayList;
-
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.common.config.Property.Type;
@@ -51,4 +49,12 @@ public class HubbyConfigurationPropertyListener implements HubbyConfigurationPro
 	public boolean createDefaultPropertiesForCategory(Configuration config, String category) {
 		return false;
 	}
+
+	/**
+	 * Called when the config is cleared
+	 * @param config - the changed config
+	 */
+    @Override
+    public void onConfigurationReset(Configuration config) {
+    }
 }

@@ -31,6 +31,7 @@ public class HubbyColor {
 	public static final HubbyColor BLACK = new HubbyColor(0x000000FFL, ColorMode.STANDARD);
 	public static final HubbyColor GREY = new HubbyColor(0x888888FFL, ColorMode.STANDARD);
 	public static final HubbyColor ORANGE = new HubbyColor(0xFF6000FFL, ColorMode.STANDARD);
+	public static final HubbyColor TRANSPARENT = new HubbyColor(0xFFFFFF00, ColorMode.STANDARD);
 	
 	private static final Map<String, HubbyColor> _colorLookupByName = new HashMap<String, HubbyColor>();
 

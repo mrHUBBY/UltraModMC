@@ -27,27 +27,33 @@ public class UltraConstants {
      * @author davidleistiko
      */
     public enum BackpackType {
-        NONE     (-1, 3, ""),
-        SMALL    (0,  3, "Small"),
-        MEDIUM   (1,  3, "Medium"),
-        LARGE    (2,  3, "Large");
+        NONE     (-1, 0,  0,  "",         "", ""),
+        SMALL    (0,  27, 24, "Small",    "container.ultraGuiContainerBackpackSmall", "ultraBackpackSmallInventory.dat"),
+        MEDIUM   (1,  35, 48, "Medium",   "container.ultraGuiContainerBackpackMedium", "ultraBackpackMediumInventory.dat"),
+        LARGE    (2,  43, 64, "Large",    "container.ultraGuiContainerBackpackLarge", "ultraBackpackLargeInventory.dat");
         
         /**
          * Members
          */
         private Integer _underlyingValue;
-        private Integer _inventorySlot;
         private String _nameSuffix;
+        private Integer _inventorySize;
+        private Integer _inventoryStackSizeLimit;
+        private String _inventoryFilename;
+        private String _containerName;
         
         /**
          * Constructor for enum
          * @param value
          * @param slot
          */
-        BackpackType(Integer value, Integer slot, String suffix) {
+        BackpackType(Integer value, Integer inventorySize, Integer maxInventoryStackSize, String suffix, String containerName, String inventoryFilename) {
             _underlyingValue = value;
-            _inventorySlot = slot;
+            _inventorySize = inventorySize;
             _nameSuffix = suffix;
+            _inventoryFilename = inventoryFilename;
+            _inventoryStackSizeLimit = maxInventoryStackSize;
+            _containerName = containerName;
         }
         
         /**
@@ -60,12 +66,35 @@ public class UltraConstants {
         }
         
         /**
-         * Returns the inventory slot that corresponds to the current
-         * <code>ArmorType</code> enumerated value
-         * @return Integer - the inventory slot
+         * Returns the container name for the backpack type
+         * @return String - the container name
          */
-        public Integer getInventorySlot() {
-            return _inventorySlot;
+        public String getContainerName() {
+            return _containerName;
+        }
+        
+        /**
+         * Returns the max amount a stack can be for the backpack type
+         * @return Integer - the max inventory stack size
+         */
+        public Integer getInventoryStackSizeLimit() {
+            return _inventoryStackSizeLimit;
+        }
+        
+        /**
+         * Returns the inventory filename for the backpack size
+         * @return String - the filename where we save the inventory
+         */
+        public String getInventoryFilename() {
+            return _inventoryFilename;
+        }
+        
+        /**
+         * Returns the inventory size for the backpack type
+         * @return Integer - the inventory size
+         */
+        public Integer getInventorySize() {
+            return _inventorySize;
         }
         
         /**

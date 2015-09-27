@@ -2,6 +2,7 @@ package com.hubby.shared.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 
 import net.minecraftforge.common.config.ConfigCategory;
@@ -33,6 +34,11 @@ public class HubbyConfigurationHelper {
 	private Configuration _config = null;
 	
 	/**
+	 * Should we reset the config file when we open it for parsing?
+	 */
+	private boolean _resetConfigurationFile = false;
+	
+	/**
 	 * The string that divides the config data into separate values
 	 */
 	public static final String DELIMITER = ",";
@@ -58,6 +64,16 @@ public class HubbyConfigurationHelper {
 	 */
 	protected HubbyConfigurationHelper() {
 		_config = null;
+		_resetConfigurationFile = false;
+	}
+	
+	/**
+	 * Sets whether or not to reset the config file to its default
+	 * values when it is opened and parsed
+	 * @param reset - should we reset?
+	 */
+	public void setResetConfigurationFile(boolean reset) {
+	    _resetConfigurationFile = reset;
 	}
 	
 	/**
@@ -88,6 +104,12 @@ public class HubbyConfigurationHelper {
 		try {
 			_config = new Configuration(file, version, false);
 			_config.load();
+			
+			// reset the config if we are told to
+			if (_resetConfigurationFile) {
+			    clearConfigurationFile();
+			    _resetConfigurationFile = false;
+			}
 			
 			// parse the contents
 			parseConfigurationFile();
@@ -272,6 +294,23 @@ public class HubbyConfigurationHelper {
 			return created ? getCategories() : new ArrayList<String>();
 		}
 		return new ArrayList<String>(categories);
+	}
+	
+	/**
+	 * Clears the configuration file by removing all categories
+	 */
+	public void clearConfigurationFile() {
+	    Set<String> categories = _config.getCategoryNames();
+	    Iterator<String> it = categories.iterator();
+	    while (it.hasNext()) {
+	        String categoryName = it.next();
+	        _config.removeCategory(_config.getCategory(categoryName));
+	    }
+	    
+	    // notify listeners
+	    for (HubbyConfigurationPropertyListenerInterface listener : _configListeners) {
+            listener.onConfigurationReset(_config);
+        }
 	}
 	
 	/**

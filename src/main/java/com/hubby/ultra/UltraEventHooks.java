@@ -44,7 +44,7 @@ public class UltraEventHooks {
 	    // Change this as this is just test code
 	    // If we have this item in our possession then new entities should get some
 	    // dazzling golden armor just for fun
-        if (HubbyUtils.isItemInInventory(UltraItemTeleportArtifact.class) >= 0) {
+        if (HubbyUtils.getInventoryItemLocations(UltraItemTeleportArtifact.class).size() > 0) {
             if (EntitySkeleton.class.isInstance(event.entity) || EntityZombie.class.isInstance(event.entity)) {
                 HubbyUtils.addFullVanillaArmorToEntity((EntityLivingBase)event.entity, ToolMaterial.GOLD); 
             }

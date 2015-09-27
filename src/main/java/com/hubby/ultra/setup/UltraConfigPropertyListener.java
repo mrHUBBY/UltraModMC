@@ -28,7 +28,8 @@ public class UltraConfigPropertyListener implements HubbyConfigurationPropertyLi
 	public static final String KEY_KEYBINDINGS = "keys";
 	public static final String KEYBINDING_DELIMITER = "=";
 	public static final String ALTERNATE_DELIMITER =":";
-	public static final String KEY_BINDING_OPEN_TELEPORT_GUI = "openTeleportGuiKey";
+    public static final String KEY_BINDING_OPEN_TELEPORT_GUI = "openTeleportGuiKey";
+	public static final String KEY_BINDING_OPEN_BACKPACK_GUI = "openBackpackGuiKey";
 
 	/**
 	 * Members
@@ -119,7 +120,7 @@ public class UltraConfigPropertyListener implements HubbyConfigurationPropertyLi
 					"key.time=44:toggleTimeKey," +
 					"key.options=24:openOptionsKey," +
 					"key.effects=33:toggleEffectsKey," +
-					"key.backpack=48:openBackpackInvenytoryKey," +
+					"key.backpack=48:openBackpackGuiKey," +
 					"key.cheat=46:giveCheatsKey," +
 					"key.teleport=45:openTeleportGuiKey," +
 					"key.everything=47:openEverythingInventoryKey," +
@@ -130,4 +131,12 @@ public class UltraConfigPropertyListener implements HubbyConfigurationPropertyLi
 		}
 		return false;
 	}
+
+	/**
+	 * Called when the config file is cleared
+	 * @param config - the cleared config
+	 */
+    @Override
+    public void onConfigurationReset(Configuration config) { 
+    }
 }

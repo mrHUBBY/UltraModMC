@@ -1,5 +1,8 @@
 package com.hubby.shared.utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class HubbyConstants {
     /**
      * Useful constants
@@ -8,6 +11,7 @@ public class HubbyConstants {
     public static final Double TICKS_PER_SECOND = 20.0D;
     public static final Double SECONDS_PER_TICK = 1.0D / TICKS_PER_SECOND;
     public static final Integer TARGTE_FRAME_RATE = 30;
+    public static final Integer HOTBAR_INVENTORY_SIZE = 9;
     
     /**
      * This enum identifies the various pieces of armor as well
@@ -78,5 +82,316 @@ public class HubbyConstants {
         EAST,
         SOUTH,
         WEST
+    }
+    
+    /**
+     * The various types of priority allowed for logging
+     * @author davidleistiko
+     *
+     */
+    public enum LogChannel {
+        INFO        ("[INFO]", true),
+        DEBUG       ("[DEBUG]", true),
+        WARNING     ("[WARNING]", true),
+        ERROR       ("[ERROR]", true);
+        
+        /**
+         * Members
+         */
+        private String _tag = "";
+        private boolean _enabled = false;
+        private static boolean _logToConsole = true;
+        private static final HashMap<LogChannel, ArrayList<String>> LOGS = new HashMap<LogChannel, ArrayList<String>>();
+        
+        /**
+         * Static constructor
+         */
+        static {
+            LOGS.put(LogChannel.INFO, new ArrayList<String>());
+            LOGS.put(LogChannel.DEBUG, new ArrayList<String>());
+            LOGS.put(LogChannel.WARNING, new ArrayList<String>());
+            LOGS.put(LogChannel.ERROR, new ArrayList<String>());
+        }
+        
+        /**
+         * Enum constructor
+         * @param tag
+         */
+        LogChannel(String tag, boolean enabled) {
+            _tag = tag;
+            _enabled = enabled;
+        }
+        
+        /**
+         * Returns the tag
+         * @return
+         */
+        public String getLogTag() {
+            return _tag;
+        }
+        
+        /**
+         * Returns whether or not the channel is enabled
+         * @return
+         */
+        public boolean isEnabled() {
+            return _enabled;
+        }
+        
+        /**
+         * Sets the channel enabled or not
+         * @param enabled - enable the channel or not
+         */
+        public void setEnabled(boolean enabled) {
+            _enabled = enabled;
+        }
+        
+        /**
+         * Log including the class name of the one logging
+         * @param klass - the class sending the log message
+         * @param format - the format
+         * @param args - the formatting args
+         */
+        public void log(Class klass, String format, Object... args) {
+            format = "[" + klass.getName() + "]" + format;
+            log(format, args);
+        }
+        
+        /**
+         * Log message
+         * @param format - the message format
+         * @param args - the formatting args
+         */
+        public void log(String format, Object... args) {
+            
+            // don't log if we are not enabled...
+            if (!isEnabled()) {
+                return;
+            }
+            
+            // add the log message to the log cache
+            String message = getLogTag() + " => " + ((args == null) ? format : String.format(format, args));
+            LOGS.get(this).add(message);
+            
+            // print to console optionally
+            if (LogChannel._logToConsole) {
+                System.out.println(message);
+            }
+        }
+        
+        /**
+         * Enables/disabled the logging to the console
+         * @param enabled - are we enabled?
+         */
+        public static void enableConsoleLogging(boolean enabled) {
+            LogChannel._logToConsole = enabled;
+        }
+        
+        /**
+         * Static helper function for checking channel
+         * @param channel - the channel to check
+         * @return boolean - is the channel enabled
+         */
+        public static boolean isChannelEnabled(LogChannel channel) {
+            return channel.isEnabled(); 
+        }
+        
+        /**
+         * Logs the message
+         * @param channel - the channel to log to
+         * @param format - the format
+         * @param args - the arguments for formatting
+         */
+        public static void log(LogChannel channel, String format, Object... args) {
+            channel.log(format, args);
+        }
+    }
+    
+    /**
+     * Helper to identify click types for gui screens with
+     * containers/inventories that can be interacted with
+     * @author davidleistiko
+     */
+    public enum ClickType {
+        
+        INVALID         (-1),
+        BASIC_CLICK     (0),
+        SHIFT_CLICK     (1),
+        HOTBAR          (2),
+        PICK_BLOCK      (3),
+        DROP            (4),
+        UNKNOWN         (5),
+        DOUBLE_CLICK    (6);
+        
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        
+        /**
+         * Returns a ClickType that has a matching underlying value
+         * @param value - the value to match
+         * @return ClickType - the corresponding click type
+         */
+        public static ClickType getEnumForValue(Integer value) {
+            for (ClickType type : ClickType.values()) {
+                if (type.getValue() == value) {
+                    return type;
+                }
+            }
+            return ClickType.INVALID;
+        }
+        
+        /**
+         * Constructor
+         * @param underlyingValue
+         */
+        ClickType(Integer underlyingValue) {
+            _underlyingValue = underlyingValue;
+        }
+        
+        /**
+         * Get the underlying value
+         * @return Integer - the value for the enum
+         */
+        public Integer getValue() {
+            return _underlyingValue;
+        }
+    }
+    
+    /**
+     * Enumerates the mouse buttons that the user can click
+     * @author davidleistiko
+     */
+    public enum ClickButton {
+        
+        INVALID             (-1),
+        LEFT_BUTTON         (0),
+        RIGHT_BUTTON        (1),
+        
+        HOTBAR_SLOT1        (2),
+        HOTBAR_SLOT2        (3),
+        HOTBAR_SLOT3        (4),
+        HOTBAR_SLOT4        (5),
+        HOTBAR_SLOT5        (6),
+        HOTBAR_SLOT6        (7),
+        HOTBAR_SLOT7        (8),
+        HOTBAR_SLOT8        (9),
+        HOTBAR_SLOT9        (10);
+        
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        
+        /**
+         * Finds the corresponding enum with a matching underlying value
+         * @param value - the value to match
+         * @return ClickButton - the matching enum value
+         */
+        public static ClickButton getEnumForValue(Integer value) {
+            for (ClickButton button : ClickButton.values()) {
+                // Here we do not want to call button.getValue()
+                // as that will adjust the returned value if the button
+                // is a hotbar type, so instead, we just access the
+                // value directly
+                if (button._underlyingValue == value) {
+                    return button;
+                }
+            }
+            return ClickButton.INVALID;
+        }
+        
+        /**
+         * Test enum to see if it is a hotbar type
+         * @param button
+         * @return
+         */
+        public static boolean isHotbar(ClickButton button) {
+            return button._underlyingValue >= ClickButton.HOTBAR_SLOT1._underlyingValue && 
+                   button._underlyingValue <= ClickButton.HOTBAR_SLOT9._underlyingValue;
+        }
+        
+        /**
+         * Returns the value adjustment for the hotbar
+         * @return
+         */
+        public static Integer getHotbarValueOffset() {
+            return 2;
+        }
+        
+        /**
+         * Constructor
+         */
+        ClickButton(Integer value) {
+            _underlyingValue = value;
+        }
+        
+        /**
+         * Returns the underlying value for the enum
+         * @return
+         */
+        public Integer getValue() {
+            if (_underlyingValue >= ClickButton.HOTBAR_SLOT1._underlyingValue) {
+                return _underlyingValue - getHotbarValueOffset();
+            }
+            return _underlyingValue;
+        }
+        
+        /**
+         * Test if this value is a hotbar type
+         * @return
+         */
+        public boolean isHotbar() {
+            return ClickButton.isHotbar(this);
+        }
+    }
+
+    /**
+     * Enum that corresponds to the type of drag event that the user
+     * can perform with the mouse
+     * @author davidleistiko
+     */
+    public enum DragEvent {
+        
+        INVALID     (-1),
+        START       (0),
+        ADD_SLOT    (1),
+        END         (2);
+        
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        
+        /**
+         * Gets the DragEvent enum with the matching underlying value
+         * @param value - the value to match
+         * @return DragEvent - the matching enum
+         */
+        public static DragEvent getEnumForValue(Integer value) {
+            for (DragEvent drag : DragEvent.values()) {
+                if (drag._underlyingValue == value) {
+                    return drag;
+                }
+            }
+            return DragEvent.INVALID;
+        }
+        
+        /**
+         * Constructor
+         * @param value
+         */
+        DragEvent(Integer value) {
+            _underlyingValue = value;
+        }
+        
+        /**
+         * Returns the underlying value
+         * @return Integer - the value
+         */
+        public Integer getValue() {
+            return _underlyingValue;
+        }
     }
 }

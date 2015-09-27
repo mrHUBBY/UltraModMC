@@ -65,6 +65,7 @@ public class UltraMod {
         // NitroInterface.setupDefaultKeyBindings();
 
         HubbyConfigurationHelper helper = HubbyConfigurationHelper.getInstance();
+        helper.setResetConfigurationFile(true);
         helper.addPropertyListener(new HubbyConfigurationPropertyListener());
         helper.addPropertyListener(new UltraConfigPropertyListener());
         helper.openConfiguration(event.getSuggestedConfigurationFile(), "1.0");

@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -660,27 +661,46 @@ public class HubbyUtils {
      * @param itemClass - the class of the item to search for
      * @return int - the first found index (or -1 if not found)
      */
-    public static int isItemInInventory(Class<? extends Item> itemClass) {
+    public static List<Integer> getInventoryItemLocations(Class<? extends Item> itemClass) {
+        List<Integer> indices = new ArrayList<Integer>();
         EntityPlayer player = HubbyUtils.getClientPlayer();
         if (player != null) {
             for (int i = 0; i < 9; ++i) {
                 ItemStack stack = player.inventory.mainInventory[i];
                 if (stack != null && stack.getItem() != null && stack.getItem().getClass().isAssignableFrom(itemClass)) {
-                    return i;
+                    indices.add(i);
                 }
             }
         }
-        return -1;
+        return indices;
     }
     
     /**
      * Returns the first item found in the inventory that matches the class passed in.
      * @param itemClass - the class of the <code>Item</code> we are searching for
-     * @return ItemStack - the item or null if not found
+     * @return ItemStack - the item or null if not found (returns a copy of the original
+     * <code>ItemStacks</code> so that modification of the original list is permissible
      */
-    public static ItemStack findItemInInventory(Class<? extends Item> itemClass) {
+    public static Map<Integer, ItemStack> getInventoryItem(Class<? extends Item> itemClass) {
         EntityPlayer player = HubbyUtils.getClientPlayer();
-        int index = HubbyUtils.isItemInInventory(itemClass);
-        return index >= 0 ? player.inventory.mainInventory[index] : null;
+        List<Integer> indices = HubbyUtils.getInventoryItemLocations(itemClass);
+        Map<Integer, ItemStack> items = new HashMap<Integer, ItemStack>();
+        for (int i : indices) {
+            ItemStack copyStack = ItemStack.copyItemStack(player.inventory.mainInventory[i]);
+            items.put(i, copyStack);
+        }
+        return items;
+    }
+    
+    /**
+     * Returns if the player is playing in creative mode
+     * @return boolean - is creative mode
+     */
+    public static boolean isCreativeMode() {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        if (player != null) {
+            return player.capabilities.isCreativeMode;
+        }
+        return false;
     }
 }
