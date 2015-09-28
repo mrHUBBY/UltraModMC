@@ -1,9 +1,7 @@
 package com.hubby.shared.utils;
 
 import java.io.File;
-
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -14,8 +12,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.storage.ISaveFormat;
+
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 /**
  * This utility class aids in providing a service that allows
@@ -68,7 +66,13 @@ public class HubbySavePersistentDataHelper {
 	 */
 	// an integrated server
 	public String getLoadedSaveGameFolderName() {
-		return Minecraft.getMinecraft().getIntegratedServer() != null ? Minecraft.getMinecraft().getIntegratedServer().getFolderName() : "";
+	    if (Minecraft.getMinecraft().getIntegratedServer() != null) {
+	        return Minecraft.getMinecraft().getIntegratedServer().getFolderName();
+	    }
+	    else if (Minecraft.getMinecraft().mcDataDir != null) {
+	        return Minecraft.getMinecraft().mcDataDir.getPath();
+	    }
+	    return "";
 	}
 
 	/**
@@ -77,7 +81,13 @@ public class HubbySavePersistentDataHelper {
 	 * @return String - the name of the saved world
 	 */
 	public String getLoadedSaveGameWorldName() {
-		return Minecraft.getMinecraft().getIntegratedServer() != null ? Minecraft.getMinecraft().getIntegratedServer().getWorldName() : "";
+	    if (Minecraft.getMinecraft().getIntegratedServer() != null) {
+	        return Minecraft.getMinecraft().getIntegratedServer().getWorldName();
+	    }
+	    else if (Minecraft.getMinecraft().theWorld != null) {
+	        return Minecraft.getMinecraft().theWorld.getWorldInfo().getWorldName();
+	    }
+		return "";
 	}
 
 	/**

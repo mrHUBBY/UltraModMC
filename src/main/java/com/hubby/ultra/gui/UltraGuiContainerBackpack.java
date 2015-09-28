@@ -22,7 +22,7 @@ public class UltraGuiContainerBackpack extends Container {
     public static final int INDEX_OFFSET_LARGE = 8;
     public static final int INDEX_OFFSET_LARGE_PLUS = 12;
     public static final int BORDER_SIZE = 4;
-    public static final int SLOT_INDEX_OFFSET = 0;//HubbyConstants.HOTBAR_INVENTORY_SIZE;
+    public static final int SLOT_INDEX_OFFSET = HubbyConstants.HOTBAR_INVENTORY_SIZE;
     
     private InventoryPlayer _inventoryPlayer = null;
     private UltraGuiInventoryBackpack _inventoryBackpack = null;
@@ -217,8 +217,10 @@ public class UltraGuiContainerBackpack extends Container {
         if (s.inventory == _inventoryBackpack) {
             super.putStackInSlot(slotIndex, stack);
         }
+        // if we get here, it should be that the inventory is of type
+        // InventoryPlayer, which means we are storing the hotbar item stacks
         else {
-            HubbyConstants.LogChannel.WARNING.log(UltraGuiContainerBackpack.class, "Attempting to place an ItemStack within the inventory that it does not belong to ");
+            super.putStackInSlot(slotIndex, stack);
         }
     }
 }

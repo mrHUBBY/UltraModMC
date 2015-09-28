@@ -8,18 +8,17 @@ import com.hubby.shared.utils.HubbyColor.ColorMode;
 import com.hubby.shared.utils.HubbyConstants;
 import com.hubby.shared.utils.HubbyConstants.ClickButton;
 import com.hubby.shared.utils.HubbyConstants.ClickType;
-import com.hubby.shared.utils.HubbyConstants.DragEvent;
 import com.hubby.shared.utils.HubbySavePersistentDataHelper;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.setup.UltraMod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.InventoryEffectRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -116,6 +115,9 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
 
         // Loads the saved backpack inventory
         loadBackpackInventory();
+        
+        // loads the player inventory
+        loadPlayerInventory();
 
         // TODO: Hide potion status icons (implement)
         // NOTE: this must be done after the super call to initGui
@@ -195,6 +197,16 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
     public void clearInventory() {
         _backpackInventory.clear();
     }
+    
+    /**
+     * Loads the player inventory
+     */
+    public void loadPlayerInventory() {
+        for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
+            ItemStack stack = _thePlayer.inventory.mainInventory[i];
+            _backpackContainer.putStackInSlot(i, ItemStack.copyItemStack(stack));
+        }
+    }
 
     /**
      * Based on the currently equipped backpack, this function inits the backpack inventory
@@ -204,7 +216,6 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
      */
     public boolean loadBackpackInventory() {
         String inventoryFilename = _backpackType.getInventoryFilename();
-        Integer inventorySize = _backpackType.getInventorySize();
         
         // lets start with a fresh inventory every time
         _backpackInventory.clear();
@@ -314,7 +325,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                 ClickButton adjustedClick = ClickButton.getEnumForValue(clickedButton + ClickButton.getHotbarValueOffset());
                 if (slotItemStack != null && adjustedClick.isHotbar()) {
                     otherItemStack = ItemStack.copyItemStack(slotItemStack);
-                    _thePlayer.inventory.setInventorySlotContents(adjustedClick.getValue(), otherItemStack);
+                    _thePlayer.inventoryContainer.putStackInSlot(adjustedClick.getValue(), otherItemStack);
                     _thePlayer.inventoryContainer.detectAndSendChanges();
                     
                     HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Hotbar! Dropping item %s onto the player's hotbar at position %d!", otherItemStack.getItem().getUnlocalizedName(), adjustedClick.getValue());
@@ -413,8 +424,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
             // in there hand with the stack that was clicked on in the inventory
             else {
                 inventoryPlayer.setItemStack(slotItemStack);
-                _backpackInventory.setInventorySlotContents(slotIn.slotNumber - HubbyConstants.HOTBAR_INVENTORY_SIZE, itemStack);
-                
+                _backpackContainer.putStackInSlot(slotIn.slotNumber, itemStack);
                 HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Swapping! Replacing item in inventory with item in the player's hand");
             }
         }
@@ -430,53 +440,24 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                 _backpackContainer.slotClick(slotNumber, clickedButton, clickType, _thePlayer);
             }
             
-            // determine the slot index that is involved
-            DragEvent drag = DragEvent.getEnumForValue(Container.getDragEvent(clickedButton));
-
-            // did the player finish the drag by dropping the item?
-            if (drag == DragEvent.END) {
+            // Check if we were a hotbar clicked item?
+            if (slotNumber >= 0 && slotNumber < HubbyConstants.HOTBAR_INVENTORY_SIZE) {
+                ItemStack stack = ItemStack.copyItemStack(_thePlayer.inventory.mainInventory[slotNumber]);
+                _backpackContainer.putStackInSlot(slotNumber, stack);
                 
-                // Send the slot info to update the player's inventory
-                // If we are in creative mode then we really only have the client to worry about
+                // if we are in creative mode, then we can send inventory changes this way
                 if (HubbyUtils.isCreativeMode()) {
-                    for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
-                        //mc.playerController.sendSlotPacket(_backpackContainer.getSlot(inventorySize + i).getStack(), inventorySize + i);
-                    }
+                    Minecraft.getMinecraft().playerController.sendSlotPacket(stack, slotNumber + HubbyConstants.HOTBAR_INVENTORY_OFFSET);
+                    _thePlayer.inventoryContainer.detectAndSendChanges();   
                 }
-                // Send the packet to sync the inventory data on the server with what is on the client
+                // we are not in creative mode, need to send changes an alternate way... hence the packet creator
                 else {
-                    // TODO:
-                    // Implement the client packet creator
-                    //for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
-                    //    int inventorySlot = inventorySize + i;
-                    //    NitroClientPacketCreator.sendPacketPlayerInventory(_backpackContainer.getSlot(inventorySlot).getStack(), i, 0);
-                    //}
-                }
-            }
-            // if the slot index is not an invalid value and we either
-            // started the drag or clicked on the item then handle that now
-            else if (slotNumber != -999 || slotIn != null) {
-
-                // get the stack that the player clicked on
-                ItemStack clickedStack = _backpackContainer.getSlot(slotNumber).getStack();
-
-                // Send the slot info to update the player's inventory
-                // If we are in creative mode then we don't need to send the packet
-                // since we only have the client to worry about
-                if (HubbyUtils.isCreativeMode()) {
-                    if (slotIn.inventory == inventoryPlayer) {
-                        //mc.playerController.sendSlotPacket(clickedStack, slotNumber - _backpackContainer.inventorySlots.size() + HubbyConstants.HOTBAR_INVENTORY_SIZE + inventorySize);
-                    }
-                    else {
-                        mc.playerController.sendSlotPacket(clickedStack, (slotNumber - _backpackContainer.inventorySlots.size()) + HubbyConstants.HOTBAR_INVENTORY_SIZE + inventorySize);
-                    }
-                }
-                // Send a packet to sync the inventory data on the server with what just
-                // happened on the client
-                else {
-                    // TODO:
-                    // Implement the packet
-                    // NitroClientPacketCreator.sendPacketPlayerInventory(clickedStack, slotNumber - _backpackContainer.inventorySlots.size() + HubbyConstants.HOTBAR_INVENTORY_SIZE, 0);
+                 // TODO:
+//                  // Implement the client packet creator
+//                  //for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
+//                  //    int inventorySlot = inventorySize + i;
+//                  //    NitroClientPacketCreator.sendPacketPlayerInventory(_backpackContainer.getSlot(inventorySlot).getStack(), i, 0);
+//                  //}
                 }
             }
         }

@@ -12,6 +12,7 @@ public class HubbyConstants {
     public static final Double SECONDS_PER_TICK = 1.0D / TICKS_PER_SECOND;
     public static final Integer TARGTE_FRAME_RATE = 30;
     public static final Integer HOTBAR_INVENTORY_SIZE = 9;
+    public static final Integer HOTBAR_INVENTORY_OFFSET = 36;
     
     /**
      * This enum identifies the various pieces of armor as well

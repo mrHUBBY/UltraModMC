@@ -1,5 +1,6 @@
 package com.hubby.ultra.gui;
 
+import com.hubby.shared.utils.HubbyConstants;
 import com.hubby.ultra.UltraConstants.BackpackType;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +31,7 @@ public class UltraGuiInventoryBackpack implements IInventory {
     public UltraGuiInventoryBackpack(BackpackType backpackType) {
         _backpackType = backpackType;
         _maxInventoryStackSize = _backpackType.getInventoryStackSizeLimit();
-        _inventorySize = _backpackType.getInventorySize();
+        _inventorySize = _backpackType.getInventorySize() + HubbyConstants.HOTBAR_INVENTORY_SIZE;
         _inventoryItems = new ItemStack[_inventorySize];
     }
     
@@ -101,8 +102,10 @@ public class UltraGuiInventoryBackpack implements IInventory {
      * @param list - the list to save to
      */
     public void save(NBTTagList list) {
-     // iterate over the current backpack inventory and save all valid
-        // items in the valid slots
+        // NOTE:
+        // It is assumed that for this inventory, it is storing the player's main
+        // inventory in the first 9 spaces, so we want to skip those since we only
+        // care about what is in the backpack
         for (int i = 0; i < getSizeInventory(); i++) {
             ItemStack stack = getStackInSlot(i);
             if (stack != null) {

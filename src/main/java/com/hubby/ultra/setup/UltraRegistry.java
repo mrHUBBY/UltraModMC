@@ -58,7 +58,10 @@ public class UltraRegistry {
 	 */
 	public static UltraTeleportWaypointGuiScreen ultraTeleportWaypointGuiScreen = null;
 	
-	public static HubbyLimitedInventoryItem limitedBackpack = null;
+	/**
+	 * Misc items and helpers
+	 */
+	public static HubbyLimitedInventoryItem limitedInventoryItemBackpack = null;
 	
 	/**
 	 * This method is responsible for loading all items, blocks, recipes, potions
@@ -107,7 +110,9 @@ public class UltraRegistry {
 		 */
 		ultraTeleportWaypointGuiScreen = new UltraTeleportWaypointGuiScreen();
 		
-		
-		limitedBackpack = new HubbyLimitedInventoryItem("backpack", 1, ultraItemBackpackSmall);
+		/**
+		 * Misc screens and helpers
+		 */
+		limitedInventoryItemBackpack = new HubbyLimitedInventoryItem("refreshLimitedItemBackpack", 1, ultraItemBackpackSmall);
 	}
 }

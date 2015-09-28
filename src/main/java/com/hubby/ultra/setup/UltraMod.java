@@ -6,6 +6,7 @@ import com.hubby.shared.utils.HubbyColor;
 import com.hubby.shared.utils.HubbyConfigurationHelper;
 import com.hubby.shared.utils.HubbyConfigurationPropertyListener;
 import com.hubby.shared.utils.HubbyRefreshedObjectInterface;
+import com.hubby.shared.utils.HubbyRegistry;
 import com.hubby.shared.utils.HubbyScheduler;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraCommandHooks;
@@ -102,6 +103,7 @@ public class UltraMod {
         proxy.registerRenderers();
 
         // register all items, blocks, materials, recipes, armor
+        HubbyRegistry.register();
         UltraRegistry.register();
 
         // Init all registered colors

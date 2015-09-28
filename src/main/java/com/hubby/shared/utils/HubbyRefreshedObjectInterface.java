@@ -21,6 +21,7 @@ public abstract class HubbyRefreshedObjectInterface {
      * Constants
      */
     public static final Integer HIGHEST_PRIORITY = 0;
+    public static final Integer AVERAGE_PRIORITY = 50;
     public static final Integer LOWEST_PRIORITY = 99;
     
     /**
