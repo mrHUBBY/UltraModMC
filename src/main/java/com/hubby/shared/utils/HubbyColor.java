@@ -108,8 +108,13 @@ public class HubbyColor {
         
         // If we get here then we assume that we are a integer value
         // and we parse that to generate the packed color value
-        int colorValue = Integer.parseInt(colorStr);
-        return new HubbyColor((long)colorValue, ColorMode.STANDARD);
+        if (colorStr.matches(".*\\d.*")) { 
+            int colorValue = Integer.parseInt(colorStr);
+            return new HubbyColor((long)colorValue, ColorMode.STANDARD);
+        }
+        else {
+            return HubbyColor.WHITE;
+        }
 	}
 	
     /**

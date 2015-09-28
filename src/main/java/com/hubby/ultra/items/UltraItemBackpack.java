@@ -3,7 +3,7 @@ package com.hubby.ultra.items;
 import com.hubby.shared.utils.HubbyNamedObjectInterface;
 import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants.BackpackType;
-import com.hubby.ultra.gui.UltraGuiScreenBackpack;
+import com.hubby.ultra.gui.UltraGuiScreenBackpackPlus;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
 
@@ -78,7 +78,7 @@ public class UltraItemBackpack extends Item implements HubbyNamedObjectInterface
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         super.onItemRightClick(itemStack, world, player);
         if (HubbyUtils.isClienSide()) {
-            Minecraft.getMinecraft().displayGuiScreen(new UltraGuiScreenBackpack(HubbyUtils.getClientPlayer()));
+            Minecraft.getMinecraft().displayGuiScreen(new UltraGuiScreenBackpackPlus(HubbyUtils.getClientPlayer()));
         }
         return itemStack;
     }
