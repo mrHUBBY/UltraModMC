@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;

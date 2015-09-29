@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;

@@ -1,6 +1,11 @@
 package com.hubby.ultra.setup.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.hubby.network.HubbyClientPacketHandler;
 import com.hubby.ultra.setup.UltraCommonProxy;
+import com.hubby.ultra.setup.UltraRegistry;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -67,7 +72,9 @@ public class UltraClientProxy extends UltraCommonProxy {
     @Override
     // Register packet handler
     public void registerPacketHandler() {
-  //      NitroInterface.networkChannel.register(new NitroClientPacketHandler());
+        List<String> networkChannels = new ArrayList<String>();
+        networkChannels.add(UltraRegistry.ultraNetworkChannelName);    
+        UltraRegistry.ultraNetworkChannel.register(new HubbyClientPacketHandler(networkChannels));
     }
     
     /**

@@ -1,7 +1,7 @@
 package com.hubby.ultra;
 
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.items.UltraItemTeleportArtifact;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySkeleton;

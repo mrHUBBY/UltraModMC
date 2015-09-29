@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL11;
 
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.models.UltraModelBackpack;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;

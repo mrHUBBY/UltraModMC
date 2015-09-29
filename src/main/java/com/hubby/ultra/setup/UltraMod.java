@@ -2,16 +2,16 @@ package com.hubby.ultra.setup;
 
 import java.util.concurrent.Callable;
 
-import com.hubby.shared.utils.HubbyColor;
-import com.hubby.shared.utils.HubbyConfigurationHelper;
-import com.hubby.shared.utils.HubbyConfigurationPropertyListener;
-import com.hubby.shared.utils.HubbyRefreshedObjectInterface;
-import com.hubby.shared.utils.HubbyRegistry;
-import com.hubby.shared.utils.HubbyScheduler;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraCommandHooks;
 import com.hubby.ultra.UltraEventHooks;
 import com.hubby.ultra.render.UltraRenderEntityPlayer;
+import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyConfigurationHelper;
+import com.hubby.utils.HubbyConfigurationPropertyListener;
+import com.hubby.utils.HubbyRefreshedObjectInterface;
+import com.hubby.utils.HubbyRegistry;
+import com.hubby.utils.HubbyScheduler;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

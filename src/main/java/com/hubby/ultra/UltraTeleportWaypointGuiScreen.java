@@ -9,9 +9,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableList;
-import com.hubby.shared.utils.HubbyMath;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraMod;
+import com.hubby.utils.HubbyMath;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;

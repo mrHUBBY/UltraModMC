@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 /**
  * Class that stores common objects used by the hubby mod lib

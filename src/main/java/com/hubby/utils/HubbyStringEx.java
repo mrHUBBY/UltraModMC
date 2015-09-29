@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.io.BufferedReader;
 import java.io.File;

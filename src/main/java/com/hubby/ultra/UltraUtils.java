@@ -2,8 +2,8 @@ package com.hubby.ultra;
 
 import java.util.List;
 
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemArmor;

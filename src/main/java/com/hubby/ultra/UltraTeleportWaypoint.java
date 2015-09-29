@@ -8,10 +8,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.hubby.shared.utils.HubbyColor;
-import com.hubby.shared.utils.HubbyColor.ColorMode;
-import com.hubby.shared.utils.HubbyNamedObjectInterface;
-import com.hubby.shared.utils.HubbySavePersistentDataHelper;
+import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyNamedObjectInterface;
+import com.hubby.utils.HubbySavePersistentDataHelper;
+import com.hubby.utils.HubbyColor.ColorMode;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

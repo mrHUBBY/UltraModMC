@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.hubby.shared.utils.HubbyConfigurationHelper;
-import com.hubby.shared.utils.HubbyConfigurationPropertyListenerInterface;
-import com.hubby.shared.utils.HubbyUtils;
+import com.hubby.utils.HubbyConfigurationHelper;
+import com.hubby.utils.HubbyConfigurationPropertyListenerInterface;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.settings.KeyBinding;
 

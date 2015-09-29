@@ -3,16 +3,16 @@ package com.hubby.ultra.gui;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import com.hubby.shared.utils.HubbyColor;
-import com.hubby.shared.utils.HubbyColor.ColorMode;
-import com.hubby.shared.utils.HubbyConstants;
-import com.hubby.shared.utils.HubbyConstants.ClickButton;
-import com.hubby.shared.utils.HubbyConstants.ClickType;
-import com.hubby.shared.utils.HubbySavePersistentDataHelper;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.setup.UltraMod;
+import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyConstants;
+import com.hubby.utils.HubbySavePersistentDataHelper;
+import com.hubby.utils.HubbyUtils;
+import com.hubby.utils.HubbyColor.ColorMode;
+import com.hubby.utils.HubbyConstants.ClickButton;
+import com.hubby.utils.HubbyConstants.ClickType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;

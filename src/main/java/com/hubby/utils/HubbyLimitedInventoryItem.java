@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import com.hubby.shared.utils.HubbyConstants.LogChannel;
+import com.hubby.utils.HubbyConstants.LogChannel;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

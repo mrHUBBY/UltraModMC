@@ -1,8 +1,8 @@
 package com.hubby.ultra;
 
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 

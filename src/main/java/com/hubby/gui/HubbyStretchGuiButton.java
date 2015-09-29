@@ -1,23 +1,26 @@
 package com.hubby.gui;
 
-import com.hubby.shared.utils.HubbyUtils;
+import java.util.Map;
+
 import com.hubby.ultra.setup.UltraMod;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 public class HubbyStretchGuiButton extends GuiButton
 {
-    protected static final ResourceLocation buttonTextures = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_ultra_button.png"));
-    protected static final int CORNER_SIZE = 3;
-    protected static final int BUTTON_STEP = 8;
-    protected static final int MIN_WIDTH = 8;
-    protected static final int MIN_HEIGHT = 8;
-    protected static final int TEXTURE_WIDTH = 32;
-    protected static final int TEXTURE_HEIGHT = 64;
+    protected ResourceLocation resourceLocation = new ResourceLocation(HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_ultra_button.png"));
+    protected int cornerSize = 3;
+    protected int buttonStep = 8;
+    protected int minWidth = 8;
+    protected int minHeight = 8;
+    protected int textureWidth = 32;
+    protected int textureHeight = 64;
 
     /**
      * Constructor
@@ -26,10 +29,8 @@ public class HubbyStretchGuiButton extends GuiButton
      * @param y - the y location
      * @param buttonText - the button text
      */
-    public HubbyStretchGuiButton(int buttonId, int x, int y, String buttonText) {
-        this(buttonId, x, y, 60, 20, buttonText);
-        width = Math.max(width, MIN_WIDTH);
-        height = Math.max(height, MIN_HEIGHT);
+    public HubbyStretchGuiButton(int buttonId, int x, int y, String buttonText, Map<String, Object> info) {
+        this(buttonId, x, y, 60, 20, buttonText, info);
     }
 
     /**
@@ -41,10 +42,21 @@ public class HubbyStretchGuiButton extends GuiButton
      * @param heightIn - the button height
      * @param buttonText - the button text
      */
-    public HubbyStretchGuiButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText) {
+    public HubbyStretchGuiButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText, Map<String, Object> info) {
         super(buttonId, x, y, widthIn, heightIn, buttonText);
-        width = Math.max(width, MIN_WIDTH);
-        height = Math.max(height, MIN_HEIGHT);
+
+        // read properties from the info map passed in for customization
+        resourceLocation = new ResourceLocation((String)info.get("resourceLocation"));
+        cornerSize = (Integer)info.get("cornerSize");
+        buttonStep = (Integer)info.get("buttonStep");
+        minWidth = (Integer)info.get("minWidth");
+        minHeight = (Integer)info.get("minHeight");
+        textureWidth = (Integer)info.get("textureWidth");
+        textureHeight = (Integer)info.get("textureHeight");
+        
+        // constrain the dimensions if they are too small
+        width = Math.max(width, minWidth);
+        height = Math.max(height, minHeight);
     }
 
     /**
@@ -56,7 +68,7 @@ public class HubbyStretchGuiButton extends GuiButton
         if (this.visible)
         {
             FontRenderer var4 = mc.fontRendererObj;
-            mc.getTextureManager().bindTexture(buttonTextures);
+            mc.getTextureManager().bindTexture(resourceLocation);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
             int var5 = this.getHoverState(this.hovered);
@@ -65,31 +77,31 @@ public class HubbyStretchGuiButton extends GuiButton
             GlStateManager.blendFunc(770, 771);
             
             // draw top-left corner
-            drawScaledCustomSizeModalRect(this.xPosition, this.yPosition, 0, (var5 * BUTTON_STEP), CORNER_SIZE , CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition, this.yPosition, 0, (var5 * buttonStep), cornerSize , cornerSize, cornerSize, cornerSize, textureWidth, textureHeight);
             
             // draw bottom-left corner
-            drawScaledCustomSizeModalRect(this.xPosition, this.yPosition + height - CORNER_SIZE, 0, (var5 * BUTTON_STEP) + BUTTON_STEP - CORNER_SIZE , CORNER_SIZE , CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition, this.yPosition + height - cornerSize, 0, (var5 * buttonStep) + buttonStep - cornerSize , cornerSize , cornerSize, cornerSize, cornerSize, textureWidth, textureHeight);
             
             // draw top-right corner
-            drawScaledCustomSizeModalRect(this.xPosition + width - CORNER_SIZE, this.yPosition, BUTTON_STEP - CORNER_SIZE, (var5 * BUTTON_STEP), CORNER_SIZE , CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + width - cornerSize, this.yPosition, buttonStep - cornerSize, (var5 * buttonStep), cornerSize , cornerSize, cornerSize, cornerSize, textureWidth, textureHeight);
             
             // draw bottom-right corner
-            drawScaledCustomSizeModalRect(this.xPosition + width - CORNER_SIZE, this.yPosition + height - CORNER_SIZE, BUTTON_STEP - CORNER_SIZE, (var5 * BUTTON_STEP) + BUTTON_STEP - CORNER_SIZE, CORNER_SIZE , CORNER_SIZE, CORNER_SIZE, CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + width - cornerSize, this.yPosition + height - cornerSize, buttonStep - cornerSize, (var5 * buttonStep) + buttonStep - cornerSize, cornerSize , cornerSize, cornerSize, cornerSize, textureWidth, textureHeight);
             
             // draw left edge
-            drawScaledCustomSizeModalRect(this.xPosition, this.yPosition + CORNER_SIZE, 0, (var5 * BUTTON_STEP) + CORNER_SIZE, CORNER_SIZE , BUTTON_STEP - (CORNER_SIZE * 2), CORNER_SIZE, height - (CORNER_SIZE * 2), TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition, this.yPosition + cornerSize, 0, (var5 * buttonStep) + cornerSize, cornerSize , buttonStep - (cornerSize * 2), cornerSize, height - (cornerSize * 2), textureWidth, textureHeight);
             
             // draw right edge
-            drawScaledCustomSizeModalRect(this.xPosition + width - CORNER_SIZE, this.yPosition + CORNER_SIZE, BUTTON_STEP - CORNER_SIZE, (var5 * BUTTON_STEP) + CORNER_SIZE, CORNER_SIZE , BUTTON_STEP - (CORNER_SIZE * 2), CORNER_SIZE, height - (CORNER_SIZE * 2), TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + width - cornerSize, this.yPosition + cornerSize, buttonStep - cornerSize, (var5 * buttonStep) + cornerSize, cornerSize , buttonStep - (cornerSize * 2), cornerSize, height - (cornerSize * 2), textureWidth, textureHeight);
             
             // draw top edge
-            drawScaledCustomSizeModalRect(this.xPosition + CORNER_SIZE, this.yPosition, CORNER_SIZE, (var5 * BUTTON_STEP), BUTTON_STEP - (CORNER_SIZE * 2), CORNER_SIZE, width - (CORNER_SIZE * 2), CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + cornerSize, this.yPosition, cornerSize, (var5 * buttonStep), buttonStep - (cornerSize * 2), cornerSize, width - (cornerSize * 2), cornerSize, textureWidth, textureHeight);
            
             // draw bottom edge
-            drawScaledCustomSizeModalRect(this.xPosition + CORNER_SIZE, this.yPosition + height - CORNER_SIZE, CORNER_SIZE, (var5 * BUTTON_STEP) + BUTTON_STEP - CORNER_SIZE, BUTTON_STEP - (CORNER_SIZE * 2), CORNER_SIZE, width - (CORNER_SIZE * 2), CORNER_SIZE, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + cornerSize, this.yPosition + height - cornerSize, cornerSize, (var5 * buttonStep) + buttonStep - cornerSize, buttonStep - (cornerSize * 2), cornerSize, width - (cornerSize * 2), cornerSize, textureWidth, textureHeight);
             
             // draw the center
-            drawScaledCustomSizeModalRect(this.xPosition + CORNER_SIZE, this.yPosition + CORNER_SIZE, CORNER_SIZE, (var5 * BUTTON_STEP) + CORNER_SIZE, BUTTON_STEP - (CORNER_SIZE * 2), BUTTON_STEP - (CORNER_SIZE * 2), width - (CORNER_SIZE * 2), height - (CORNER_SIZE * 2), TEXTURE_WIDTH, TEXTURE_HEIGHT);
+            Gui.drawScaledCustomSizeModalRect(this.xPosition + cornerSize, this.yPosition + cornerSize, cornerSize, (var5 * buttonStep) + cornerSize, buttonStep - (cornerSize * 2), buttonStep - (cornerSize * 2), width - (cornerSize * 2), height - (cornerSize * 2), textureWidth, textureHeight);
             
             this.mouseDragged(mc, mouseX, mouseY);
             int var6 = 14737632;

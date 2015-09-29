@@ -1,10 +1,10 @@
 package com.hubby.ultra.items;
 
-import com.hubby.shared.utils.HubbyNamedObjectInterface;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraTeleportManagerGuiScreen;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyNamedObjectInterface;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

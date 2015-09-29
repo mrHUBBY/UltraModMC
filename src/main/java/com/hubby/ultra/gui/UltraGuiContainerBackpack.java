@@ -1,7 +1,7 @@
 package com.hubby.ultra.gui;
 
-import com.hubby.shared.utils.HubbyConstants;
 import com.hubby.ultra.UltraConstants.BackpackType;
+import com.hubby.utils.HubbyConstants;
 
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;

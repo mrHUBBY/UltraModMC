@@ -1,7 +1,7 @@
 package com.hubby.ultra.models;
 
-import com.hubby.shared.utils.HubbyMath;
-import com.hubby.shared.utils.HubbyUtils;
+import com.hubby.utils.HubbyMath;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

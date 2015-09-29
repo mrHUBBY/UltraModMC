@@ -1,22 +1,24 @@
 package com.hubby.ultra.gui;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.hubby.gui.HubbyStretchGuiButton;
-import com.hubby.shared.utils.HubbyColor;
-import com.hubby.shared.utils.HubbyColor.ColorMode;
-import com.hubby.shared.utils.HubbyConstants;
-import com.hubby.shared.utils.HubbyConstants.ClickButton;
-import com.hubby.shared.utils.HubbyConstants.ClickType;
-import com.hubby.shared.utils.HubbyInputFilter;
-import com.hubby.shared.utils.HubbySavePersistentDataHelper;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.setup.UltraMod;
+import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyConstants;
+import com.hubby.utils.HubbyInputFilter;
+import com.hubby.utils.HubbySavePersistentDataHelper;
+import com.hubby.utils.HubbyUtils;
+import com.hubby.utils.HubbyColor.ColorMode;
+import com.hubby.utils.HubbyConstants.ClickButton;
+import com.hubby.utils.HubbyConstants.ClickType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -144,14 +146,24 @@ public class UltraGuiScreenBackpackPlus extends InventoryEffectRenderer  {
         
         this.buttonList.clear();
         
-        int buttonX = (width - SIZE_X) / 2 + 12;
+        // Build the options for the stretch button
+        Map<String, Object> buttonInfo = new HashMap<String, Object>();
+        buttonInfo.put("resourceLocation", HubbyUtils.getResourceLocation(UltraMod.MOD_ID, "textures/gui/gui_ultra_button.png"));
+        buttonInfo.put("cornerSize", 3);
+        buttonInfo.put("buttonStep", 8);
+        buttonInfo.put("minHeight", 8);
+        buttonInfo.put("minWidth", 8);
+        buttonInfo.put("textureWidth", 32);
+        buttonInfo.put("textureHeight", 64);
+
+        int buttonX = (width - SIZE_X) / 2 + 7;
         int buttonY = (height - SIZE_Y) / 2 + SIZE_Y - 51;
-        _loadButton = new HubbyStretchGuiButton(LOAD_BUTTON_ID, buttonX, buttonY, 40, 16, "Load");
+        _loadButton = new HubbyStretchGuiButton(LOAD_BUTTON_ID, buttonX, buttonY, 53, 16, "Load", buttonInfo);
         this.buttonList.add(_loadButton);
         
-        buttonX = (width - SIZE_X) / 2 + SIZE_X - 52;
+        buttonX = (width - SIZE_X) / 2 + SIZE_X - 60;
         buttonY = (height - SIZE_Y) / 2 + SIZE_Y - 51;
-        _saveButton = new HubbyStretchGuiButton(SAVE_BUTTON_ID, buttonX, buttonY, 40, 16, "Save");
+        _saveButton = new HubbyStretchGuiButton(SAVE_BUTTON_ID, buttonX, buttonY, 53, 16, "Save", buttonInfo);
         this.buttonList.add(_saveButton);
         
         // clear all of the slots with itemstack

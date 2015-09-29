@@ -1,8 +1,9 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import org.lwjgl.opengl.GL11;
 
@@ -107,8 +108,8 @@ public class HubbyColor {
         }
         
         // If we get here then we assume that we are a integer value
-        // and we parse that to generate the packed color value
-        if (colorStr.matches(".*\\d.*")) { 
+        // and we parse that to generate the packed color value{
+        if (Pattern.matches("((0x[0-9]+)|([0-9]+))", colorStr)) {
             int colorValue = Integer.parseInt(colorStr);
             return new HubbyColor((long)colorValue, ColorMode.STANDARD);
         }

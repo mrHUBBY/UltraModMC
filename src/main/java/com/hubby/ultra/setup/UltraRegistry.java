@@ -1,8 +1,5 @@
 package com.hubby.ultra.setup;
 
-import com.hubby.shared.utils.HubbyConstants.ArmorType;
-import com.hubby.shared.utils.HubbyLimitedInventoryItem;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.UltraConstants;
 import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.UltraTeleportWaypointGuiScreen;
@@ -10,6 +7,9 @@ import com.hubby.ultra.items.UltraItemAdvancedArmor;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.items.UltraItemBasicSword;
 import com.hubby.ultra.items.UltraItemTeleportArtifact;
+import com.hubby.utils.HubbyLimitedInventoryItem;
+import com.hubby.utils.HubbyUtils;
+import com.hubby.utils.HubbyConstants.ArmorType;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -17,6 +17,8 @@ import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor;
 
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 /**
  * This class stores the references to all blocks/items/recipes/etc for the mod
@@ -62,6 +64,12 @@ public class UltraRegistry {
 	 * Misc items and helpers
 	 */
 	public static HubbyLimitedInventoryItem limitedInventoryItemBackpack = null;
+	
+	/**
+	 * Network items
+	 */
+	public static String ultraNetworkChannelName = null;
+    public static FMLEventChannel ultraNetworkChannel = null;
 	
 	/**
 	 * This method is responsible for loading all items, blocks, recipes, potions
@@ -114,5 +122,13 @@ public class UltraRegistry {
 		 * Misc screens and helpers
 		 */
 		limitedInventoryItemBackpack = new HubbyLimitedInventoryItem("refreshLimitedItemBackpack", 1, ultraItemBackpackSmall);
+		
+		/**
+		 * Network items
+		 */ 
+		UltraMod.instance.proxy.registerPacketHandler();
+	    NetworkRegistry.INSTANCE.registerGuiHandler(UltraMod.instance, UltraMod.instance.proxy);
+		ultraNetworkChannelName = "{" + UltraMod.MOD_ID + "}";
+		ultraNetworkChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(UltraRegistry.ultraNetworkChannelName);
 	}
 }

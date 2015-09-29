@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

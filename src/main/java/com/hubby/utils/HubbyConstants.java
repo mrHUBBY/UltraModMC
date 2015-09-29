@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -391,6 +391,45 @@ public class HubbyConstants {
          * Returns the underlying value
          * @return Integer - the value
          */
+        public Integer getValue() {
+            return _underlyingValue;
+        }
+    }
+    
+    /**
+     * The various packets that we send from the client to the server
+     */
+    public enum HubbyClientPacketType implements HubbyEnumValueInterface {
+        INVALID                     (-1),
+        PLAYER_INVENTORY           (99);        
+
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        
+        public static HubbyClientPacketType getEnumForValue(Integer value) {
+            for (HubbyClientPacketType type : HubbyClientPacketType.values()) {
+                if (type.getValue() == value) {
+                    return type;
+                }
+            }
+            return HubbyClientPacketType.INVALID;   
+        }
+        
+        /**
+         * Constructor
+         * @param displayName - the display name
+         */
+        HubbyClientPacketType(Integer value) {
+            _underlyingValue = value;
+        }
+        
+        /**
+         * Returns the packet id
+         * @return Integer - the packet id
+         */
+        @Override
         public Integer getValue() {
             return _underlyingValue;
         }

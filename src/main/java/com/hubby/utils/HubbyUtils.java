@@ -1,4 +1,4 @@
-package com.hubby.shared.utils;
+package com.hubby.utils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -19,8 +19,8 @@ import org.reflections.Reflections;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.hubby.shared.utils.HubbyConstants.ArmorType;
-import com.hubby.shared.utils.HubbyConstants.Direction;
+import com.hubby.utils.HubbyConstants.ArmorType;
+import com.hubby.utils.HubbyConstants.Direction;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

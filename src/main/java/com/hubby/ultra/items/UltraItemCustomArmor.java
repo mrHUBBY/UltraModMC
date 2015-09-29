@@ -2,11 +2,11 @@ package com.hubby.ultra.items;
 
 import java.util.List;
 
-import com.hubby.shared.utils.HubbyConstants.ArmorType;
-import com.hubby.shared.utils.HubbyNamedObjectInterface;
-import com.hubby.shared.utils.HubbyUtils;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyNamedObjectInterface;
+import com.hubby.utils.HubbyUtils;
+import com.hubby.utils.HubbyConstants.ArmorType;
 
 import net.minecraft.item.ItemArmor;
 
