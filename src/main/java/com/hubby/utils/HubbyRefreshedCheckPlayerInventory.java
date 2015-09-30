@@ -1,5 +1,7 @@
 package com.hubby.utils;
 
+import com.hubby.utils.HubbyConstants.LogChannel;
+
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.item.ItemStack;
 
@@ -40,15 +42,15 @@ public class HubbyRefreshedCheckPlayerInventory extends HubbyRefreshedObjectInte
             if (curItemStack != _inventory[i]) {
                 if (_inventory[i] == null && curItemStack != null) {
                     _inventory[i] = curItemStack;
-                    HubbyConstants.LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][NEW ITEM]      => Slot: %d Name: %s", i, curItemStack.getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][NEW ITEM]      => Slot: %d Name: %s", i, curItemStack.getItem().getUnlocalizedName());
                 }
                 else if (_inventory[i] != null && curItemStack == null) {
-                    HubbyConstants.LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][REMOVE ITEM]   => Slot: %d Name: %s", i, _inventory[i].getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][REMOVE ITEM]   => Slot: %d Name: %s", i, _inventory[i].getItem().getUnlocalizedName());
                     _inventory[i] = curItemStack;
                 }
                 else {
-                    HubbyConstants.LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][SWAP OLD ITEM] => Slot: %d Name: %s", i, _inventory[i].getItem().getUnlocalizedName());
-                    HubbyConstants.LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][SWAP NEW ITEM] => Slot: %d Name: %s", i, curItemStack.getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][SWAP OLD ITEM] => Slot: %d Name: %s", i, _inventory[i].getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(HubbyRefreshedCheckPlayerInventory.class, "[PLAYER_INVENTORY_CHANGE][SWAP NEW ITEM] => Slot: %d Name: %s", i, curItemStack.getItem().getUnlocalizedName());
                     _inventory[i] = curItemStack;
                 }
             }

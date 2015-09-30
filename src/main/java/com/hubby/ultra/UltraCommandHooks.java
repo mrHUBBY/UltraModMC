@@ -74,6 +74,10 @@ public class UltraCommandHooks {
     	// to the player now
         if (HubbyUtils.isKeyPressed(UltraConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
         	Minecraft.getMinecraft().displayGuiScreen(UltraRegistry.ultraTeleportWaypointGuiScreen);
+        	
+        	// TODO:
+        	// remove
+        	HubbyUtils.setInventoryHotBarItem(0, UltraRegistry.ultraItemBackpackLarge, 1);
         }
 
 //        // Handle the user wanting to spawn something

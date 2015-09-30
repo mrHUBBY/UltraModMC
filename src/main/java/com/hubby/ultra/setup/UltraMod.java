@@ -2,6 +2,7 @@ package com.hubby.ultra.setup;
 
 import java.util.concurrent.Callable;
 
+import com.hubby.network.HubbyNetworkHelper;
 import com.hubby.ultra.UltraCommandHooks;
 import com.hubby.ultra.UltraEventHooks;
 import com.hubby.ultra.render.UltraRenderEntityPlayer;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 /**
  * The primary mod class that sets the required data to register
@@ -74,9 +76,6 @@ public class UltraMod {
         // Register custom event hooks
         FMLCommonHandler.instance().bus().register(new UltraCommandHooks());
         MinecraftForge.EVENT_BUS.register(new UltraEventHooks());
-        
-        // TODO:
-        // Figure out the new way for rendering the backpack model on the player
         MinecraftForge.EVENT_BUS.register(new UltraRenderEntityPlayer());
     }
 
@@ -112,8 +111,14 @@ public class UltraMod {
         // Begin giving update calls to any refreshed objects that need it
         HubbyRefreshedObjectInterface.start(null);
 
+        // Register network stuff and proxies
+        HubbyNetworkHelper.register();
+        NetworkRegistry.INSTANCE.registerGuiHandler(UltraMod.instance, UltraMod.instance.proxy);
+        proxy.registerPacketHandler();
+        
         TEST_CODE_PLEASE_REMOVE();
-
+        
+        
         // NitroInterface.registerFluids();
 
         // Register blocks
@@ -238,7 +243,6 @@ public class UltraMod {
         // // Load any other dependencies
         // NitroInterface.load();
         //
-        proxy.registerPacketHandler();
     }
 
     /**

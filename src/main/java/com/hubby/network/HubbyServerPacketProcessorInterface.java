@@ -25,5 +25,5 @@ public interface HubbyServerPacketProcessorInterface {
      * @param player - the player (server version)
      * @throws Exception
      */
-    void processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException;
+    boolean processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException;
 }

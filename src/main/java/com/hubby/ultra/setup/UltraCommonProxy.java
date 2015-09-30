@@ -1,10 +1,5 @@
 package com.hubby.ultra.setup;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hubby.network.HubbyServerPacketHandler;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
@@ -65,9 +60,7 @@ public class UltraCommonProxy implements IGuiHandler {
       * Register any needed packet handlers
       */
      public void registerPacketHandler() {
-         List<String> networkChannels = new ArrayList<String>();
-         networkChannels.add(UltraRegistry.ultraNetworkChannelName);    
-         UltraRegistry.ultraNetworkChannel.register(new HubbyServerPacketHandler(networkChannels));
+         // This is now done in HubbyNetworkHelper.register()
      }
      
      /**

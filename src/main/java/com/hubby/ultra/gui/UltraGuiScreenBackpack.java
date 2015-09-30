@@ -7,12 +7,13 @@ import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.utils.HubbyColor;
-import com.hubby.utils.HubbyConstants;
-import com.hubby.utils.HubbySavePersistentDataHelper;
-import com.hubby.utils.HubbyUtils;
 import com.hubby.utils.HubbyColor.ColorMode;
+import com.hubby.utils.HubbyConstants;
 import com.hubby.utils.HubbyConstants.ClickButton;
 import com.hubby.utils.HubbyConstants.ClickType;
+import com.hubby.utils.HubbyConstants.LogChannel;
+import com.hubby.utils.HubbySavePersistentDataHelper;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -280,7 +281,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                     mc.playerController.sendPacketDropItem(toDrop);
                     inventoryPlayer.setItemStack(null);
                     
-                    HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x%d from player's hand into the world", toDrop.getItem().getUnlocalizedName(), toDrop.stackSize);
+                    LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x%d from player's hand into the world", toDrop.getItem().getUnlocalizedName(), toDrop.stackSize);
                 }
                 // did the user perform a right-click... if so then we split the stack by dropping
                 // 1 occurrence of the item in the player's hand leaving the player with the same
@@ -297,7 +298,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                         inventoryPlayer.setItemStack(null);
                     }
                     
-                    HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x1 from player's hand into the world", toDrop.getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x1 from player's hand into the world", toDrop.getItem().getUnlocalizedName());
                 }
             }
             
@@ -328,7 +329,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                     _thePlayer.inventoryContainer.putStackInSlot(adjustedClick.getValue(), otherItemStack);
                     _thePlayer.inventoryContainer.detectAndSendChanges();
                     
-                    HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Hotbar! Dropping item %s onto the player's hotbar at position %d!", otherItemStack.getItem().getUnlocalizedName(), adjustedClick.getValue());
+                    LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Hotbar! Dropping item %s onto the player's hotbar at position %d!", otherItemStack.getItem().getUnlocalizedName(), adjustedClick.getValue());
                 }
                                 
                 // nothing more to do
@@ -344,7 +345,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                     otherItemStack = ItemStack.copyItemStack(slotIn.getStack());
                     inventoryPlayer.setItemStack(otherItemStack);
                     
-                    HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "PickBlock! Setting player's item in hand with item %s", otherItemStack.getItem().getUnlocalizedName());
+                    LogChannel.INFO.log(UltraGuiScreenBackpack.class, "PickBlock! Setting player's item in hand with item %s", otherItemStack.getItem().getUnlocalizedName());
                 }
                 // nothing more to do here
                 return;
@@ -363,7 +364,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                 _thePlayer.dropPlayerItemWithRandomChoice(otherItemStack, true);
                 mc.playerController.sendPacketDropItem(otherItemStack);
                 
-                HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x1 from player's hand into the world", otherItemStack.getItem().getUnlocalizedName());
+                LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Dropping! Dropping item {%s} x1 from player's hand into the world", otherItemStack.getItem().getUnlocalizedName());
                 return;
             }
 
@@ -396,7 +397,7 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                     --itemStack.stackSize;
                 }
                 
-                HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Adjusting! Changing stack size for the item %s that is in the players' hand", itemStack.getItem().getUnlocalizedName());
+                LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Adjusting! Changing stack size for the item %s that is in the players' hand", itemStack.getItem().getUnlocalizedName());
             }
             // Their is a valid item in the active slot and the player currently
             // has nothing in their hands... here we place the active slot stack
@@ -418,21 +419,21 @@ public class UltraGuiScreenBackpack extends InventoryEffectRenderer  {
                     itemStack.stackSize = itemStack.getMaxStackSize();
                 }
                 
-                HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Moving! Moved the item %s from the inventory and into the player's hand", itemStack.getItem().getUnlocalizedName());
+                LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Moving! Moved the item %s from the inventory and into the player's hand", itemStack.getItem().getUnlocalizedName());
             }
             // If we get here then that means the player is swapping the stack that is
             // in there hand with the stack that was clicked on in the inventory
             else {
                 inventoryPlayer.setItemStack(slotItemStack);
                 _backpackContainer.putStackInSlot(slotIn.slotNumber, itemStack);
-                HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Swapping! Replacing item in inventory with item in the player's hand");
+                LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Swapping! Replacing item in inventory with item in the player's hand");
             }
         }
         // fall through default click handle, if we get here... then we either had an unknown click type
         // or the inventory that was involved was not the backpack inventory
         else {
             
-            HubbyConstants.LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Deferring! Passing slot click on to container");
+            LogChannel.INFO.log(UltraGuiScreenBackpack.class, "Deferring! Passing slot click on to container");
             
             // Handle the slot click by passing it along to the container object
             boolean ignoreSlotClick = userShiftClicked && slotIn != null && slotIn.inventory == inventoryPlayer;

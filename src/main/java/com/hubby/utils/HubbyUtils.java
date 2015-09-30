@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import org.lwjgl.opengl.GL11;
 import org.reflections.Reflections;
@@ -19,8 +20,10 @@ import org.reflections.Reflections;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.hubby.network.HubbyNetworkHelper;
 import com.hubby.utils.HubbyConstants.ArmorType;
 import com.hubby.utils.HubbyConstants.Direction;
+import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -690,6 +693,28 @@ public class HubbyUtils {
             items.put(i, copyStack);
         }
         return items;
+    }
+    
+    /**
+     * Adds an item to the player's hotbar inventory
+     * @param position - the pos where to set the item (should be [0,9))
+     * @param item - the item to set
+     * @param amount - the size of the stack
+     */
+    public static <T extends Item> void setInventoryHotBarItem(final Integer position, final T item, final Integer amount) {
+        HubbyNetworkHelper.executeAndSendToServer(HubbyClientPacketType.PLAYER_INVENTORY, HubbyNetworkHelper.getDefaultChannelName(), new Callable() {
+            public Map<String, Object> call() {
+                assert position >= 0 && position < 9 : "Invalid hotbar position specified!";
+                Integer slot = position + HubbyConstants.HOTBAR_INVENTORY_OFFSET;
+                ItemStack stack = new ItemStack(item, amount);
+                HubbyUtils.getClientPlayer().inventoryContainer.putStackInSlot(slot, stack);
+                
+                Map<String, Object> args = new HashMap<String, Object>();
+                args.put("stack", stack);
+                args.put("slot", slot);
+                return args;
+            }
+        });
     }
     
     /**

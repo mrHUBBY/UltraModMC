@@ -21,5 +21,5 @@ public interface HubbyClientPacketProcessorInterface {
      * @param side - are we the client or server?
      * @throws IOException
      */
-    void processClientPacket(FMLProxyPacket packet, ByteBuf buffer, Side side) throws IOException;
+    boolean processClientPacket(FMLProxyPacket packet, ByteBuf buffer, Side side) throws IOException;
 }

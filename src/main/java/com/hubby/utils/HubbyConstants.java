@@ -2,6 +2,7 @@ package com.hubby.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class HubbyConstants {
     /**
@@ -91,18 +92,21 @@ public class HubbyConstants {
      *
      */
     public enum LogChannel {
-        INFO        ("[INFO]", true),
-        DEBUG       ("[DEBUG]", true),
-        WARNING     ("[WARNING]", true),
-        ERROR       ("[ERROR]", true);
+        INFO        ("{INFO}", true),
+        DEBUG       ("{DEBUG}", true),
+        WARNING     ("{WARNING}", true),
+        ERROR       ("{ERROR}", true);
         
         /**
          * Members
          */
         private String _tag = "";
         private boolean _enabled = false;
+        private List<String> _appendLines = new ArrayList<String>();
+        private boolean _isAppendMode = false;
         private static boolean _logToConsole = true;
         private static final HashMap<LogChannel, ArrayList<String>> LOGS = new HashMap<LogChannel, ArrayList<String>>();
+        private static final String SEPARATOR = " >> ";
         
         /**
          * Static constructor
@@ -112,6 +116,17 @@ public class HubbyConstants {
             LOGS.put(LogChannel.DEBUG, new ArrayList<String>());
             LOGS.put(LogChannel.WARNING, new ArrayList<String>());
             LOGS.put(LogChannel.ERROR, new ArrayList<String>());
+        }
+        
+        /**
+         * Returns the class name without the package prefix
+         * @param klass - the class to get the name for
+         * @return String - the returned name
+         */
+        public static String getClassName(Class klass) {
+            String name = klass.getName();
+            Integer packageNameEndIndex = name.lastIndexOf(".");
+            return "{" + name.substring(packageNameEndIndex + 1) + "}";
         }
         
         /**
@@ -154,8 +169,63 @@ public class HubbyConstants {
          * @param args - the formatting args
          */
         public void log(Class klass, String format, Object... args) {
-            format = "[" + klass.getName() + "]" + format;
+            format = LogChannel.getClassName(klass) + SEPARATOR + format;
             log(format, args);
+        }
+        
+        /**
+         * Starts an appended log message which allows for multiple lines to
+         * be chained together so that the user does not have to worry about new lines
+         * @param klass - the class to log
+         * @param format - the format of the log
+         * @param args - the args for the log message
+         * @return LogChannel - returns this so that commands can be linked together
+         */
+        public LogChannel start(Class klass, String format, Object... args) {
+            format = LogChannel.getClassName(klass) + SEPARATOR + format;
+            return start(format, args);
+        }
+        
+        /**
+         * Starts an appended log message which allows for multiple lines to
+         * be chained together so that the user does not have to worry about new lines
+         * @param format - the format of the log
+         * @param args - the args for the log message
+         * @return LogChannel - returns this so that commands can be linked together
+         */
+        public LogChannel start(String format, Object... args) {
+            assert !_isAppendMode : "Attempting to start an appended log message while already in append mode; call end() first!";
+            _appendLines.clear();
+            _isAppendMode = true;
+            return append(format, args);
+        }
+        
+        /**
+         * Appends a new line to be logged once <code>end()</code> is called
+         * @param format - the format of the string
+         * @param args - the args for formatting the string
+         * @return LogChannel - returns this for chaining appends together
+         */
+        public LogChannel append(String format, Object... args) {
+            assert _isAppendMode : "Attempting to append a log message when not in append mode; call start() first";
+            _appendLines.add(((args == null) ? format : String.format(format, args)));
+            return this;
+        }
+        
+        /**
+         * Closes the append mode
+         */
+        public void end() {
+            assert _isAppendMode : "Attempting to close an appended log message when not in append mode; call start() first";
+            String finalMessage = "";
+            for (String s : _appendLines) {
+                finalMessage += s;
+                if (_appendLines.indexOf(s) < _appendLines.size() - 1) {
+                    finalMessage += "\n";
+                }
+            }
+            _isAppendMode = false;
+            log(finalMessage, (Object)null);
         }
         
         /**
@@ -165,18 +235,25 @@ public class HubbyConstants {
          */
         public void log(String format, Object... args) {
             
+            assert !_isAppendMode : "Attempting to log a standard message while still in append mode; call end() first!";
+        
             // don't log if we are not enabled...
             if (!isEnabled()) {
                 return;
             }
             
+            // Prepend the log tag if not done so yet
+            if (!format.startsWith(getLogTag())) {
+                format = getLogTag() + SEPARATOR + format;
+            }
+            
             // add the log message to the log cache
-            String message = getLogTag() + " => " + ((args == null) ? format : String.format(format, args));
-            LOGS.get(this).add(message);
+            LOGS.get(this).add(((args == null) ? format : String.format(format, args)));
             
             // print to console optionally
             if (LogChannel._logToConsole) {
-                System.out.println(message);
+                int lastIndex = LOGS.get(this).size() - 1;
+                System.out.println(LOGS.get(this).get(lastIndex));
             }
         }
         

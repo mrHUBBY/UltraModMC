@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hubby.utils.HubbyConstants;
+import com.hubby.utils.HubbyConstants.LogChannel;
 
 import net.minecraft.client.entity.EntityPlayerSP;
 
@@ -56,11 +56,11 @@ public class HubbyClientPacketHandler {
         // if we cannot do anything with this channel,
         // than a quick bail and exit will help
         if (!_listenChannels.containsKey(channelName) || !_listenChannels.get(channelName)) {
-            HubbyConstants.LogChannel.INFO.log(HubbyServerPacketHandler.class, "Ignoring [client] message on channel %s as is not being listened for...", channelName);
+            LogChannel.INFO.log(HubbyServerPacketHandler.class, "Ignoring [client] message on channel %s as is not being listened for...", channelName);
             return;
         }
         
-        HubbyConstants.LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received [client] message on channel %s", channelName);
+        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received [client] message on channel %s", channelName);
         _packetProcessor.processClientPacket(event.packet, event.packet.payload(), event.packet.getTarget());
     }
 }

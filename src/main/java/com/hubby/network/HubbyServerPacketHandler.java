@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hubby.utils.HubbyConstants;
+import com.hubby.utils.HubbyConstants.LogChannel;
+import com.hubby.utils.HubbyEnumValueInterface;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -17,7 +18,6 @@ public class HubbyServerPacketHandler {
     /**
      * Members
      */
-    public static HubbyServerPacketProcessorInterface _packetProcessor = null;
     protected EntityPlayerMP _thePlayer;
     protected Map<String, Boolean> _listenChannels = new HashMap<String, Boolean>();
     
@@ -61,14 +61,20 @@ public class HubbyServerPacketHandler {
         // if we cannot do anything with this channel,
         // than a quick bail and exit will help
         if (!_listenChannels.containsKey(channelName) || !_listenChannels.get(channelName)) {
-            HubbyConstants.LogChannel.INFO.log(HubbyServerPacketHandler.class, "Ignoring [server] on channel %s as is not being listened for...", channelName);
+            LogChannel.INFO.log(HubbyServerPacketHandler.class, "Ignoring [server] on channel %s as is not being listened for...", channelName);
             return;
         }
+
+        Enum<? extends HubbyEnumValueInterface> packetType = HubbyNetworkHelper.getPacketTypeForServerEvent(event);  
+        String name = HubbyNetworkHelper.getNameForPacketType(packetType);
         
         // Log that we received the message and then process the packet
-        HubbyConstants.LogChannel.INFO.log(HubbyServerPacketHandler.class, "Received [server] message on channel %s", channelName);
-        if (_packetProcessor != null) {
-            _packetProcessor.processServerPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
+        LogChannel.INFO.log(HubbyServerPacketHandler.class, "Received [server] message on channel %s", channelName);
+        LogChannel.INFO.log(HubbyServerPacketHandler.class, "Processing client packet type %s on the server", name);
+ 
+        // process the packet now
+        for (HubbyServerPacketProcessorInterface processor : HubbyNetworkHelper.getServerProcessorsForPacket(packetType)) {
+            processor.processServerPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
         }
     }
 }

@@ -3,11 +3,9 @@ package com.hubby.network;
 import java.util.Map;
 
 import com.hubby.network.HubbyNetworkHelper.HubbyClientPacketWriterInterface;
-import com.hubby.utils.HubbyConstants;
-import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
+import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 
 import io.netty.buffer.ByteBufOutputStream;
@@ -23,14 +21,20 @@ public class HubbyClientPacketSender {
     public HubbyClientPacketSender() {
     }
     
-
     /**
-     * Build and send the packet that syncs the player inventory from
-     * the client side to the server side
+     * Generic function that allows for the sending of any type of packet as
+     * identified by the <code>packetType</code> parameter with custom settings
+     * as stored in the <code>args</code> parameter.
+     * @param packetType - the packet type we are sending
+     * @param channel - the channel to send it on
+     * @param channelName - the specific channel name within the channel to use
+     * @param args - the data needing to be sent across the network
      */
-    public static void sendPacketPlayerInventory(FMLEventChannel channel, String channelName, Map<String, Object> args) {
-        FMLProxyPacket packet = createClientPacket(HubbyClientPacketType.PLAYER_INVENTORY, channelName, args);
-        sendToServer(packet, channel, HubbyClientPacketType.PLAYER_INVENTORY);
+    public static void sendPacket(Enum<? extends HubbyEnumValueInterface> packetType, 
+                                  String channelName, 
+                                  Map<String, Object> args) {
+        FMLProxyPacket packet = createClientPacket(packetType, channelName, args);
+        sendToServer(packet, HubbyNetworkHelper.getChannelForName(channelName), packetType);
     }
 
     /**
@@ -46,14 +50,14 @@ public class HubbyClientPacketSender {
         
         // first, let's make sure that the user has registered this packet type
         if (!HubbyNetworkHelper.isPacketTypeRegistered(packetType)) {
-            HubbyConstants.LogChannel.WARNING.log(HubbyClientPacketSender.class, "Failed to create client packet; the packet type %s has not been registered!", "");
+            LogChannel.WARNING.log(HubbyClientPacketSender.class, "Failed to create client packet; the packet type %s has not been registered!", "");
         }
         
         // log that we are handling this packet now
-        HubbyConstants.LogChannel.INFO.log(
+        LogChannel.INFO.log(
             HubbyClientPacketSender.class, 
             "Generaring client packet of type %s to send to the server", 
-            HubbyNetworkHelper.getNameForEnum(packetType));
+            HubbyNetworkHelper.getNameForPacketType(packetType));
         
         // Construct the initial buffer to be populated by the specific
         // packet type function
@@ -63,12 +67,12 @@ public class HubbyClientPacketSender {
         // as a header, we always write the packet type first
         // so that on the other side of network land we can
         // identify which packet we just received.
-        buffer.writeInt(packetType.ordinal());
+        buffer.writeInt(((HubbyEnumValueInterface)packetType).getValue());
         
         // lookup the writer to add
-        HubbyClientPacketWriterInterface writer = HubbyNetworkHelper.getPacketWriterForPacket(packetType);
+        HubbyClientPacketWriterInterface writer = HubbyNetworkHelper.getClientWriterForPacket(packetType);
         if (writer == null) {
-            HubbyConstants.LogChannel.WARNING.log(HubbyClientPacketSender.class, "Could not send packet of type %s to the server; no buffer writer exists for that packet type!");
+            LogChannel.WARNING.log(HubbyClientPacketSender.class, "Could not send packet of type %s to the server; no buffer writer exists for that packet type!");
             return null;
         }
         
@@ -87,28 +91,8 @@ public class HubbyClientPacketSender {
      * @param channel - the channel to send it on
      */
     protected static void sendToServer(FMLProxyPacket packet, FMLEventChannel channel, Enum<? extends HubbyEnumValueInterface> packetType) {
-        String name = HubbyNetworkHelper.getNameForEnum(packetType);
-        HubbyConstants.LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server", name);
+        String name = HubbyNetworkHelper.getNameForPacketType(packetType);
+        LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server", name);
         channel.sendToServer(packet);
-    }
-    
-    /**
-     * Generates the packet needed in order to sync player inventory
-     * information from the client to the server and vice versa
-     * @param packetType - the packet type to send
-     * @param channel - the channel name we want to send the packet on
-     * @param args - the args used to build the packet
-     * @return
-     */
-    protected static void writePlayerInventoryToBuffer(PacketBuffer buffer, Map<String, Object> args) {
-        // Read values from the args map
-        ItemStack stack = (ItemStack)args.get("stack");
-        Integer slot = (Integer)args.get("slot");
-        Integer offset = (Integer)args.get("offset");
-
-        // Add custom args to the buffer
-        buffer.writeItemStackToBuffer(stack);
-        buffer.writeInt(slot);
-        buffer.writeInt(offset);
     }
 }
