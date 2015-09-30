@@ -26,16 +26,6 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 public class HubbyNetworkHelper {
 
     /**
-     * Simple interface that specifies what it should look like
-     * when we want to write to a buffer to send along in a packet
-     * @author davidleistiko
-     *
-     */
-    public interface HubbyClientPacketWriterInterface {
-        void writeToBuffer(PacketBuffer buffer, Map<String, Object> args); 
-    }
-    
-    /**
      * This map stores the relationship between a packet name and a
      * corresponding enum value
      */
@@ -98,8 +88,8 @@ public class HubbyNetworkHelper {
         
         // Setup networking options
         HubbyNetworkHelper.addPacketType("{C}PacketPlayerInventory", HubbyClientPacketType.PLAYER_INVENTORY);
-        HubbyNetworkHelper.registerClientPacketWriter(HubbyClientPacketType.PLAYER_INVENTORY, new HubbyClientPacketWriterPlayerInventory());
-        HubbyNetworkHelper.registerServerPacketProcessor(HubbyClientPacketType.PLAYER_INVENTORY, new HubbyServerPacketProcessorPlayerInventory());
+        HubbyNetworkHelper.registerClientPacketWriter(HubbyClientPacketType.PLAYER_INVENTORY, new HubbyClientPacketWriterPlayerInventory(HubbyClientPacketType.PLAYER_INVENTORY));
+        HubbyNetworkHelper.registerServerPacketProcessor(HubbyClientPacketType.PLAYER_INVENTORY, new HubbyServerPacketProcessorPlayerInventory(HubbyClientPacketType.PLAYER_INVENTORY));
         
         // setup default packet handlers for the client and server
         HUBBY_CLIENT_PACKET_HANDLER.enableChannel(HubbyNetworkHelper.getDefaultChannelName(), true);

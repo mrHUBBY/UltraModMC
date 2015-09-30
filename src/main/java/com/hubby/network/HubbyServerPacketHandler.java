@@ -74,7 +74,9 @@ public class HubbyServerPacketHandler {
  
         // process the packet now
         for (HubbyServerPacketProcessorInterface processor : HubbyNetworkHelper.getServerProcessorsForPacket(packetType)) {
-            processor.processServerPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
+            if (processor.validate(packetType)) {
+                processor.processServerPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
+            }
         }
     }
 }

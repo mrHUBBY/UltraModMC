@@ -2,7 +2,6 @@ package com.hubby.network;
 
 import java.util.Map;
 
-import com.hubby.network.HubbyNetworkHelper.HubbyClientPacketWriterInterface;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
 
@@ -73,6 +72,11 @@ public class HubbyClientPacketSender {
         HubbyClientPacketWriterInterface writer = HubbyNetworkHelper.getClientWriterForPacket(packetType);
         if (writer == null) {
             LogChannel.WARNING.log(HubbyClientPacketSender.class, "Could not send packet of type %s to the server; no buffer writer exists for that packet type!");
+            return null;
+        }
+        
+        // validate that we are using the correct writer...
+        if (!writer.validate(packetType, args)) {
             return null;
         }
         
