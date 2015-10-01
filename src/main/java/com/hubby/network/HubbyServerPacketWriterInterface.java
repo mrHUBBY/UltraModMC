@@ -9,10 +9,10 @@ import net.minecraft.network.PacketBuffer;
 
 /**
  * The purpose of this class is to define an interface for adhering to how
- * packet data should be written before being sent off to the server.
+ * packet data should be written before being sent off to the client.
  * @author davidleistiko
  */
-public abstract class HubbyClientPacketWriterInterface {
+public abstract class HubbyServerPacketWriterInterface {
 
     /**
      * The type of packet that this writer handles
@@ -23,7 +23,7 @@ public abstract class HubbyClientPacketWriterInterface {
      * Constructor
      * @param packetType - the type of packet that we handle
      */
-    public HubbyClientPacketWriterInterface(Enum<? extends HubbyEnumValueInterface> packetType) {
+    public HubbyServerPacketWriterInterface(Enum<? extends HubbyEnumValueInterface> packetType) {
         _packetType = packetType;
     }
     
@@ -46,8 +46,8 @@ public abstract class HubbyClientPacketWriterInterface {
         }
         
         // log the error and return false
-        LogChannel.ERROR.log(HubbyClientPacketWriterInterface.class, 
-            "Client writer was sent the wrong packet type; expected %s but got %s!",
+        LogChannel.ERROR.log(HubbyServerPacketWriterInterface.class, 
+            "Server writer was sent the wrong packet type; expected %s but got %s!",
             HubbyNetworkHelper.getNameForPacketType(_packetType),
             HubbyNetworkHelper.getNameForPacketType(packetType));
         

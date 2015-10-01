@@ -16,6 +16,7 @@ import net.minecraft.network.PacketBuffer;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
@@ -37,9 +38,19 @@ public class HubbyNetworkHelper {
     private static final Map<String, HubbyClientPacketWriterInterface> CLIENT_PACKET_WRITERS = new HashMap<String, HubbyClientPacketWriterInterface>();
     
     /**
+     * Stores registered packet writers
+     */
+    private static final Map<String, HubbyServerPacketWriterInterface> SERVER_PACKET_WRITERS = new HashMap<String, HubbyServerPacketWriterInterface>();
+    
+    /**
      * Registered packet processors for the server based on packet type
      */
     private static final Map<String, ArrayList<HubbyServerPacketProcessorInterface>> SERVER_PACKET_PROCESSORS = new HashMap<String, ArrayList<HubbyServerPacketProcessorInterface>>();
+    
+    /**
+     * Registered packet processors for the client based on packet type
+     */
+    private static final Map<String, ArrayList<HubbyClientPacketProcessorInterface>> CLIENT_PACKET_PROCESSORS = new HashMap<String, ArrayList<HubbyClientPacketProcessorInterface>>();
     
     /**
      * This is the name of the default channel to be used with most network
@@ -163,6 +174,25 @@ public class HubbyNetworkHelper {
     }
     
     /**
+     * Registers a custom packet writer for the given packetID
+     * @param packetID - the packetID
+     * @param writer - the write to packet implementation
+     */
+    public static void registerServerPacketWriter(Enum<? extends HubbyEnumValueInterface> enumVal, HubbyServerPacketWriterInterface writer) {
+        String name = HubbyNetworkHelper.getNameForPacketType(enumVal);
+        HubbyNetworkHelper.SERVER_PACKET_WRITERS.put(name, writer);
+    }
+    
+    /**
+     * Removes a writer from the registry
+     * @param packetID - the packetID
+     */
+    public static void unregisterServerPacketWriter(Enum<? extends HubbyEnumValueInterface> enumVal) {
+        String name = HubbyNetworkHelper.getNameForPacketType(enumVal);
+        HubbyNetworkHelper.SERVER_PACKET_WRITERS.remove(name);
+    }
+    
+    /**
      * Registers a server packet processor for a specific packet type
      * @param enumVal - the packet type
      * @param processor - the processor to register
@@ -189,12 +219,47 @@ public class HubbyNetworkHelper {
     }
     
     /**
+     * Registers a client packet processor for a specific packet type
+     * @param enumVal - the packet type
+     * @param processor - the processor to register
+     */
+    public static void registerClientPacketProcessor(Enum<? extends HubbyEnumValueInterface> enumVal, HubbyClientPacketProcessorInterface processor) {
+        String name = HubbyNetworkHelper.getNameForPacketType(enumVal);
+        if (HubbyNetworkHelper.CLIENT_PACKET_PROCESSORS.containsKey(name)) {
+            List<HubbyClientPacketProcessorInterface> processors = HubbyNetworkHelper.CLIENT_PACKET_PROCESSORS.get(name);
+            processors.add(processor);
+        }
+        else {
+            ArrayList<HubbyClientPacketProcessorInterface> newProcessorList = new ArrayList<HubbyClientPacketProcessorInterface>();
+            newProcessorList.add(processor);
+            HubbyNetworkHelper.CLIENT_PACKET_PROCESSORS.put(name, newProcessorList);
+        }
+    }
+    
+    /**
+     * Removes a client packet processor based on the packet type
+     */
+    public static void unregisterClientPacketProcessor(Enum<? extends HubbyEnumValueInterface> enumVal) {
+        String name = HubbyNetworkHelper.getNameForPacketType(enumVal);
+        HubbyNetworkHelper.CLIENT_PACKET_PROCESSORS.remove(name);
+    }
+    
+    /**
      * Returns the packet writer based on the packet type
      * @return HubbyClientPacketWriterInterface - the writer for the type
      */
     public static HubbyClientPacketWriterInterface getClientWriterForPacket(Enum<? extends HubbyEnumValueInterface> packetType) {
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
         return HubbyNetworkHelper.CLIENT_PACKET_WRITERS.get(name);
+    }
+    
+    /**
+     * Returns the packet writer based on the packet type
+     * @return HubbyServerPacketWriterInterface - the writer for the type
+     */
+    public static HubbyServerPacketWriterInterface getServerWriterForPacket(Enum<? extends HubbyEnumValueInterface> packetType) {
+        String name = HubbyNetworkHelper.getNameForPacketType(packetType);
+        return HubbyNetworkHelper.SERVER_PACKET_WRITERS.get(name);
     }
     
     /**
@@ -205,6 +270,16 @@ public class HubbyNetworkHelper {
     public static List<HubbyServerPacketProcessorInterface> getServerProcessorsForPacket(Enum<? extends HubbyEnumValueInterface> packetType) {
         String name = getNameForPacketType(packetType);
         return HubbyNetworkHelper.SERVER_PACKET_PROCESSORS.get(name);
+    }
+    
+    /**
+     * Returns the list of client processors for the packet type specified
+     * @param enumVal - the packetType
+     * @return List - the list of processors
+     */
+    public static List<HubbyClientPacketProcessorInterface> getClientProcessorsForPacket(Enum<? extends HubbyEnumValueInterface> packetType) {
+        String name = getNameForPacketType(packetType);
+        return HubbyNetworkHelper.CLIENT_PACKET_PROCESSORS.get(name);
     }
     
     /**s
@@ -263,6 +338,31 @@ public class HubbyNetworkHelper {
             ByteBuf data = buffer.copy();
             PacketBuffer copyBuffer = new PacketBuffer(data);
             FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, serverEvent.packet.channel());
+            copyPacket.readPacketData(copyBuffer);
+            Integer enumValue = copyBuffer.readInt();
+            return getPacketTypeForValue(enumValue);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    /**
+     * Gets the enum by looking up the value in the buffer stored in the event
+     * @param serverEvent - the event to fetch the enum value from
+     * @return Enum - the corresponding enum value
+     */
+    public static Enum<? extends HubbyEnumValueInterface> getPacketTypeForClientEvent(ClientCustomPacketEvent clientEvent) {
+        try {
+            PacketBuffer buffer = new PacketBuffer(clientEvent.packet.payload());
+            
+            // We need to generate a copy of the buffer otherwise, reading values
+            // from the buffer here will offset the read position when the packet is
+            // actually being handled resulting in the incorrect data that can crash the game
+            ByteBuf data = buffer.copy();
+            PacketBuffer copyBuffer = new PacketBuffer(data);
+            FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, clientEvent.packet.channel());
             copyPacket.readPacketData(copyBuffer);
             Integer enumValue = copyBuffer.readInt();
             return getPacketTypeForValue(enumValue);
