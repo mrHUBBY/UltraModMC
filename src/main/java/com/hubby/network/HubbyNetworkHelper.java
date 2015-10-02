@@ -11,12 +11,13 @@ import java.util.concurrent.Callable;
 import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.network.PacketBuffer;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.CustomPacketEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
@@ -26,6 +27,58 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
  */
 public class HubbyNetworkHelper {
 
+    /**
+     * This enumerates the various types of
+     * results we can have after we process a
+     * packet and try to deternine what to do
+     * next
+     * @author davidleistiko
+     */
+    public enum ProcessPacketResult {
+        INVALID         (-1, "Invalid"),
+        STOP            (0, "Stop"),
+        CONTINUE        (1, "Continue");
+        
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        private String _name;
+        
+        /**
+         * Constructor
+         * @param value - the value for the result
+         * @param name - the name of the result
+         */
+        ProcessPacketResult(Integer value, String name) {
+            _underlyingValue = value;
+           _name = name;
+        }
+        
+        /**
+         * Returns the enum's underlying value
+         * @return
+         */
+        public Integer getValue() {
+            return _underlyingValue;
+        }
+        
+        /**
+         * Returns the name of the enum
+         * @return
+         */
+        public String getDisplayName() {
+            return _name;
+        }
+    }
+    
+    /**
+     * Offset values used by methods that read information
+     * from a <code>PacketBuffer</code>
+     */
+    public static final Integer INDEX_OFFSET_PACKETTYPE = 0;
+    public static final Integer INDFX_OFFSET_STARTTIME = 4;
+    
     /**
      * This map stores the relationship between a packet name and a
      * corresponding enum value
@@ -329,18 +382,33 @@ public class HubbyNetworkHelper {
      * @return Enum - the corresponding enum value
      */
     public static Enum<? extends HubbyEnumValueInterface> getPacketTypeForServerEvent(ServerCustomPacketEvent serverEvent) {
+        PacketBuffer copyBuffer = HubbyNetworkHelper.copyBuffer(serverEvent.packet);
+        Integer enumValue = copyBuffer.readInt();
+        return getPacketTypeForValue(enumValue);
+    }
+    
+    /**
+     * Reads the packet header, returning the packet type and the send time
+     * @param packet - the packet to read
+     * @param value - the value to store the packet type in
+     * @param sendTime - the value to store the send time in
+     * @return boolean - were we successful with the read?
+     */
+    public static Map<String, Object> readPacketHeader(FMLProxyPacket packet) {
+        // NOTE:
+        // This function moves the index pointer within the PacketBuffer so that
+        // the PacketBuffer stored inside the results map has the correct offset
+        // for specific packet types to be able to start reading their values that
+        // occur after the header data
+        PacketBuffer buffer = new PacketBuffer(packet.payload());
         try {
-            PacketBuffer buffer = new PacketBuffer(serverEvent.packet.payload());
+            packet.readPacketData(buffer);
             
-            // We need to generate a copy of the buffer otherwise, reading values
-            // from the buffer here will offset the read position when the packet is
-            // actually being handled resulting in the incorrect data that can crash the game
-            ByteBuf data = buffer.copy();
-            PacketBuffer copyBuffer = new PacketBuffer(data);
-            FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, serverEvent.packet.channel());
-            copyPacket.readPacketData(copyBuffer);
-            Integer enumValue = copyBuffer.readInt();
-            return getPacketTypeForValue(enumValue);
+            Map<String, Object> results = new HashMap<String, Object>();
+            results.put("packetType", buffer.readInt());
+            results.put("sendTime", buffer.readLong());
+            results.put("buffer", buffer);
+            return results;
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -349,20 +417,42 @@ public class HubbyNetworkHelper {
     }
     
     /**
+     * Writes the packet header
+     * @param buffer - the buffer to write to
+     * @param packetType - the type of packet to write the header for
+     */
+    public static void writePacketHeader(PacketBuffer buffer, Enum<? extends HubbyEnumValueInterface> packetType) {
+        buffer.writeInt(((HubbyEnumValueInterface)packetType).getValue());
+        buffer.writeLong(HubbyUtils.getTimeUTC());
+    }
+    
+    /**
+     * Attempts to determine the elapsed time for the event to reach
+     * the other side of the network after being sent away.
+     * @param networkEvent - the event to look at
+     * @return float - the number of elapsed seconds for the event
+     */
+    public static float getElapsedTimeForNetworkEvent(CustomPacketEvent networkEvent) {
+        PacketBuffer copyBuffer = HubbyNetworkHelper.copyBuffer(networkEvent.packet);
+        Long startTime = copyBuffer.getLong(4);
+        return HubbyUtils.getElapsedTimeSeconds(startTime, HubbyUtils.getTimeUTC());
+    }
+    
+    /**
      * Gets the enum by looking up the value in the buffer stored in the event
-     * @param serverEvent - the event to fetch the enum value from
+     * @param networkEvent - the event to fetch the enum value from
      * @return Enum - the corresponding enum value
      */
-    public static Enum<? extends HubbyEnumValueInterface> getPacketTypeForClientEvent(ClientCustomPacketEvent clientEvent) {
+    public static Enum<? extends HubbyEnumValueInterface> getPacketTypeForNetworkEvent(CustomPacketEvent networkEvent) {
         try {
-            PacketBuffer buffer = new PacketBuffer(clientEvent.packet.payload());
+            PacketBuffer buffer = new PacketBuffer(networkEvent.packet.payload());
             
             // We need to generate a copy of the buffer otherwise, reading values
             // from the buffer here will offset the read position when the packet is
             // actually being handled resulting in the incorrect data that can crash the game
             ByteBuf data = buffer.copy();
             PacketBuffer copyBuffer = new PacketBuffer(data);
-            FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, clientEvent.packet.channel());
+            FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, networkEvent.packet.channel());
             copyPacket.readPacketData(copyBuffer);
             Integer enumValue = copyBuffer.readInt();
             return getPacketTypeForValue(enumValue);
@@ -445,4 +535,42 @@ public class HubbyNetworkHelper {
         return false;
     }
     
+    /**
+     * Helper method for copying a packet
+     * @param packet - the packet to copy
+     * @return FMLProxyPacket - the copied packet
+     */
+    public static PacketBuffer copyBuffer(FMLProxyPacket packet) {
+        PacketBuffer buffer = new PacketBuffer(packet.payload());
+        ByteBuf data = buffer.copy();
+        PacketBuffer copyBuffer = new PacketBuffer(data);
+        FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, packet.channel());
+        try {
+            copyPacket.readPacketData(copyBuffer);
+            return copyBuffer;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+ 
+        // no luck2
+        return null;
+    }
+    
+    public static FMLProxyPacket copyPacket(FMLProxyPacket packet) {
+        PacketBuffer buffer = new PacketBuffer(packet.payload());
+        ByteBuf data = buffer.copy();
+        PacketBuffer copyBuffer = new PacketBuffer(data);
+        FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, packet.channel());
+        try {
+            copyPacket.readPacketData(copyBuffer);
+            return copyPacket;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+ 
+        // no luck
+        return null;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hubby.network.HubbyNetworkHelper.ProcessPacketResult;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
 import com.hubby.utils.HubbyUtils;
@@ -66,17 +67,20 @@ public class HubbyClientPacketHandler {
             return;
         }
         
-        Enum<? extends HubbyEnumValueInterface> packetType = HubbyNetworkHelper.getPacketTypeForClientEvent(event);  
+        Enum<? extends HubbyEnumValueInterface> packetType = HubbyNetworkHelper.getPacketTypeForNetworkEvent(event);  
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
+        float time = HubbyNetworkHelper.getElapsedTimeForNetworkEvent(event);
         
         // Log that we received the message and then process the packet
-        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received [client] message on channel %s", channelName);
-        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Processing client packet type %s on the server", name);
+        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received packet of type %s on the client for player %s at time %d in %.4f seconds", name, _thePlayer.getName(), HubbyUtils.getTimeUTC(), time);
         
         // process the packet now
         for (HubbyClientPacketProcessorInterface processor : HubbyNetworkHelper.getClientProcessorsForPacket(packetType)) {
             if (processor.validate(packetType)) {
-                processor.processClientPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
+                ProcessPacketResult result = processor.processClientPacket(event.packet, event.packet.payload(), event.packet.getTarget(), _thePlayer);
+                if (result == ProcessPacketResult.STOP) {
+                    break;
+                }
             }
         }
     }

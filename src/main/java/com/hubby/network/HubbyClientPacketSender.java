@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
+import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.network.PacketBuffer;
 
@@ -62,11 +63,7 @@ public class HubbyClientPacketSender {
         // packet type function
         ByteBufOutputStream bbos = new ByteBufOutputStream(Unpooled.buffer());
         PacketBuffer buffer = new PacketBuffer(bbos.buffer());
-        
-        // as a header, we always write the packet type first
-        // so that on the other side of network land we can
-        // identify which packet we just received.
-        buffer.writeInt(((HubbyEnumValueInterface)packetType).getValue());
+        HubbyNetworkHelper.writePacketHeader(buffer, packetType);
         
         // lookup the writer to add
         HubbyClientPacketWriterInterface writer = HubbyNetworkHelper.getClientWriterForPacket(packetType);
@@ -83,6 +80,8 @@ public class HubbyClientPacketSender {
         // populate the buffer with the values that we need
         writer.writeToBuffer(buffer, args);
         
+        buffer.writeLong(HubbyUtils.getTimeUTC());
+        
         // create the packet and return it
         FMLProxyPacket thePacket = new FMLProxyPacket(buffer, channelName);
         return thePacket;
@@ -96,7 +95,7 @@ public class HubbyClientPacketSender {
      */
     protected static void sendToServer(FMLProxyPacket packet, FMLEventChannel channel, Enum<? extends HubbyEnumValueInterface> packetType) {
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
-        LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server", name);
+        LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server at time %d", name, HubbyUtils.getTimeUTC());
         channel.sendToServer(packet);
     }
 }

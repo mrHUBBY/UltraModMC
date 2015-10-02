@@ -1,7 +1,9 @@
 package com.hubby.network;
 
 import java.io.IOException;
+import java.util.Map;
 
+import com.hubby.network.HubbyNetworkHelper.ProcessPacketResult;
 import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
@@ -30,18 +32,16 @@ public class HubbyServerPacketProcessorPlayerInventory extends HubbyServerPacket
      * @param buffer - the buffer with our data
      * @param side - the side that this is occurring on
      * @param player - the multiplayer player
+     * @return ProcessPacketResult - the result of the processing
      */
     @Override
-    public boolean processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException {
+    public ProcessPacketResult processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException {
         
         // read the packet to get all values
-        PacketBuffer packetBuffer = new PacketBuffer(buffer);
-        packet.readPacketData(packetBuffer);
-
-        // switch on the packet type
-        int value = buffer.readInt();
-        Enum packetType = HubbyNetworkHelper.getPacketTypeForValue(value);
+        Map<String, Object> results = HubbyNetworkHelper.readPacketHeader(packet);
+        Enum packetType = HubbyNetworkHelper.getPacketTypeForValue((Integer)results.get("packetType"));
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
+        PacketBuffer packetBuffer = (PacketBuffer)results.get("buffer");
         
         String expectedPacketName = HubbyNetworkHelper.getNameForPacketType(HubbyClientPacketType.PLAYER_INVENTORY);
         assert packetType == HubbyClientPacketType.PLAYER_INVENTORY : String.format("Wrong packet type sent to %s server processor", "");
@@ -58,6 +58,8 @@ public class HubbyServerPacketProcessorPlayerInventory extends HubbyServerPacket
         // place the itemstack into the player's inventory
         player.inventoryContainer.setPlayerIsPresent(player, true);
         player.inventoryContainer.putStackInSlot(slot, stack);
-        return true;
+        
+        // default is to continue...
+        return ProcessPacketResult.CONTINUE;
     }
 }

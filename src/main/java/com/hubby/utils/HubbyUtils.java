@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.lwjgl.opengl.GL11;
 import org.reflections.Reflections;
@@ -727,5 +729,38 @@ public class HubbyUtils {
             return player.capabilities.isCreativeMode;
         }
         return false;
+    }
+    
+    /**
+     * Returns the elapsed time for the difference between the 2 UTC timestamps.
+     * Time value returned is in seconds.
+     * @param utcStart - the starting timestamp
+     * @param utcEnd - the ending timestamp
+     * @return float - the elapsed time in seconds
+     */
+    public static float getElapsedTimeSeconds(Long utcStart, Long utcEnd) {
+
+        // catch the invalid case
+        if (utcStart >= utcEnd) {
+            return 0.0000f;
+        }
+        
+        // now we read the start time and calculate our elapsed time
+        // for handling the packet that came down with the event
+        Date startDate = new Date(utcStart);
+        Date endDate = new Date(utcEnd);
+        Long duration = endDate.getTime() - startDate.getTime();
+        Long millsDiff = TimeUnit.MILLISECONDS.toMillis(duration);
+        Long secsDiff = TimeUnit.MILLISECONDS.toSeconds(duration);
+        Long minsDiff = TimeUnit.MILLISECONDS.toMinutes(duration);
+        Long hoursDiff = TimeUnit.MILLISECONDS.toHours(duration);
+        Long daysDiff = TimeUnit.MILLISECONDS.toDays(duration);
+        
+        // calc elapsed seconds and return
+        float seconds = (float)secsDiff + (float)millsDiff / 1000.0f;
+        seconds += (60.0f * minsDiff);
+        seconds += (60.0f * 60.0f * hoursDiff);
+        seconds += (60.0f * 60.0f * 24.0f * daysDiff);
+        return seconds;
     }
 }

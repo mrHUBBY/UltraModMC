@@ -2,6 +2,7 @@ package com.hubby.network;
 
 import java.io.IOException;
 
+import com.hubby.network.HubbyNetworkHelper.ProcessPacketResult;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
 
@@ -63,7 +64,8 @@ public abstract class HubbyServerPacketProcessorInterface {
      * @param buffer - the buffer of data
      * @param side - the side of the process
      * @param player - the player (server version)
+     * @return ProcessPacketResult - the result of the processing
      * @throws Exception
      */
-    abstract public boolean processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException;
+    abstract public ProcessPacketResult processServerPacket(FMLProxyPacket packet, ByteBuf buffer, Side side, EntityPlayerMP player) throws IOException;
 }
