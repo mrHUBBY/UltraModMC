@@ -1,6 +1,7 @@
 package com.hubby.utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -763,4 +764,31 @@ public class HubbyUtils {
         seconds += (60.0f * 60.0f * 24.0f * daysDiff);
         return seconds;
     }
+    
+    /**
+     * Overwrites the value for the static final field that is identified
+     * by class and name with the new value passed in
+     * @param klass - the class containing the field
+     * @param fieldName - the name of the field
+     * @param newValue - the new value to set
+     * @return boolean - were we successful or not?
+     * @throws Exception
+     */
+    public static boolean overrideFinalFieldValue(Class klass, Object instance, String fieldName, Object newValue) {
+        try {
+            Field field;
+            field = klass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            field.set(instance, newValue);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+     }
 }

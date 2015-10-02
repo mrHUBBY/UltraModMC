@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
+import com.hubby.utils.HubbyConstants.HubbyGenericPacketType;
 import com.hubby.utils.HubbyConstants.LogChannel;
 import com.hubby.utils.HubbyEnumValueInterface;
 import com.hubby.utils.HubbyUtils;
@@ -149,6 +150,8 @@ public class HubbyNetworkHelper {
     public static void register() {
         REGISTERED_CHANNELS.add(HUBBY_NETWORK_CHANNEL);
         REGISTERED_CHANNEL_NAMES.add(HUBBY_NETWORK_CHANNEL_NAME);
+        
+        HubbyNetworkHelper.addPacketType("{X}PacketInvalid", HubbyGenericPacketType.INVALID);
         
         // Setup networking options
         HubbyNetworkHelper.addPacketType("{C}PacketPlayerInventory", HubbyClientPacketType.PLAYER_INVENTORY);
@@ -433,9 +436,17 @@ public class HubbyNetworkHelper {
      * @return float - the number of elapsed seconds for the event
      */
     public static float getElapsedTimeForNetworkEvent(CustomPacketEvent networkEvent) {
-        PacketBuffer copyBuffer = HubbyNetworkHelper.copyBuffer(networkEvent.packet);
-        Long startTime = copyBuffer.getLong(4);
-        return HubbyUtils.getElapsedTimeSeconds(startTime, HubbyUtils.getTimeUTC());
+        try {
+            PacketBuffer buffer = new PacketBuffer(networkEvent.packet.payload());
+            networkEvent.packet.readPacketData(buffer);
+            Long startTime = buffer.getLong(HubbyNetworkHelper.INDFX_OFFSET_STARTTIME);
+            Long nowTime = HubbyUtils.getTimeUTC();
+            return HubbyUtils.getElapsedTimeSeconds(startTime, nowTime);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1.0f;
     }
     
     /**
@@ -446,21 +457,13 @@ public class HubbyNetworkHelper {
     public static Enum<? extends HubbyEnumValueInterface> getPacketTypeForNetworkEvent(CustomPacketEvent networkEvent) {
         try {
             PacketBuffer buffer = new PacketBuffer(networkEvent.packet.payload());
-            
-            // We need to generate a copy of the buffer otherwise, reading values
-            // from the buffer here will offset the read position when the packet is
-            // actually being handled resulting in the incorrect data that can crash the game
-            ByteBuf data = buffer.copy();
-            PacketBuffer copyBuffer = new PacketBuffer(data);
-            FMLProxyPacket copyPacket = new FMLProxyPacket(copyBuffer, networkEvent.packet.channel());
-            copyPacket.readPacketData(copyBuffer);
-            Integer enumValue = copyBuffer.readInt();
-            return getPacketTypeForValue(enumValue);
+            networkEvent.packet.readPacketData(buffer);
+            return getPacketTypeForValue(buffer.getInt(HubbyNetworkHelper.INDEX_OFFSET_PACKETTYPE));
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return HubbyGenericPacketType.INVALID;
     }
      
     /**

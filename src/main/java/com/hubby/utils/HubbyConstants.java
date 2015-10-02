@@ -474,25 +474,46 @@ public class HubbyConstants {
     }
     
     /**
+     * Defines the single INVALID packet type that can be used by both
+     * the client and server and anyone wanting to use packet types enum
+     * @author davidleistiko
+     */
+    public enum HubbyGenericPacketType implements HubbyEnumValueInterface {
+        INVALID                     (-1);
+     
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+       
+        /**
+         * Constructor
+         * @param displayName - the display name
+         */
+        HubbyGenericPacketType(Integer value) {
+            _underlyingValue = value;
+        }
+        
+        /**
+         * Returns the packet id
+         * @return Integer - the packet id
+         */
+        @Override
+        public Integer getValue() {
+            return _underlyingValue;
+        }
+    }
+    
+    /**
      * The various packets that we send from the client to the server
      */
     public enum HubbyClientPacketType implements HubbyEnumValueInterface {
-        INVALID                     (-1),
         PLAYER_INVENTORY           (99);        
 
         /**
          * Members
          */
         private Integer _underlyingValue;
-        
-        public static HubbyClientPacketType getEnumForValue(Integer value) {
-            for (HubbyClientPacketType type : HubbyClientPacketType.values()) {
-                if (type.getValue() == value) {
-                    return type;
-                }
-            }
-            return HubbyClientPacketType.INVALID;   
-        }
         
         /**
          * Constructor
