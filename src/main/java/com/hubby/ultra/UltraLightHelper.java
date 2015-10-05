@@ -27,8 +27,8 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      */
     private boolean _lightItemsEnabled = true;
     private boolean _lightNodesEnabled = true;
-    private IBlockAccess _world;
-    private ConcurrentLinkedQueue<UltraLightSourceNode> _lights;
+    private IBlockAccess _lastWorld;
+    private ConcurrentLinkedQueue<UltraLightSourceNode> _lastLightsList;
     private ConcurrentHashMap<World, ConcurrentLinkedQueue<UltraLightSourceNode>> _worldLightsMap;
     
     /**
@@ -72,17 +72,17 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
         }
 
         // Set the world and the current list of lights that we will be working with
-        if (!world.equals(UltraLightHelper.getInstance()._world) || UltraLightHelper.getInstance()._lights == null) {
-            UltraLightHelper.getInstance()._world = world;
-            UltraLightHelper.getInstance()._lights = ((ConcurrentLinkedQueue)UltraLightHelper.getInstance()._worldLightsMap.get(world));
-            if (UltraLightHelper.getInstance()._lights == null) {
+        if (!world.equals(UltraLightHelper.getInstance()._lastWorld) || UltraLightHelper.getInstance()._lastLightsList == null) {
+            UltraLightHelper.getInstance()._lastWorld = world;
+            UltraLightHelper.getInstance()._lastLightsList = ((ConcurrentLinkedQueue)UltraLightHelper.getInstance()._worldLightsMap.get(world));
+            if (UltraLightHelper.getInstance()._lastLightsList == null) {
                 UltraLightHelper.getInstance()._worldLightsMap.put((World)world, new ConcurrentLinkedQueue<UltraLightSourceNode>());
-                UltraLightHelper.getInstance()._lights = ((ConcurrentLinkedQueue)UltraLightHelper.getInstance()._worldLightsMap.get(world));
+                UltraLightHelper.getInstance()._lastLightsList = ((ConcurrentLinkedQueue)UltraLightHelper.getInstance()._worldLightsMap.get(world));
             }
         }
         
         // Not much to do if we do not have any lights in our list
-        if (UltraLightHelper.getInstance()._lights == null || UltraLightHelper.getInstance()._lights.isEmpty()) {
+        if (UltraLightHelper.getInstance()._lastLightsList == null || UltraLightHelper.getInstance()._lastLightsList.isEmpty()) {
             return vanillaLightValue;
         }
 
@@ -90,7 +90,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
         // lights that might be in the same position as the block that
         // we are currently calculating the light value for
         int overrideLightValue = 0;
-        for (UltraLightSourceNode light : UltraLightHelper.getInstance()._lights) {    
+        for (UltraLightSourceNode light : UltraLightHelper.getInstance()._lastLightsList) {    
             if (light.getPos().equals(pos)) {
                 overrideLightValue = Math.max(light.getLightSource().getLightLevel().getValue(), overrideLightValue);
             }
@@ -106,8 +106,8 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      * @return int - the light value (between 0 - 15)
      */
     public int getVanillaLightLevelForBlock(BlockPos pos) {
-        if (UltraLightHelper.getInstance()._world != null) {
-            World world = (World)UltraLightHelper.getInstance()._world;
+        if (UltraLightHelper.getInstance()._lastWorld != null) {
+            World world = (World)UltraLightHelper.getInstance()._lastWorld;
             return world.getBlockState(pos).getBlock().getLightValue(world, pos);
         }
         return LightLevel.getDefaultLightLevel().getValue();
@@ -120,11 +120,12 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      */
     public boolean addLight(UltraLightSourceNode node) {
         ConcurrentLinkedQueue<UltraLightSourceNode> lights = _worldLightsMap.get(node.getLightSource().getAttachmentEntity().worldObj);
-        if (lights != null) {
-            lights.add(node);
-            return true;
+        if (lights == null) {
+            lights = new ConcurrentLinkedQueue<UltraLightSourceNode>();
+            _worldLightsMap.put(node.getLightSource().getAttachmentEntity().worldObj, lights);  
         }
-        return false;
+        lights.add(node);
+        return true;
     }
     
     /**
@@ -173,7 +174,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
         }
         
         // update all nodes
-        if (_lightNodesEnabled && _lights != null) {
+        if (_lightNodesEnabled && _lastLightsList != null) {
             updateLightNodes();
         }
     }
@@ -194,7 +195,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
         // run their refresh method to update the light pos
         // for those lights which are still valid and then
         // remove any lights that are determined to be inactive
-        Iterator<UltraLightSourceNode> it = _lights.iterator();
+        Iterator<UltraLightSourceNode> it = _lastLightsList.iterator();
         while (it.hasNext()) {
             
             // Get the container and attempt a refresh... if the
