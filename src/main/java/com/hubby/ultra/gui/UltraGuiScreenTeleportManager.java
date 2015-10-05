@@ -1,9 +1,10 @@
-package com.hubby.ultra;
+package com.hubby.ultra.gui;
 
 import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
+import com.hubby.ultra.UltraTeleportWaypoint;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.utils.HubbyColor;
 import com.hubby.utils.HubbyInputFilter;
@@ -30,7 +31,7 @@ import net.minecraft.util.ResourceLocation;
  * @author davidleistiko
  *
  */
-public class UltraTeleportManagerGuiScreen extends GuiScreen {
+public class UltraGuiScreenTeleportManager extends GuiScreen {
 
 	/**
 	 * Constant values
@@ -56,7 +57,7 @@ public class UltraTeleportManagerGuiScreen extends GuiScreen {
     /**
      * Default constructor
      */
-    public UltraTeleportManagerGuiScreen() {
+    public UltraGuiScreenTeleportManager() {
 
     }
 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.minecraft.world.EnumSkyBlock;
+
 public class HubbyConstants {
     /**
      * Useful constants
@@ -528,6 +530,75 @@ public class HubbyConstants {
          * @return Integer - the packet id
          */
         @Override
+        public Integer getValue() {
+            return _underlyingValue;
+        }
+    }
+    
+    
+    /**
+     * Identifies common light level values
+     * @author davidleistiko
+     */
+    public enum LightLevel {
+        INVALID                 (-1),
+        TOTAL_BLACKOUT          (0),
+        SUPER_DARK              (1),
+        MORE_DARK               (2),
+        DARK                    (3),
+        TOTAL_DIMNESS           (4),
+        SUPER_DIM               (5),
+        DIM                     (6),
+        EARLY_DAWN              (7),
+        DAWN                    (8),
+        MORNING_SUN             (9),
+        AFTERNOON               (10),
+        HIGHTIME                (11),
+        SOME_BRIGHT             (12),
+        MORE_BRIGHT             (13),
+        SUPER_BRIGHT            (14),
+        MAX_BRIGHT              (15);
+        
+        /**
+         * Members
+         */
+        private Integer _underlyingValue;
+        
+        /**
+         * Returns the light level with the same underlying value
+         * @param value - the value to find the enum for
+         * @return LightLevel - the matching enum (or INVALID if not found)
+         */
+        public static LightLevel getEnumForValue(Integer value) {
+            for (LightLevel light : LightLevel.values()) {
+                if (light.getValue() == value) {
+                    return light;
+                }
+            }
+            return LightLevel.INVALID;
+        }
+        
+        /**
+         * Returns the default light value to use where the
+         * default value is needed
+         * @return LightLevel - the default light level
+         */
+        public static LightLevel getDefaultLightLevel() {
+            return LightLevel.getEnumForValue(EnumSkyBlock.BLOCK.defaultLightValue);
+        }
+        
+        /**
+         * Constructor
+         * @param level - the level value
+         */
+        LightLevel(Integer level) {
+            _underlyingValue = level;
+        }
+        
+        /**
+         * Returns the underlying value
+         * @return Integer - the value
+         */
         public Integer getValue() {
             return _underlyingValue;
         }

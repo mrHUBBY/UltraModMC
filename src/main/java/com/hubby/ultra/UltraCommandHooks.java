@@ -2,6 +2,7 @@ package com.hubby.ultra;
 
 import com.hubby.ultra.setup.UltraConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyConstants.LightLevel;
 import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.client.Minecraft;
@@ -78,6 +79,7 @@ public class UltraCommandHooks {
         	// TODO:
         	// remove
         	HubbyUtils.setInventoryHotBarItem(0, UltraRegistry.ultraItemBackpackLarge, 1);
+        	UltraUtils.attachLightToEntity(HubbyUtils.getClientPlayer(), LightLevel.MAX_BRIGHT);
         }
 
 //        // Handle the user wanting to spawn something

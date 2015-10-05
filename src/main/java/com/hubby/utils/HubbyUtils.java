@@ -33,6 +33,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -54,6 +55,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.RegistryNamespaced;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
@@ -385,6 +387,15 @@ public class HubbyUtils {
     public static boolean isClientSide(World world) {
         return !world.isRemote;
     }
+    
+    /**
+     * Check if we are the client world or not
+     * @param world - the block access
+     * @return boolean - are we the client world
+     */
+    public static boolean isClientSide(IBlockAccess world) {
+        return world.equals(HubbyUtils.getClientWorld());
+    }
 
     /**
      * Returns the current date in string format
@@ -662,6 +673,13 @@ public class HubbyUtils {
     }
     
     /**
+     * Returns the block that the player is currently standing on
+     */
+    public static Block getStandOnBlock() {
+        return HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
+    }
+    
+    /**
      * Returns the first slot of the main inventory that possesses the item with the
      * specified class
      * @param itemClass - the class of the item to search for
@@ -791,4 +809,19 @@ public class HubbyUtils {
         }
         return false;
      }
+    
+    /**
+     * Enables/disables standard alpha blending
+     * @param enable - turn on blending?
+     */
+    public static void enableStandardBlending(boolean enable) {
+        if (enable) {
+            GL11.glEnable(GL11.GL_BLEND);
+            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        } 
+        else {
+            GL11.glDisable(GL11.GL_BLEND);
+        }
+    }
 }

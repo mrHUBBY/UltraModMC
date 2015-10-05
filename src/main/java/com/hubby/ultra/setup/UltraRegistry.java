@@ -2,7 +2,8 @@ package com.hubby.ultra.setup;
 
 import com.hubby.ultra.UltraConstants;
 import com.hubby.ultra.UltraConstants.BackpackType;
-import com.hubby.ultra.UltraTeleportWaypointGuiScreen;
+import com.hubby.ultra.UltraLightHelper;
+import com.hubby.ultra.gui.UltraGuiScreenTeleportWaypoint;
 import com.hubby.ultra.items.UltraItemAdvancedArmor;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.items.UltraItemBasicSword;
@@ -56,7 +57,7 @@ public class UltraRegistry {
 	/**
 	 * GuiScreens
 	 */
-	public static UltraTeleportWaypointGuiScreen ultraTeleportWaypointGuiScreen = null;
+	public static UltraGuiScreenTeleportWaypoint ultraTeleportWaypointGuiScreen = null;
 	
 	/**
 	 * Misc items and helpers
@@ -108,11 +109,16 @@ public class UltraRegistry {
 		/**
 		 * GuiScreens
 		 */
-		ultraTeleportWaypointGuiScreen = new UltraTeleportWaypointGuiScreen();
+		ultraTeleportWaypointGuiScreen = new UltraGuiScreenTeleportWaypoint();
 		
 		/**
 		 * Misc screens and helpers
 		 */
 		limitedInventoryItemBackpack = new HubbyLimitedInventoryItem("refreshLimitedItemBackpack", 1, ultraItemBackpackSmall);
+		
+		/**
+		 * Init other helpers and systems
+		 */
+		UltraLightHelper.getInstance();
 	}
 }

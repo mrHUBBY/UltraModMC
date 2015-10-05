@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+FMLCorePlugin: com.hubby.ultra.plugin.UltraFMLCorePlugin
+Created-By: 1.7.0 (Oracle Corporation)
+FMLCorePluginContainsFMLMod: com.hubby.ultra.setup.UltraMod
+

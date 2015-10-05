@@ -1,6 +1,6 @@
 package com.hubby.ultra.items;
 
-import com.hubby.ultra.UltraTeleportManagerGuiScreen;
+import com.hubby.ultra.gui.UltraGuiScreenTeleportManager;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
 import com.hubby.utils.HubbyNamedObjectInterface;
@@ -53,7 +53,7 @@ public class UltraItemTeleportArtifact extends Item implements HubbyNamedObjectI
 		    //NitroInterface.spawnParticle(NitroInterface.ParticleNames.Teleport, par3EntityPlayer.posX, par3EntityPlayer.posY + 1, par3EntityPlayer.posZ);
 		    //NitroInterface.spawnParticle(NitroInterface.ParticleNames.Teleport, par3EntityPlayer.posX, par3EntityPlayer.posY + 1, par3EntityPlayer.posZ);
 		    //NitroInterface.spawnParticle(NitroInterface.ParticleNames.Teleport, par3EntityPlayer.posX, par3EntityPlayer.posY + 1, par3EntityPlayer.posZ);
-		    Minecraft.getMinecraft().displayGuiScreen(new UltraTeleportManagerGuiScreen());
+		    Minecraft.getMinecraft().displayGuiScreen(new UltraGuiScreenTeleportManager());
 		}
 		return itemStack;
 	}

@@ -74,6 +74,20 @@ public class HubbyNetworkHelper {
     }
     
     /**
+     * Enumerates the various types of flow a packet can have.
+     * (i.e. it originated on the client and is heading to the server...
+     * and vice-versa)
+     * @author davidleistiko
+     */
+    public enum NetworkDirection {
+        UNKNOWN,
+        CLIENT_TO_SERVER,
+        SERVER_TO_CLIENT,
+        SERVER_TO_MANY,
+        SERVER_TO_NEAR,
+    }
+    
+    /**
      * Offset values used by methods that read information
      * from a <code>PacketBuffer</code>
      */
@@ -151,6 +165,8 @@ public class HubbyNetworkHelper {
         REGISTERED_CHANNELS.add(HUBBY_NETWORK_CHANNEL);
         REGISTERED_CHANNEL_NAMES.add(HUBBY_NETWORK_CHANNEL_NAME);
         
+        // Add the invalid packet denoted with an {X} meaning it is
+        // applicable for both server and client
         HubbyNetworkHelper.addPacketType("{X}PacketInvalid", HubbyGenericPacketType.INVALID);
         
         // Setup networking options
@@ -560,6 +576,11 @@ public class HubbyNetworkHelper {
         return null;
     }
     
+    /**
+     * Helper method that copies the proxy packet
+     * @param packet - the packet to copy
+     * @return FMLProxyPacket - the copied packet
+     */
     public static FMLProxyPacket copyPacket(FMLProxyPacket packet) {
         PacketBuffer buffer = new PacketBuffer(packet.payload());
         ByteBuf data = buffer.copy();

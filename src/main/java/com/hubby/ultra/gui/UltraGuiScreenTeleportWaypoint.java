@@ -1,4 +1,4 @@
-package com.hubby.ultra;
+package com.hubby.ultra.gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.ImmutableList;
+import com.hubby.ultra.UltraTeleportWaypoint;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.utils.HubbyMath;
 import com.hubby.utils.HubbyUtils;
@@ -34,7 +35,7 @@ import net.minecraft.world.World;
  * all of the waypoints that they have saved and can teleport to
  * @author davidleistiko
  */
-public class UltraTeleportWaypointGuiScreen extends GuiScreen {
+public class UltraGuiScreenTeleportWaypoint extends GuiScreen {
 
     /**
      * Constants
