@@ -54,6 +54,36 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
     }
     
     /**
+     * Toggles the node lights on and off
+     */
+    public void toggleNodeLights() {
+        _lightNodesEnabled = !_lightNodesEnabled;
+    }
+    
+    /**
+     * Toggles the item lights on and off
+     */
+    public void toggleItemLights() {
+        _lightItemsEnabled = !_lightItemsEnabled;   
+    }
+    
+    /**
+     * Enables or disables the node lights
+     * @param enable - should we enable?
+     */
+    public void enableNodeLights(boolean enable) {
+        _lightNodesEnabled = enable;
+    }
+    
+    /**
+     * Enables or disables the item lights
+     * @param enable - should we enable?
+     */
+    public void enableItemLights(boolean enable) {
+        _lightItemsEnabled = enable;
+    }
+    
+    /**
      * This is the method that will override the world's method 
      * <code>getRawLight</code> for calculating the
      * correct light value for a block
@@ -105,7 +135,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      * @param pos - the pos to get the light level for
      * @return int - the light value (between 0 - 15)
      */
-    public int getVanillaLightLevelForBlock(BlockPos pos) {
+    public int getVanillaLightValueForBlock(BlockPos pos) {
         if (UltraLightHelper.getInstance()._lastWorld != null) {
             World world = (World)UltraLightHelper.getInstance()._lastWorld;
             return world.getBlockState(pos).getBlock().getLightValue(world, pos);
@@ -118,7 +148,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      * @param node - the node to add
      * @return boolean - did we add anything?
      */
-    public boolean addLight(UltraLightSourceNode node) {
+    public boolean addNodeLight(UltraLightSourceNode node) {
         ConcurrentLinkedQueue<UltraLightSourceNode> lights = _worldLightsMap.get(node.getLightSource().getAttachmentEntity().worldObj);
         if (lights == null) {
             lights = new ConcurrentLinkedQueue<UltraLightSourceNode>();
@@ -133,7 +163,7 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      * @param node - the node to remove
      * @return boolean - did we remove anything?
      */
-    public boolean removeLight(UltraLightSourceNode node) {
+    public boolean removeNodeLight(UltraLightSourceNode node) {
         ConcurrentLinkedQueue<UltraLightSourceNode> lights = _worldLightsMap.get(node.getLightSource().getAttachmentEntity().worldObj);
         if (lights != null) {
             lights.remove(node);

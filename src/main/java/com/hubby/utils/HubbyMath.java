@@ -72,6 +72,16 @@ public class HubbyMath {
     }
     
     /**
+     * Converts seconds to milliseconds
+     * @param secs - the seconds to convert
+     * @return Long - the converted value
+     */
+    public static Long secondsToMs(Double secs) {
+        double ms = Math.floor(secs * 1000.0);
+        return (long)ms;
+    }
+    
+    /**
      * Returns the full ticks that have elasped based on the
      * number of seconds passed in
      * @param seconds

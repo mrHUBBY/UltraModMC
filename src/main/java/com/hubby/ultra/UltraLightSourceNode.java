@@ -93,7 +93,7 @@ public class UltraLightSourceNode {
      * value, thereby disabling the current light value
      */
     public void resetLightLevel() {
-        int vanilla = UltraLightHelper.getInstance().getVanillaLightLevelForBlock(_pos);
+        int vanilla = UltraLightHelper.getInstance().getVanillaLightValueForBlock(_pos);
         updateLightLevel(LightLevel.getEnumForValue(vanilla));
     }
 

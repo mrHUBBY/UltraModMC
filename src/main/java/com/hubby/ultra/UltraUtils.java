@@ -50,7 +50,7 @@ public class UltraUtils {
             else {
                 UltraLightSourceEntity lightEnt = new UltraLightSourceEntity(entity, level);
                 UltraLightSourceNode node = new UltraLightSourceNode(lightEnt);
-                UltraLightHelper.getInstance().addLight(node);
+                UltraLightHelper.getInstance().addNodeLight(node);
                 return true;
             }
         }
@@ -66,7 +66,7 @@ public class UltraUtils {
         UltraLightSourceNode node = UltraLightHelper.getInstance().getLightForEntity(entity);
         if (node != null) {
             node.resetLightLevel();
-            UltraLightHelper.getInstance().removeLight(node);
+            UltraLightHelper.getInstance().removeNodeLight(node);
             node = null;
             return true;
         }

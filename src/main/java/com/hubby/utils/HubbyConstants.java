@@ -3,6 +3,7 @@ package com.hubby.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.world.EnumSkyBlock;
 
@@ -541,28 +542,49 @@ public class HubbyConstants {
      * @author davidleistiko
      */
     public enum LightLevel {
-        INVALID                 (-1),
-        TOTAL_BLACKOUT          (0),
-        SUPER_DARK              (1),
-        MORE_DARK               (2),
-        DARK                    (3),
-        TOTAL_DIMNESS           (4),
-        SUPER_DIM               (5),
-        DIM                     (6),
-        EARLY_DAWN              (7),
-        DAWN                    (8),
-        MORNING_SUN             (9),
-        AFTERNOON               (10),
-        HIGHTIME                (11),
-        SOME_BRIGHT             (12),
-        MORE_BRIGHT             (13),
-        SUPER_BRIGHT            (14),
-        MAX_BRIGHT              (15);
+        INVALID      (-1,   "Invalid"),
+        LEVEL_0      (0,    "Maximum Darkness"),
+        LEVEL_1      (1,    "Extreme Darkness"),
+        LEVEL_2      (2,    "Total Darkness"),
+        LEVEL_3      (3,    "More Darkness"),
+        LEVEL_4      (4,    "Darkness"),
+        LEVEL_5      (5,    "Some Darkness"),
+        LEVEL_6      (6,    "Little Darkness"),
+        LEVEL_7      (7,    "Initial Darkness"),
+        LEVEL_8      (8,    "Initial Brightness"),
+        LEVEL_9      (9,    "Little Brightness"),
+        LEVEL_10     (10,   "Some Brightness"),
+        LEVEL_11     (11,   "Brightness"),
+        LEVEL_12     (12,   "More Brightness"),
+        LEVEL_13     (13,   "Total Brightness"),
+        LEVEL_14     (14,   "Extreme Brightness"),
+        LEVEL_15     (15,   "Maximum Brightness");
         
         /**
          * Members
          */
         private Integer _underlyingValue;
+        private String _description;
+        private static final Random RANDOM = new Random(System.currentTimeMillis());
+        
+        /**
+         * NOTE:
+         * these values were compiled from 
+         * @see http://minecraft.wikia.com/wiki/Light
+         */
+        public static final LightLevel MIN_LIGHT_LEVEL = getEnumForValue(0);
+        public static final LightLevel MAX_LIGHT_LEVEL = getEnumForValue(15);
+        public static final LightLevel SUNLIGHT_LIGHT_LEVEL = getEnumForValue(15);
+        public static final LightLevel RAIN_LIGHT_LEVEL = getEnumForValue(12);
+        public static final LightLevel SNOW_LIGHT_LEVEL = getEnumForValue(12);
+        public static final LightLevel MOONLIGHT_LIGHT_LEVEL = getEnumForValue(4);
+        public static final LightLevel THUNDERSTORM_LIGHT_LEVEL = getEnumForValue(8);
+        public static final LightLevel MONSTER_SPAWN_LIGHT_LEVEL = getEnumForValue(7);
+        public static final LightLevel TORCH_LIGHT_LEVEL = getEnumForValue(14);
+        public static final LightLevel REDSTONE_TORCH_LIGHT_LEVEL = getEnumForValue(7);
+        public static final LightLevel LAVA_LIGHT_LEVEL = getEnumForValue(15);
+        public static final LightLevel REDSTONE_ACTIVE_LAMP_LIGHT_LEVEL = getEnumForValue(15);
+        public static final LightLevel REDSTONE_ACTIVE_ORE_LIGHT_LEVEL = getEnumForValue(9);
         
         /**
          * Returns the light level with the same underlying value
@@ -579,6 +601,26 @@ public class HubbyConstants {
         }
         
         /**
+         * Returns whether or not monsters can spawn in the light
+         * level passed into the function
+         * @param level - the level to compare
+         * @return boolean - true if monsters can spawn
+         */
+        public static boolean canMonstersSpawn(LightLevel level) {
+            return level.getValue() <= LightLevel.MONSTER_SPAWN_LIGHT_LEVEL.getValue();
+        }
+        
+        /**
+         * Returns a random light level
+         * @return LightLevel - the random level
+         */
+        public static LightLevel getRandomLightLevel() {
+            Integer low = LightLevel.MIN_LIGHT_LEVEL.ordinal();
+            Integer high = LightLevel.MAX_LIGHT_LEVEL.ordinal();
+            return LightLevel.getEnumForValue(RANDOM.nextInt(high - low + 1) + low);
+        }
+        
+        /**w
          * Returns the default light value to use where the
          * default value is needed
          * @return LightLevel - the default light level
@@ -591,8 +633,9 @@ public class HubbyConstants {
          * Constructor
          * @param level - the level value
          */
-        LightLevel(Integer level) {
+        LightLevel(Integer level, String desc) {
             _underlyingValue = level;
+            _description = desc;
         }
         
         /**

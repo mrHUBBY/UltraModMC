@@ -2,6 +2,8 @@ package com.hubby.ultra;
 
 import com.hubby.utils.HubbyConstants.LightLevel;
 
+import net.minecraft.item.ItemStack;
+
 /**
  * This interface describes what is needed for an item to
  * implement a light
@@ -9,7 +11,11 @@ import com.hubby.utils.HubbyConstants.LightLevel;
  */
 public interface UltraLightItemInterface {
     /**
-     * Returns the current light level should be between 0 and 15
+     * Returns the light level based on the <code>ItemStack</code>
+     * which acts like a unique instance of the <code>Item</code>
+     * that implements this interface
+     * @param stack - the <code>ItemStack</code> to get the value for
+     * @return LightLevel - the light level for the stack
      */
-    LightLevel getLightLevel();
+    LightLevel getLightLevel(ItemStack stack);
 }

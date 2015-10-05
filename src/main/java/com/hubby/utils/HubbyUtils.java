@@ -824,4 +824,49 @@ public class HubbyUtils {
             GL11.glDisable(GL11.GL_BLEND);
         }
     }
+    
+    /**
+     * Checks if the specified item is in the player's inventory
+     * @param item - the item to check
+     * @return boolean - is item in inventory?
+     */
+    public static boolean isInventoryItem(Item item) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        List<Integer> indices = HubbyUtils.getInventoryItemLocations(item.getClass());
+        return indices.size() > 0;
+    }
+    
+    /**
+     * Checks if the stack matches any of the stacks that are
+     * in the player's current inventory
+     * @param stack
+     * @return
+     */
+    public static boolean isInventoryItem(ItemStack stack) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        List<Integer> indices = HubbyUtils.getInventoryItemLocations(stack.getItem().getClass());
+        return indices.size() > 0;
+    }
+    
+    /**
+     * Is the item in the stack the item the player is currently using?
+     * @param stack - the stack to check
+     * @return boolean - is the player using us?
+     */
+    public static boolean isEquippedItem(Item item) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        List<Integer> indices = HubbyUtils.getInventoryItemLocations(item.getClass());
+        return indices.contains(player.inventory.currentItem);
+    }
+    
+    /**
+     * Checks if the item is specified is the currently
+     * equipped item on the player
+     * @param stack - the item to check
+     * @return boolean - are the items equal?
+     */
+    public static boolean isEquippedItem(ItemStack stack) {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        return ItemStack.areItemStacksEqual(player.getCurrentEquippedItem(), stack);
+    }
 }

@@ -202,6 +202,41 @@ public abstract class HubbyRefreshedObjectInterface {
         double seconds = HubbyMath.msToSeconds(_elapsedTime);
         return HubbyMath.secondsToPartialTicks(seconds);
     }
+    
+    /**
+     * Returns the delta time in ticks
+     * @return Double - the delta ticks
+     */
+    public static Integer getDeltaTicks() {
+        double seconds = HubbyMath.msToSeconds(_deltaTime);
+        return HubbyMath.secondsToTicks(seconds);
+    }
+    
+    /**
+     * Returns the number of partial ticks for the delta time
+     * @return Double - the delta partial ticks
+     */
+    public static Double getDeltaPartialTicks() {
+        double seconds = HubbyMath.msToSeconds(_deltaTime);
+        return HubbyMath.secondsToPartialTicks(seconds);
+    }
+    
+    /**
+     * Returns the delta time in milliseconds
+     * @return Long - the delta time since last frame
+     */
+    public static Long getDeltaTime() {
+        return _deltaTime;
+    }
+    
+    /**
+     * Returns the total elapsed time since the
+     * <code>start</code> method was invoked
+     * @return Long - the elapsed time
+     */
+    public static Long getElapsedTime() {
+        return _elapsedTime;
+    }
 
     /**
      * Removes the object by finding it in its corresponding list and then
