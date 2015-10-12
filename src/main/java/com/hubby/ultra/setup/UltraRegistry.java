@@ -7,6 +7,7 @@ import com.hubby.ultra.gui.UltraGuiScreenTeleportWaypoint;
 import com.hubby.ultra.items.UltraItemAdvancedArmor;
 import com.hubby.ultra.items.UltraItemBackpack;
 import com.hubby.ultra.items.UltraItemBasicSword;
+import com.hubby.ultra.items.UltraItemGlowStick;
 import com.hubby.ultra.items.UltraItemTeleportArtifact;
 import com.hubby.utils.HubbyConstants.ArmorType;
 import com.hubby.utils.HubbyLimitedInventoryItem;
@@ -44,6 +45,7 @@ public class UltraRegistry {
 	public static UltraItemBackpack ultraItemBackpackSmall = null;
 	public static UltraItemBackpack ultraItemBackpackMedium = null;
 	public static UltraItemBackpack ultraItemBackpackLarge = null;
+	public static UltraItemGlowStick ultraItemGlowStick = null;
 	
 	
 	/**
@@ -97,6 +99,7 @@ public class UltraRegistry {
 		ultraItemBackpackSmall = new UltraItemBackpack(BackpackType.SMALL);
 		ultraItemBackpackMedium = new UltraItemBackpack(BackpackType.MEDIUM);
 		ultraItemBackpackLarge = new UltraItemBackpack(BackpackType.LARGE);
+		ultraItemGlowStick = new UltraItemGlowStick();
 		
 		/**
 		 * ItemArmor

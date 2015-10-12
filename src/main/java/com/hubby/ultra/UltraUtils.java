@@ -9,6 +9,7 @@ import com.hubby.utils.HubbyUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 
 /**
  * This is a utility class specific to the Ultra Mod
@@ -90,5 +91,19 @@ public class UltraUtils {
      */
     public static boolean doesEntityHaveAttachedLight(Entity entity) {
         return UltraUtils.findLightForEntity(entity) != null;
+    }
+    
+    /**
+     * Called when the player has a new ItemStack placed in their main inventory
+     * @param slot - the slot within the inventory where the new <code>ItemStack</code> is being placed
+     * @param oldStack - the old stack
+     * @param newStack - the new stack
+     */
+    public static void onPlayerInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {
+        oldStack = null;
+    }
+    
+    public static void onPlayerInventoryArmorChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {
+        oldStack = null;
     }
 }

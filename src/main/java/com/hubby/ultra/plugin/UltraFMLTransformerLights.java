@@ -48,7 +48,7 @@ public class UltraFMLTransformerLights implements IClassTransformer {
         
         // check for the world class
         if (name.equals(this.classNameWorld)) {
-            return handleWorldTransform(bytes, true);
+            return applyTransform(bytes, true);
         }
         
         // check for the world class by its real name
@@ -56,7 +56,7 @@ public class UltraFMLTransformerLights implements IClassTransformer {
             this.computeLightValueMethodName = "getRawLight";
             this.targetMethodDesc = "(Lnet/minecraft/util/BlockPos;Lnet/minecraft/world/EnumSkyBlock;)I";
             this.goalInvokeDesc = "(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;)I";
-            return handleWorldTransform(bytes, false);
+            return applyTransform(bytes, false);
         }
     
         return bytes;
@@ -69,7 +69,7 @@ public class UltraFMLTransformerLights implements IClassTransformer {
      * @param obf - are we using obfuscated names or not?
      * @return byte[] - the transformed bytecode
      */
-    private byte[] handleWorldTransform(byte[] bytes, boolean obf) {
+    private byte[] applyTransform(byte[] bytes, boolean obf) {
 
         LogChannel.INFO.log(UltraFMLTransformerLights.class, "Running transform for light nodes on World class with obfuscation: %s", obf);
         

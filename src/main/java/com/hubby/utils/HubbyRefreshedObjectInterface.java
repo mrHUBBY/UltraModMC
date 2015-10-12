@@ -99,6 +99,14 @@ public abstract class HubbyRefreshedObjectInterface {
             _registeredObjects.put(_priority, list);
         }
     }
+    
+    /**
+     * Can we be considered as currently executing?
+     * @return boolean - are we executing?
+     */
+    public static boolean isRunning() {
+        return _timer != null;
+    }
 
     /**
      * This method must be called in order to initialize the

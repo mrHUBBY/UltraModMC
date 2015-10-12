@@ -77,7 +77,7 @@ public class UltraItemBackpack extends Item implements HubbyNamedObjectInterface
     @Override
     public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
         super.onItemRightClick(itemStack, world, player);
-        if (HubbyUtils.isClienSide()) {
+        if (HubbyUtils.isClientSide()) {
             Minecraft.getMinecraft().displayGuiScreen(new UltraGuiScreenBackpackPlus(HubbyUtils.getClientPlayer()));
         }
         return itemStack;

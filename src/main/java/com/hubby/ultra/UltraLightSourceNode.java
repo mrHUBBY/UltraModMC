@@ -1,9 +1,12 @@
 package com.hubby.ultra;
 
+import com.hubby.utils.HubbyConstants;
 import com.hubby.utils.HubbyConstants.LightLevel;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 
@@ -19,6 +22,8 @@ public class UltraLightSourceNode {
      * the actual light source item
      */
     private UltraLightSourceInterface _lightSource = null;
+    private LightLevel _initialLightLevel;
+    private LightLevel _lastLightLevel;
     
     /**
      * Keep track of where we were and where we are now
@@ -31,6 +36,8 @@ public class UltraLightSourceNode {
      */
     public UltraLightSourceNode(UltraLightSourceInterface light) {
         _lightSource = light;
+        _initialLightLevel = light.getLightLevel();
+        _lastLightLevel = light.getLightLevel();
     }
     
     /**
@@ -47,10 +54,12 @@ public class UltraLightSourceNode {
 
         // check to see if the ent has moved, and if he has then
         // we want to update the blocks with the dynamic light value
-        if (hasEntityMoved(activeEnt)) {
-            updateLightLevel(_lightSource.getLightLevel());
-        } 
-                
+        LightLevel level = determineLightLevel();
+        if (level != _lastLightLevel || hasEntityMoved(activeEnt)) {
+            _lastLightLevel = level;
+            updateLightLevel(_lastLightLevel);
+        }
+        
         return true;
     }
     
@@ -86,6 +95,46 @@ public class UltraLightSourceNode {
         _lightSource.setLightLevel(level);
         _lightSource.getAttachmentEntity().worldObj.checkLightFor(EnumSkyBlock.BLOCK, _pos);
         _lightSource.getAttachmentEntity().worldObj.checkLightFor(EnumSkyBlock.BLOCK, _prevPos);
+    }
+    
+    /**
+     * Determines what the light level should be for the entity
+     * that the light is attached to.
+     * @return LightLevel - the new light level that should be used
+     */
+    public LightLevel determineLightLevel() {
+        
+        // looking for the player entity so that we can calculate
+        // the correct light level by also taking into account any
+        // items that are in the possession of the player that also
+        // give off light
+        Entity ent = getLightSource().getAttachmentEntity();
+        LightLevel maxItemLevel = LightLevel.MIN_LIGHT_LEVEL;
+        
+        // if we are the player and light items are enabled then we want
+        // to calculate the new light level by taking any light items into
+        // consideration
+        if (EntityPlayer.class.isInstance(ent) && UltraLightHelper.getInstance().areLightItemsEnabled()) {
+            EntityPlayer player = (EntityPlayer)ent;
+            
+            // iterate over player's main inventory looking for any light items
+            // that they might have in their possession that would contribute
+            // to the overall light surrounding the player
+            for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
+                ItemStack stack = player.inventory.mainInventory[i];
+                if (stack != null && UltraLightItemInterface.class.isInstance(stack.getItem())) {
+                    UltraLightItemInterface lightItem = (UltraLightItemInterface)stack.getItem();
+                    if (lightItem.isEnabled(stack)) {
+                        LightLevel itemLevel = lightItem.getLightLevel(stack);
+                        maxItemLevel = LightLevel.max(maxItemLevel, itemLevel);
+                    }
+                }
+            }
+        }
+        
+        // return the max level between the value computed above with the light items
+        // and the current light level as coming from the light source
+        return LightLevel.max(maxItemLevel, _initialLightLevel);
     }
     
     /**

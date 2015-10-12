@@ -1,15 +1,19 @@
 package com.hubby.ultra;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.google.common.base.Predicate;
 import com.hubby.utils.HubbyConstants.LightLevel;
 import com.hubby.utils.HubbyRefreshedObjectInterface;
 import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -81,6 +85,38 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
      */
     public void enableItemLights(boolean enable) {
         _lightItemsEnabled = enable;
+    }
+    
+    /**
+     * Are the item lights enabled or not
+     * @return boolean - enabled?
+     */
+    public boolean areLightItemsEnabled() {
+        return _lightItemsEnabled;
+    }
+    
+    /**
+     * Are the node lights enabled or not
+     * @return boolean - enabled?
+     */
+    public boolean areLightNodesEnabled() {
+        return _lightNodesEnabled;
+    }
+    
+    /**
+     * Retrieve a list of all items that implement the light interface
+     * @return List - the list of all light items currently registered
+     */
+    public static List<Item> collectLightItems() {
+      
+        final Predicate<Item> predicate = new Predicate<Item>() {
+            @Override
+            public boolean apply(Item item) {
+                return UltraLightItemInterface.class.isInstance(item);
+               //return HubbyUtils.getInventoryItemLocations(item.getClass()).size() > 0;
+            }
+        };
+        return HubbyUtils.collectAllItems(predicate);
     }
     
     /**
@@ -212,7 +248,26 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
     /**
      * Updates all dynamic light items
      */
-    protected void updateLightItems() {
+    protected LightLevel updateLightItems() {
+        
+//        int finalLightValue = LightLevel.MIN_LIGHT_LEVEL.getValue();
+//        
+//        List<Item> items = UltraLightHelper.collectLightItems();
+//        for (Item item : items) {
+//            UltraLightItemInterface lightItem = (UltraLightItemInterface)item;
+//            
+//            for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
+//                ItemStack itemStack = HubbyUtils.getClientPlayer().inventory.mainInventory[i];
+//                Item inventoryItem = itemStack != null ? itemStack.getItem() : null;
+//                if (inventoryItem == lightItem) {
+//                    int lightValue = lightItem.getLightLevel(itemStack).getValue();
+//                    finalLightValue = Math.max(lightValue, finalLightValue);
+//                }
+//            }
+//        }
+//        
+//        return LightLevel.getEnumForValue(finalLightValue);
+        return LightLevel.LEVEL_0;
     }
     
     /**
@@ -237,5 +292,21 @@ public class UltraLightHelper extends HubbyRefreshedObjectInterface {
                 it.remove();
             }
         }
+    }
+    
+    private ItemStack[] mainInventory;
+    private ItemStack[] armorInventory;
+    
+    public void setInventorySlotContents(int index, ItemStack stack)
+    {
+        ItemStack[] var3 = this.mainInventory;
+
+        if (index >= var3.length)
+        {
+            index -= var3.length;
+            var3 = this.armorInventory;
+        }
+
+        var3[index] = stack;
     }
 }

@@ -79,7 +79,7 @@ public class UltraCommandHooks {
         	// TODO:
         	// remove
         	HubbyUtils.setInventoryHotBarItem(0, UltraRegistry.ultraItemBackpackLarge, 1);
-        	UltraUtils.attachLightToEntity(HubbyUtils.getClientPlayer(), LightLevel.MAX_BRIGHT);
+        	UltraUtils.attachLightToEntity(HubbyUtils.getClientPlayer(), LightLevel.LEVEL_0);
         }
 
 //        // Handle the user wanting to spawn something

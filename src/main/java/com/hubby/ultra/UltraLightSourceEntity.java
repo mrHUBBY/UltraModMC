@@ -16,7 +16,7 @@ public class UltraLightSourceEntity implements UltraLightSourceInterface {
      * Members
      */
     private Entity _entity = null;
-    private LightLevel _lightLevel = LightLevel.AFTERNOON;
+    private LightLevel _lightLevel = LightLevel.LEVEL_8;
     
     /**
      * Constructor

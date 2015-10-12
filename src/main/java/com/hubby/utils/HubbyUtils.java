@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -55,6 +56,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.RegistryNamespaced;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -375,7 +377,7 @@ public class HubbyUtils {
      * Returns if we are running on the client
      * @return boolean - are we running the client?
      */
-    public static boolean isClienSide() {
+    public static boolean isClientSide() {
         return !HubbyUtils.isServerSide();
     }
     
@@ -385,7 +387,7 @@ public class HubbyUtils {
      * @return boolean - true if we are the client
      */
     public static boolean isClientSide(World world) {
-        return !world.isRemote;
+        return world.isRemote;
     }
     
     /**
@@ -855,6 +857,10 @@ public class HubbyUtils {
      */
     public static boolean isEquippedItem(Item item) {
         EntityPlayer player = HubbyUtils.getClientPlayer();
+        if (player == null || player.inventory == null) {
+            return false;
+        }
+        
         List<Integer> indices = HubbyUtils.getInventoryItemLocations(item.getClass());
         return indices.contains(player.inventory.currentItem);
     }
@@ -867,6 +873,110 @@ public class HubbyUtils {
      */
     public static boolean isEquippedItem(ItemStack stack) {
         EntityPlayer player = HubbyUtils.getClientPlayer();
-        return ItemStack.areItemStacksEqual(player.getCurrentEquippedItem(), stack);
+        if (player == null || player.inventory == null) {
+            return false;
+        }
+        
+        for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
+            ItemStack inventoryStack = player.inventory.mainInventory[i];
+            if (inventoryStack == stack && i == player.inventory.currentItem) {
+                return true;
+            }
+        }
+         return false;
+    }
+    
+    /**
+     * Forward call, get an estimated delta time for the last frame
+     * @return Long - the time in milliseconds
+     */
+    public static Long getDeltaTime() {
+        return HubbyRefreshedObjectInterface.getDeltaTime();
+    }
+    
+    /**
+     * Forward call, get an estimated elapsed time for all frames
+     * @return Long - the time in milliseconds
+     */
+    public static Long getElapsedTime() {
+        return HubbyRefreshedObjectInterface.getElapsedTime();
+    }
+    
+    /**
+     * Returns the number of elapsed ticks
+     * @return Integer - the number of ticks
+     */
+    public static Integer getElapsedTicks() {
+        return HubbyRefreshedObjectInterface.getElapsedTicks();
+    }
+    
+    /**
+     * Returns the partial ticks for the elapsed time
+     * (ie the progress towards the next whole tick)
+     * @return Double - the partial ticks
+     */
+    public static Double getElapsedPartialTicks() {
+        return HubbyRefreshedObjectInterface.getElapsedPartialTicks();
+    }
+    
+    /**
+     * Returns the delta time in ticks (most likely this will
+     * always be 0, except in the case where a frame posted
+     * a horrible update time).
+     * @return
+     */
+    public static Integer getDeltaTicks() {
+        return HubbyRefreshedObjectInterface.getDeltaTicks();
+    }
+    
+    /**
+     * Returns the number of partial ticks for the last delta time
+     * @return Double - the partial ticks
+     */
+    public static Double getDeltaPartialtTicks() {
+        return HubbyRefreshedObjectInterface.getDeltaPartialTicks();
+    }
+    
+    /**
+     * Collects all minecraft items that satisfy the predicate passed in
+     * @param predicate - the predicate used to filter the list (can be null)
+     * @return List - the list of items collected that satisfy the predicate
+     */
+    public static List<Item> collectAllItems(Predicate<Item> predicate) {
+        ArrayList<Item> results = new ArrayList<Item>();
+        Set<ResourceLocation> keys = Item.itemRegistry.getKeys();
+        Iterator<ResourceLocation> it = keys.iterator();
+        while (it.hasNext()) {
+            ResourceLocation key = it.next();
+            Object item = Item.itemRegistry.getObject(key);
+            if (item != null && Item.class.isInstance(item)) {
+                results.add((Item)item);
+            }
+        }
+
+        // Filter the results if we have a valid predicate
+        if (predicate != null) {
+            Iterable<Item> iter = Iterables.filter(results, predicate);
+            return Lists.newArrayList(iter.iterator());
+        }
+        return results;
+    }
+    
+    /**
+     * Returns the package name converted to a path name
+     * @param packageName - the package name to convert
+     * @return String - the path name
+     */
+    public static String convertPackageToPath(String packageName) {
+        return packageName.replace('.', '/');
+    }
+    
+    /**
+     * Converts the path name to a package name
+     * @param pathName - the name to convert
+     * @return String - the converted package name
+     */
+    public static String convertPathToPackage(String pathName) {
+        return pathName.replace('/', '.');
     }
 }

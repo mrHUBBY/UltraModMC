@@ -45,7 +45,7 @@ public class UltraItemTeleportArtifact extends Item implements HubbyNamedObjectI
 	 * @param player - the player who performed the right click
 	 */
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-	    if (HubbyUtils.isClienSide()) {
+	    if (HubbyUtils.isClientSide()) {
 			// TODO:
 			// Add particle effects for an effect
 		    //NitroInterface.spawnParticle(NitroInterface.ParticleNames.Teleport, par3EntityPlayer.posX, par3EntityPlayer.posY + 1, par3EntityPlayer.posZ);

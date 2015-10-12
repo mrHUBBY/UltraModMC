@@ -587,6 +587,32 @@ public class HubbyConstants {
         public static final LightLevel REDSTONE_ACTIVE_ORE_LIGHT_LEVEL = getEnumForValue(9);
         
         /**
+         * Returns the max light level between the two passed in
+         * @param one - the first light level
+         * @param two - the second light level
+         * @return LightLevel - the max level
+         */
+        public static LightLevel max(LightLevel one, LightLevel two) {
+            if (one.getValue() >= two.getValue()) {
+                return one;
+            }
+            return two;
+        }
+        
+        /**
+         * Returns the max light level between the two passed in
+         * @param one - the first light level
+         * @param two - the second light level
+         * @return LightLevel - the max level
+         */
+        public static LightLevel min(LightLevel one, LightLevel two) {
+            if (one.getValue() < two.getValue()) {
+                return one;
+            }
+            return two;
+        }
+        
+        /**
          * Returns the light level with the same underlying value
          * @param value - the value to find the enum for
          * @return LightLevel - the matching enum (or INVALID if not found)

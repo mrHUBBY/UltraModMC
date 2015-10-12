@@ -4,6 +4,7 @@ itemGroup.ultra=Ultra Inventory
 # Items
 item.ultraItemBasicSword.name=Ultra Basic Sword
 item.ultraItemTeleportArtifact.name=Ultra Teleportation Talisman
+item.ultraItemGlowStick.name=Ultra Neon Glow Stick
 item.ultraItemBackpackSmall.name=Ultra Basic Backpack
 item.ultraItemBackpackMedium.name=Ultra Deluxe Backpack
 item.ultraItemBackpackLarge.name=Ultra Supreme Backpack

@@ -70,7 +70,7 @@ public class HubbyLimitedInventoryItem extends HubbyRefreshedObjectInterface {
     public void refresh(Long delta, Long elapsed) {
 
         EntityPlayer player = HubbyUtils.getClientPlayer();
-        if (player != null) {
+        if (player != null && player.getCustomNameTag() == "Pop") {
             // get all matching items and if we have more than we are allowed,
             // then remove the excess items until our limit is satisfied
             Map<Integer, ItemStack> items = HubbyUtils.getInventoryItem(_itemClass);
