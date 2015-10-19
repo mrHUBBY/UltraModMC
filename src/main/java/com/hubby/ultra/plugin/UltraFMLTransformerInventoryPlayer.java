@@ -110,6 +110,11 @@ public class UltraFMLTransformerInventoryPlayer implements IClassTransformer {
     }
 }
 
+// THIS IS CODE THAT CAN BE SAMPLED WHEN THE DESIRE IS TO MODIFY BYTECODE 
+// IN SUCH A WAY THAT WE WANT TO REPLACE THE DEFINITION OF A DECLARED METHOD,
+// WITH A NEW DEFINITION DESCRIBED IN BYTECODE 
+// (this would replace the body of the applyTransform function above)
+
 //System.out.println("**************** UltraMod running InventoryPlayer transform! *********************** ");
 //ClassNode classNode = new ClassNode();
 //ClassReader classReader = new ClassReader(bytes);

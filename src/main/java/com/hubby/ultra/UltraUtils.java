@@ -102,12 +102,9 @@ public class UltraUtils {
      * @param oldStack - the old stack
      * @param newStack - the new stack
      * @param inventory - this will be equal to either 'InventoryPlayer.mainInventory' or 'InventoryPlayer.armorInventory'
+     * @bytecode UltraFMLTransformerInventoryPlayer.applyTransform
      */
     public static void onPlayerInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack, ItemStack[] inventory) {
-        // NOTE:
-        // This method is called via modified byte-code that can be found in the class
-        // 'UltraFMLTransformerInventoryPlayer' in the 'applyTransform' method
-        
         
         // It should be noted that if the inventory slot that changed has to do with armor, then we know that
         // the inventory parameter will have a length of 4 corresponding to number of available armor slots, while
