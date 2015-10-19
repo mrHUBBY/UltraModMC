@@ -71,7 +71,11 @@ public class UltraFMLTransformerInventoryPlayer implements IClassTransformer {
         
         // now we need to insert our patch nodes in reverse order
         // so that we can take advantage of the  'insertBefore' method
-        AbstractInsnNode newNode = new MethodInsnNode(INVOKESTATIC, "com/hubby/ultra/UltraUtils", "onPlayerInventorySlotContentsChanged", "(Ljava/lang/Integer;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;)V", false);
+        AbstractInsnNode newNode = new MethodInsnNode(INVOKESTATIC, "com/hubby/ultra/UltraUtils", "onPlayerInventorySlotContentsChanged", "(Ljava/lang/Integer;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;[Lnet/minecraft/item/ItemStack;)V", false);
+        m.instructions.insertBefore(targetNode, newNode);
+
+        targetNode = newNode;
+        newNode = new VarInsnNode(ALOAD, 3);
         m.instructions.insertBefore(targetNode, newNode);
         
         targetNode = newNode;

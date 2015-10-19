@@ -3,6 +3,7 @@ package com.hubby.utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -414,11 +415,52 @@ public class HubbyUtils {
      * Returns the UTC time for right now
      * @return long - the UTC time
      */
-    public static long getTimeUTC() {
+    public static long getTimestamp() {
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         int utcOffset = c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET);
         return c.getTimeInMillis() + utcOffset;
+    }
+    
+    /**
+     * Utility function that converts a raw utc timestamp value
+     * into a human readable string that expresses the value for
+     * the current date
+     * @param timeStamp - the utc timestamp
+     * @return String - the date string
+     */
+    public static String convertToDateString(Long timestamp) {
+        // first set the time on the calendar to be equal to our utc
+        // timestamp
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp);
+
+        // print out calendar time using formatting
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS MM/dd/yyyy");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("PST"));
+        Calendar cal = Calendar.getInstance();
+        return dateFormat.format(cal.getTime());
+    }
+    
+    /**
+     * Converts a human readable date string into a utc timestamp
+     * @param dateStr - the date string to parse
+     * @return Long - the representation of the date passed in as a utc timestamp (returns -1 on error)
+     * @throws ParseException
+     */
+    public static Long convertToTimestamp(String dateStr) {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS MM/dd/yyyy");
+            Date date = dateFormat.parse(dateStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+            int utcOffset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+            return calendar.getTimeInMillis() + utcOffset;
+        }
+        catch (Exception e) {
+            return -1L;
+        }
     }
 
     /**

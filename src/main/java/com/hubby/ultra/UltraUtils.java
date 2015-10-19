@@ -5,6 +5,7 @@ import java.util.List;
 import com.hubby.events.HubbyEventPlayerInventory;
 import com.hubby.events.HubbyEventSender;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyConstants;
 import com.hubby.utils.HubbyConstants.LightLevel;
 import com.hubby.utils.HubbyUtils;
 
@@ -61,7 +62,7 @@ public class UltraUtils {
     }
     
     /**
-     * Removes the light from the entity specified if there is one that exisits
+     * Removes the light from the entity specified if there is one that exists
      * @param entity - the entity to remove the light from
      * @return boolean - did we remove anything?
      */
@@ -96,18 +97,41 @@ public class UltraUtils {
     }
     
     /**
-     * Called when the player has a new ItemStack placed in their main inventory
+     * Called when the player has a new <code>ItemStack</code> placed in their main inventory
      * @param slot - the slot within the inventory where the new <code>ItemStack</code> is being placed
      * @param oldStack - the old stack
      * @param newStack - the new stack
+     * @param inventory - this will be equal to either 'InventoryPlayer.mainInventory' or 'InventoryPlayer.armorInventory'
      */
-    public static void onPlayerInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {
-        String[] keys = HubbyEventPlayerInventory.getDefaultKeySet();
-        Object[] params = new Object[] { slot, oldStack, newStack };
-        HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerInventory.class, keys, params);
+    public static void onPlayerInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack, ItemStack[] inventory) {
+        // NOTE:
+        // This method is called via modified byte-code that can be found in the class
+        // 'UltraFMLTransformerInventoryPlayer' in the 'applyTransform' method
+        
+        
+        // It should be noted that if the inventory slot that changed has to do with armor, then we know that
+        // the inventory parameter will have a length of 4 corresponding to number of available armor slots, while
+        // if the inventory length is greater than that then we know that the changed slot has to do with the player's main
+        // inventory which will always have a length of 36
+        if (inventory.length == HubbyConstants.ARMOR_INVENTORY_SIZE) {
+            onPlayerArmorInventorySlotContentsChanged(slot, oldStack, newStack, inventory);
+        }
+        else {
+            String[] keys = HubbyEventPlayerInventory.getDefaultKeySet();
+            Object[] params = new Object[] { slot, oldStack, newStack, false };
+            HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerInventory.class, keys, params);
+        }
     }
     
-    public static void onPlayerInventoryArmorChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {
-        oldStack = null;
+    /**
+     * Called when the player has a new <code>ItemStack</code> placed in an armor slot
+     * @param slot - the slot the armor was placed in
+     * @param oldStack - the previous <code>ItemStack</code>
+     * @param newStack - the newly updated <code>ItemStack</code>
+     */
+    public static void onPlayerArmorInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack, ItemStack[] inventory) {
+        String[] keys = HubbyEventPlayerInventory.getDefaultKeySet();
+        Object[] params = new Object[] { slot, oldStack, newStack, true };
+        HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerInventory.class, keys, params);
     }
 }

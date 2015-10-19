@@ -442,7 +442,7 @@ public class HubbyNetworkHelper {
      */
     public static void writePacketHeader(PacketBuffer buffer, Enum<? extends HubbyEnumValueInterface> packetType) {
         buffer.writeInt(((HubbyEnumValueInterface)packetType).getValue());
-        buffer.writeLong(HubbyUtils.getTimeUTC());
+        buffer.writeLong(HubbyUtils.getTimestamp());
     }
     
     /**
@@ -456,7 +456,7 @@ public class HubbyNetworkHelper {
             PacketBuffer buffer = new PacketBuffer(networkEvent.packet.payload());
             networkEvent.packet.readPacketData(buffer);
             Long startTime = buffer.getLong(HubbyNetworkHelper.INDFX_OFFSET_STARTTIME);
-            Long nowTime = HubbyUtils.getTimeUTC();
+            Long nowTime = HubbyUtils.getTimestamp();
             return HubbyUtils.getElapsedTimeSeconds(startTime, nowTime);
         }
         catch (IOException e) {

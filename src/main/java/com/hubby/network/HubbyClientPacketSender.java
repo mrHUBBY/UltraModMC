@@ -80,7 +80,7 @@ public class HubbyClientPacketSender {
         // populate the buffer with the values that we need
         writer.writeToBuffer(buffer, args);
         
-        buffer.writeLong(HubbyUtils.getTimeUTC());
+        buffer.writeLong(HubbyUtils.getTimestamp());
         
         // create the packet and return it
         FMLProxyPacket thePacket = new FMLProxyPacket(buffer, channelName);
@@ -95,7 +95,7 @@ public class HubbyClientPacketSender {
      */
     protected static void sendToServer(FMLProxyPacket packet, FMLEventChannel channel, Enum<? extends HubbyEnumValueInterface> packetType) {
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
-        LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server at time %d", name, HubbyUtils.getTimeUTC());
+        LogChannel.INFO.log(HubbyClientPacketSender.class, "Sending packet of type %s to the server at time %d", name, HubbyUtils.getTimestamp());
         channel.sendToServer(packet);
     }
 }

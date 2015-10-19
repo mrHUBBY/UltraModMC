@@ -57,8 +57,9 @@ public class UltraItemGlowStick extends HubbyInstancedItem implements UltraLight
     
     /**
      * Constructor
+     * @throws Exception 
      */
-    public UltraItemGlowStick() {
+    public UltraItemGlowStick() throws Exception {
         super(UltraMod.MOD_ID, 1, UltraRegistry.ultraCreativeTab);
     }
     

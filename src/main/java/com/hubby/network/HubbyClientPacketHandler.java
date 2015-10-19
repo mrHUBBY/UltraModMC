@@ -72,7 +72,7 @@ public class HubbyClientPacketHandler {
         float time = HubbyNetworkHelper.getElapsedTimeForNetworkEvent(event);
         
         // Log that we received the message and then process the packet
-        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received packet of type %s on the client for player %s at time %d in %.4f seconds", name, _thePlayer.getName(), HubbyUtils.getTimeUTC(), time);
+        LogChannel.INFO.log(HubbyClientPacketHandler.class, "Received packet of type %s on the client for player %s at time %d in %.4f seconds", name, _thePlayer.getName(), HubbyUtils.getTimestamp(), time);
         
         // process the packet now
         for (HubbyClientPacketProcessorInterface processor : HubbyNetworkHelper.getClientProcessorsForPacket(packetType)) {

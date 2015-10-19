@@ -70,8 +70,9 @@ public class UltraRegistry {
 	 * This method is responsible for loading all items, blocks, recipes, potions
 	 * and more. Each item is instantiated and then registered with the appropriate
 	 * systems to ensure that they function in-game perfectly
+	 * @throws Exception 
 	 */
-	public static void register() {
+	public static void register() throws Exception {
 
 	    /**
 	     * Creative-tabs

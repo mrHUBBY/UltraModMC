@@ -134,12 +134,12 @@ public class HubbyServerPacketSender {
     protected static void sendToAllClients(FMLProxyPacket packet, FMLEventChannel channel, Enum<? extends HubbyEnumValueInterface> packetType, TargetPoint pt) {
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
         if (pt == null) {
-            LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to all clients at time %d", name, HubbyUtils.getTimeUTC());
+            LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to all clients at time %d", name, HubbyUtils.getTimestamp());
             channel.sendToAll(packet);
         }
         else {
             String ptString = String.format("(%.1f, %.1f, %.1f)", pt.x, pt.y, pt.z);
-            LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to all clients near point %s at time %d", name, ptString, HubbyUtils.getTimeUTC());
+            LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to all clients near point %s at time %d", name, ptString, HubbyUtils.getTimestamp());
             channel.sendToAllAround(packet, pt);
         }
     }
@@ -153,7 +153,7 @@ public class HubbyServerPacketSender {
      */
     protected static void sendToClient(FMLProxyPacket packet, FMLEventChannel channel, Enum<? extends HubbyEnumValueInterface> packetType, EntityPlayerMP player) {
         String name = HubbyNetworkHelper.getNameForPacketType(packetType);
-        LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to client for player %s at time %d", name, player.getName(), HubbyUtils.getTimeUTC());
+        LogChannel.INFO.log(HubbyServerPacketSender.class, "Sending packet of type %s to client for player %s at time %d", name, player.getName(), HubbyUtils.getTimestamp());
         channel.sendTo(packet, player);
     }
 }

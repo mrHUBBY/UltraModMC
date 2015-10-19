@@ -56,8 +56,9 @@ public abstract class HubbyInstancedItem extends Item implements HubbyNamedObjec
     
     /**
      * Constructor
+     * @throws Exception 
      */
-    public HubbyInstancedItem(String modID, Integer maxStackSize, CreativeTabs tab) {
+    public HubbyInstancedItem(String modID, Integer maxStackSize, CreativeTabs tab) throws Exception {
         this.setUnlocalizedName(getName());
         this.setCreativeTab(tab);
         this.setMaxStackSize(maxStackSize);
@@ -73,12 +74,15 @@ public abstract class HubbyInstancedItem extends Item implements HubbyNamedObjec
         Predicate<HubbyEvent> pred = new Predicate<HubbyEvent>() {
             @Override
             public boolean apply(HubbyEvent event) {
-                ItemStack newStack = event.getEventParam(HubbyEventPlayerInventory.KEY_NEW_ITEMSTACK, ItemStack.class);
-                ItemStack oldStack = event.getEventParam(HubbyEventPlayerInventory.KEY_OLD_ITEMSTACK, ItemStack.class);
+                ItemStack newStack = event.getEventParam(HubbyEventPlayerInventory.KEY_NEW_ITEM_STACK, ItemStack.class);
+                ItemStack oldStack = event.getEventParam(HubbyEventPlayerInventory.KEY_OLD_ITEM_STACK, ItemStack.class);
                 return (newStack != null && newStack.getItem() == thisItem) || 
                        (oldStack != null && oldStack.getItem() == thisItem);
             }
         };
+        
+        // Let's register for all 'PlayerInventory' events so that we can catch when any ItemStacks
+        // are created, updated and/or removed from within the player's main inventory
         HubbyEventSender.getInstance().addEventListener(HubbyEventPlayerInventory.class, this, pred, "handleInventoryEvent");
     }
     
@@ -229,8 +233,9 @@ public abstract class HubbyInstancedItem extends Item implements HubbyNamedObjec
     public boolean handleInventoryEvent(HubbyEvent event) {
         HubbyEventPlayerInventory eventPlayerInventory = (HubbyEventPlayerInventory)event;
         Integer slot = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_SLOT, Integer.class);
-        ItemStack oldStack = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_OLD_ITEMSTACK, ItemStack.class);
-        ItemStack newStack = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_NEW_ITEMSTACK, ItemStack.class);
+        ItemStack oldStack = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_OLD_ITEM_STACK, ItemStack.class);
+        ItemStack newStack = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_NEW_ITEM_STACK, ItemStack.class);
+        boolean isArmorItem = eventPlayerInventory.getEventParam(HubbyEventPlayerInventory.KEY_IS_ARMOR_INVENTORY, boolean.class);
         boolean canAddInstance = newStack != null && this.getClass().isInstance(newStack.getItem());
         NBTTagCompound newDetails = canAddInstance ? newStack.getSubCompound(getTagName(), true) : null;
         NBTTagCompound oldDetails = oldStack != null ? oldStack.getSubCompound(getTagName(), false) : null;

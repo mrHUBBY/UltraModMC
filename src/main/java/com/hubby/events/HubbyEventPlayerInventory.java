@@ -10,8 +10,9 @@ public class HubbyEventPlayerInventory extends HubbyEvent {
      * Keys to use for the event params for this event
      */
     public static final String KEY_SLOT = "KeySlot";
-    public static final String KEY_OLD_ITEMSTACK = "KeyOldItemStack";
-    public static final String KEY_NEW_ITEMSTACK = "KeyNewItemStack";
+    public static final String KEY_OLD_ITEM_STACK = "KeyOldItemStack";
+    public static final String KEY_NEW_ITEM_STACK = "KeyNewItemStack";
+    public static final String KEY_IS_ARMOR_INVENTORY = "KeyIsArmorInventory";
     
     /**
      * Constructor
@@ -27,6 +28,6 @@ public class HubbyEventPlayerInventory extends HubbyEvent {
      * @return String[] - the array of keys
      */
     public static String[] getDefaultKeySet() {
-       return new String[] { KEY_SLOT, KEY_OLD_ITEMSTACK, KEY_NEW_ITEMSTACK }; 
+       return new String[] { KEY_SLOT, KEY_OLD_ITEM_STACK, KEY_NEW_ITEM_STACK, KEY_IS_ARMOR_INVENTORY }; 
     }
-}
+} 
