@@ -2,6 +2,8 @@ package com.hubby.ultra;
 
 import java.util.List;
 
+import com.hubby.events.HubbyEventPlayerInventory;
+import com.hubby.events.HubbyEventSender;
 import com.hubby.ultra.setup.UltraRegistry;
 import com.hubby.utils.HubbyConstants.LightLevel;
 import com.hubby.utils.HubbyUtils;
@@ -100,7 +102,9 @@ public class UltraUtils {
      * @param newStack - the new stack
      */
     public static void onPlayerInventorySlotContentsChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {
-        oldStack = null;
+        String[] keys = HubbyEventPlayerInventory.getDefaultKeySet();
+        Object[] params = new Object[] { slot, oldStack, newStack };
+        HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerInventory.class, keys, params);
     }
     
     public static void onPlayerInventoryArmorChanged(Integer slot, ItemStack oldStack, ItemStack newStack) {

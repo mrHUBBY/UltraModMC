@@ -17,6 +17,7 @@ public class HubbyConstants {
     public static final Integer TARGTE_FRAME_RATE = 30;
     public static final Integer HOTBAR_INVENTORY_SIZE = 9;
     public static final Integer HOTBAR_INVENTORY_OFFSET = 36;
+    public static final Integer INVALID_SLOT = -1;
     
     /**
      * This enum identifies the various pieces of armor as well

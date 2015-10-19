@@ -1,19 +1,18 @@
 package com.hubby.ultra.items;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import com.hubby.ultra.UltraLightItemInterface;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.ultra.setup.UltraRegistry;
 import com.hubby.utils.HubbyConstants.LightLevel;
+import com.hubby.utils.HubbyInstancedItem;
 import com.hubby.utils.HubbyMath;
-import com.hubby.utils.HubbyNamedObjectInterface;
 import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 /**
@@ -22,54 +21,32 @@ import net.minecraft.world.World;
  * fade over time, so make sure to have enough of these in stock
  * @author davidleistiko
  */
-public class UltraItemGlowStick extends Item implements UltraLightItemInterface, HubbyNamedObjectInterface {
-
+public class UltraItemGlowStick extends HubbyInstancedItem implements UltraLightItemInterface {
     /**
-     * Details class that stores more information about each glowstick
-     * that is in the player's possession
-     * @author davidleistiko
+     * Stores a list of <code>ItemStacks</code> that represent the various inventory
+     * instances for this particular item
      */
-    public class Details {
-        /**
-         * The maximum life duration for this light item
-         */
-        public Long _maxLife = UltraItemGlowStick.DEFAULT_DURATION_TIME;
-        
-        /**
-         * How much time in milliseconds remains before this item reaches its
-         * minimum light level
-         */
-        public Long _remainingLife = UltraItemGlowStick.DEFAULT_DURATION_TIME;
-        
-        /**
-         * The current light level for this glowstick
-         */
-        public LightLevel _lightLevel = UltraItemGlowStick.MIN_LIGHT_LEVEL;
-        
-        /**
-         * Is this glowstick enabled currently? This can be false even
-         * when there is remaining life for this glowstick
-         */
-        public boolean _enabled = true;
-        
-        /**
-         * The slot at which this glowstick resides
-         */
-        public Integer _slot = 0;
-        
-        /**
-         * Constructor
-         */
-        public Details() {   
-        }
-    }
+    private static ArrayList<ItemStack> _activeGlowSticks = new ArrayList<ItemStack>();
     
     /**
-     * This map keeps track of the various glowsticks the player may have
-     * in their inventory and updates each one accordingly so that as the life
-     * of the glowstick progresses its light level, oppositely, decreases.
+     * The item name
      */
-    private static HashMap<ItemStack, Details> _glowstickDetailsMap = new HashMap<ItemStack, Details>();
+    public static final String NAME = "ultraItemGlowStick";
+    
+    /**
+     * This property specifies the total life that a glowstick will have
+     */
+    public static final String PROPERTY_MAXLIFE = "PROPERTY_maxLife";
+    
+    /**
+     * This property specifies how much life the glowstick has left before it expires
+     */
+    public static final String PROPERTY_REMAININGLIFE = "PROPERTY_remainingLife";
+    
+    /**
+     * This property specifies the current light level for the glowstick
+     */
+    public static final String PROPERTY_LIGHTLEVEL = "PROPERTY_lightLevel";
     
     /**
      * Members
@@ -79,19 +56,10 @@ public class UltraItemGlowStick extends Item implements UltraLightItemInterface,
     public static final Long DEFAULT_DURATION_TIME = HubbyMath.secondsToMs(2.0 * 60.0);
     
     /**
-     * The item name
-     */
-    public static final String NAME = "ultraItemGlowStick";
-    
-    /**
      * Constructor
      */
     public UltraItemGlowStick() {
-        this.setUnlocalizedName(NAME);
-        this.setCreativeTab(UltraRegistry.ultraCreativeTab);
-        
-        // actually register the item with forge and mc for rendering
-        HubbyUtils.registerNamedItem(UltraMod.MOD_ID, this);
+        super(UltraMod.MOD_ID, 1, UltraRegistry.ultraCreativeTab);
     }
     
     /**
@@ -112,30 +80,33 @@ public class UltraItemGlowStick extends Item implements UltraLightItemInterface,
     public LightLevel getLightLevel(ItemStack stack) {
        
         // get the current details for this glowstick
-        Details details = _glowstickDetailsMap.get(stack);
-        
-        // have we been recognized yet?
-        if (details == null) {
+        NBTTagCompound compound = stack.getSubCompound(getTagName(), false);
+        ItemStack key = getInstanceForName(compound.getString(PROPERTY_NAME));
+        if (key == null) {
             return LightLevel.INVALID;
         }
+        
+        // have we been recognized yet?
+        compound = key.getSubCompound(getTagName(), false);
+        assert compound != null : "[UltraItemGlowStick] Attempting to get the light level for an invalid itemstack instance of a glowstick!";
         
         // if we are not the glowstick that is in the
         // player's hand then we can return early
         // as we will not be giving off any light
-        if ((mustBeEquipped() && !HubbyUtils.isEquippedItem(stack)) || !isEnabled(stack)) {
+        if (!isInstanceEnabled(key)) {
             return LightLevel.INVALID;
         }
         
         // determine the light level
         int lowVal = UltraItemGlowStick.MIN_LIGHT_LEVEL.getValue();
         int highVal = UltraItemGlowStick. MAX_LIGHT_LEVEL.getValue();
-        float percent = (float)details._remainingLife / (float)details._maxLife;
+        float percent = (float)compound.getLong(PROPERTY_REMAININGLIFE) / (float)compound.getLong(PROPERTY_MAXLIFE);
         percent = HubbyMath.clamp(percent, 0.0f, 1.0f);
         int curVal = (int)Math.floor((percent * highVal) + ((1.0f - percent) * lowVal));
         
-        details._lightLevel = LightLevel.getEnumForValue(curVal);
-        _glowstickDetailsMap.put(stack, details);
-        return details._lightLevel;
+        compound.setInteger(PROPERTY_LIGHTLEVEL, LightLevel.getEnumForValue(curVal).getValue());
+        key.setTagInfo(getTagName(), compound);
+        return LightLevel.getEnumForValue(curVal);
     }
     
     /**
@@ -145,11 +116,7 @@ public class UltraItemGlowStick extends Item implements UltraLightItemInterface,
      */
     @Override 
     public Long getDuration(ItemStack stack) {
-        Details details = _glowstickDetailsMap.get(stack);
-        if (details == null) {
-            return 0L;
-        }
-        return details._maxLife;
+        return getInstanceProperty(stack, PROPERTY_MAXLIFE, 0L);
     }
     
     /**
@@ -159,28 +126,9 @@ public class UltraItemGlowStick extends Item implements UltraLightItemInterface,
      */
     @Override 
     public Long getActiveTime(ItemStack stack) {
-        Details details = _glowstickDetailsMap.get(stack);
-        if (details == null) {
-            return 0L;
-        }
-        return details._maxLife - details._remainingLife;
-    }
-    
-    /**
-     * Is this light instance currently enabled?
-     * @param stack - the item instance
-     * @return boolean - is enabled?
-     */
-    @Override
-    public boolean isEnabled(ItemStack stack) {
-        Details details = _glowstickDetailsMap.get(stack);
-        if (details == null) {
-            return false;
-        }
-        if (!mustBeEquipped() || HubbyUtils.isEquippedItem(stack)) {
-            return details._enabled && details._remainingLife > 0L;
-        }
-        return false;
+        Long maxLife = getInstanceProperty(stack, PROPERTY_MAXLIFE, 0L);
+        Long remainingLife = getInstanceProperty(stack, PROPERTY_REMAININGLIFE, 0L);
+        return maxLife - remainingLife;
     }
     
     /**
@@ -210,80 +158,88 @@ public class UltraItemGlowStick extends Item implements UltraLightItemInterface,
             return;
         }
         
-        // Is this the first time that the player has equipped us?
-        // If so, then we want to track this ItemStack as an instance
-        // of the glowstick light item by adding it to the map and 
-        // then tracking the time that the item is active (the time
-        // that the item is in the player's hand)
-        if (!_glowstickDetailsMap.containsKey(stack)) {
-            Details details = new Details();
-            details._slot = itemSlot;
-            _glowstickDetailsMap.put(stack, new Details());
+        // check if we have an ItemStack key with the name passed in.
+        // If we don't, then we can ignore this update for now
+        NBTTagCompound compound = stack.getSubCompound(getTagName(), false);
+        assert compound != null : "[UltraItemGlowStick] Attempting to update an invalid itemstack instance of a glowstick!";
+        ItemStack key = getInstanceForName(compound.getString(PROPERTY_NAME));
+        compound = key != null ? key.getSubCompound(getTagName(), false) : null;
+        if (compound == null) {
             return;
         }
         
         // Are we the item currently in the player's hand?
-        Details details = _glowstickDetailsMap.get(stack);
-        details._slot = itemSlot;
-        _glowstickDetailsMap.put(stack, details);
-        
-        if (isSelected && details._enabled) {
-            Long lifeRemaining = details._remainingLife;
+        if (isSelected && compound.getBoolean(PROPERTY_ENABLED)) {
+            Long lifeRemaining = compound.getLong(PROPERTY_REMAININGLIFE);
             Long msDelta = HubbyUtils.getDeltaTime();
             
             lifeRemaining -= msDelta;
             lifeRemaining = Math.max(lifeRemaining, 0);
-            details._remainingLife = lifeRemaining;
-            _glowstickDetailsMap.put(stack, details);
+            compound.setLong(PROPERTY_REMAININGLIFE, lifeRemaining);
+            
+            // is this needed?
+            key.setTagInfo(getTagName(), compound);
         }
     }
-    
+
     /**
-     * Handle when the player uses the right-click for this item
-     * @param itemStack - the item stack containing this item
-     * @param world - the world
-     * @param player - the player who performed the right click
+     * Returns if this item can be disabled/enabled
+     * @return boolean - can be disabled?
      */
-    public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-        if (HubbyUtils.isClientSide(world)) {
-            Details details = _glowstickDetailsMap.get(itemStack);
-            if (details != null) {
-                details._enabled = !details._enabled;
-                _glowstickDetailsMap.put(itemStack, details);
-            }
-        }
-        
-        //this.setHasSubtypes(true);
-        
-        //this.getSubItems(itemIn, tab, subItems);
-        
-        return itemStack;
+    @Override
+    public boolean canBeDisabled() {
+        return true;
     }
-//    
-//    /**
-//     * An array of 36 item stacks indicating the main player inventory (including the visible bar).
-//     */
-//    public ItemStack[] mainInventory = new ItemStack[36];
-//
-//    /** An array of 4 item stacks containing the currently worn armor pieces. */
-//    public ItemStack[] armorInventory = new ItemStack[4];
-//    /**
-//     * Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections).
-//     */
-//    public void setInventorySlotContents(int index, ItemStack stack)
-//    {
-//        ItemStack[] var3 = this.mainInventory;
-//
-//        if (index >= var3.length)
-//        {
-//            index -= var3.length;
-//            var3 = this.armorInventory;
-//            UltraUtils.onPlayerInventoryArmorChanged(index, var3[index], stack);
-//        }
-//        else {
-//            UltraUtils.onPlayerInventorySlotContentsChanged(index, var3[index], stack);
-//        }
-//
-//        var3[index] = stack;
-//    }
+
+    /**
+     * Returns the tag name used as the key for the <code>NBTTagCompound</code>
+     * @return String - the tag name
+     */
+    @Override
+    public String getTagName() {
+        return "TAG_" + getName();
+    }
+
+    /**
+     * Populates the <code>NBTTagCompound</code> with the data that
+     * describes an instance of this item
+     * @param compound - the compound to store the options
+     * @param slot - the slot on the inventory of the player
+     * @return NBTTagCompound - returns the compound passed in
+     */
+    @Override
+    public NBTTagCompound initializeInstanceData(NBTTagCompound compound, Integer slot) {
+        compound.setString(PROPERTY_NAME, getInstancedName());
+        compound.setBoolean(PROPERTY_ENABLED, true);
+        compound.setLong(PROPERTY_MAXLIFE, UltraItemGlowStick.DEFAULT_DURATION_TIME);
+        compound.setLong(PROPERTY_REMAININGLIFE, UltraItemGlowStick.DEFAULT_DURATION_TIME);
+        compound.setInteger(PROPERTY_SLOT, slot);
+        compound.setInteger(PROPERTY_LIGHTLEVEL, UltraItemGlowStick.MAX_LIGHT_LEVEL.getValue());
+        return compound;
+    }
+
+    /**
+     * Returns if this light item should be considered enabled or not
+     * @param stack - the instance to check
+     */
+    @Override
+    public boolean isEnabled(ItemStack stack) {
+        return isInstanceEnabled(stack);
+    }
+
+    /**
+     * Returns the list of all valid properties for this item
+     * @return String[] - the array of property names
+     */
+    @Override
+    public String[] getPropertyNames() {
+        return new String[] {
+          PROPERTY_NAME,
+          PROPERTY_ENABLED,
+          PROPERTY_SLOT,
+          PROPERTY_MAXLIFE,
+          PROPERTY_REMAININGLIFE,
+          PROPERTY_LIGHTLEVEL,
+        };
+    }
 }

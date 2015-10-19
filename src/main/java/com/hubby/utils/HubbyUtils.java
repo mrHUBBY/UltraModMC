@@ -879,11 +879,24 @@ public class HubbyUtils {
         
         for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
             ItemStack inventoryStack = player.inventory.mainInventory[i];
-            if (inventoryStack == stack && i == player.inventory.currentItem) {
+            if (ItemStack.areItemStacksEqual(inventoryStack, stack) && i == player.inventory.currentItem) {
                 return true;
             }
         }
          return false;
+    }
+    
+    /**
+     * Returns the index that represents the slot that the player
+     * currently has selected as their active item
+     * @return Integer - the slot (-1 for invalid cases)
+     */
+    public static Integer getPlayersCurrentlyEquippedItemSlot() {
+        EntityPlayer player = HubbyUtils.getClientPlayer();
+        if (player == null || player.inventory == null) {
+            return -1;
+        }
+        return player.inventory.currentItem;
     }
     
     /**
