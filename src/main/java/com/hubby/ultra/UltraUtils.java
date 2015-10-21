@@ -7,6 +7,7 @@ import com.hubby.events.HubbyEventSender;
 import com.hubby.ultra.setup.UltraRegistry;
 import com.hubby.utils.HubbyConstants;
 import com.hubby.utils.HubbyConstants.LightLevel;
+import com.hubby.utils.HubbyInstancedItem;
 import com.hubby.utils.HubbyUtils;
 
 import net.minecraft.entity.Entity;
@@ -130,5 +131,42 @@ public class UltraUtils {
         String[] keys = HubbyEventPlayerInventory.getDefaultKeySet();
         Object[] params = new Object[] { slot, oldStack, newStack, true };
         HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerInventory.class, keys, params);
+    }
+    
+    /**
+     * Called when the player attempts to place an <code>ItemStack</code> in their
+     * inventory on the client. The function then determines which <code>ItemStack</code>,
+     * if any, are valid for the specified slot and then returns the result.
+     * It should be noted that this method is for creative mode only.
+     * @param slot - the slot that the player is attempting to use
+     * @param stack - the stack the player is attempting to place in the slot
+     * @return ItemStack - the adjusted <code>ItemStack</code>
+     * @bytecode UltraFMLTransformerPlayerControllerMP
+     */
+    public static ItemStack onItemStackPlacedInSlotAttempt(Integer slot, ItemStack stack) {
+        
+        // check for instanced items having reached their inventory limit
+        if (stack != null && HubbyInstancedItem.class.isInstance(stack.getItem())) {
+            HubbyInstancedItem instanceItem = (HubbyInstancedItem)stack.getItem();
+            if (!instanceItem.containsItemInstance(stack) && instanceItem.hasReachedInstanceLimit()) {
+                if (slot >= HubbyConstants.HOTBAR_INVENTORY_SIZE) {
+                    slot -= HubbyConstants.HOTBAR_INVENTORY_OFFSET;
+                }
+                // Here we reset the slot contents to be null, effectively undoing what
+                // the player just did by dropping the ItemStack into a slot
+                HubbyUtils.getClientPlayer().inventory.setInventorySlotContents(slot, null);
+                
+                // Place the item that the player tried to drop in their inventory
+                // back into the player's hand (ie the drag slot)
+                HubbyUtils.getClientPlayer().inventory.setItemStack(stack.copy());
+                
+                // return null to be sent off to the server
+                return null;
+            }
+        }
+        
+        // return the stack as is since it has been determined to be valid
+        // considering the checks we have performed.
+        return stack;
     }
 }

@@ -58,13 +58,13 @@ public class UltraFMLTransformerInventoryPlayer implements IClassTransformer {
      * @return byte[] - the transformed bytecode
      */
     private byte[] applyTransform(byte[] bytes, boolean obf) {
-        System.out.println("**************** UltraMod running InventoryPlayer transform! *********************** ");
+        System.out.println("**************** UltraMod running InventoryPlayer transform! ***********************");
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytes);
         classReader.accept(classNode, ClassReader.SKIP_FRAMES);
        
         // search for our node...
-        UltraFMLMethodSearchResults<VarInsnNode> results = UltraFMLPluginHelper.findMethodInstructionNode(classNode, methodName, methodArgs, VarInsnNode.class, ASTORE, 2, 3);
+        UltraFMLMethodSearchResults<VarInsnNode> results = UltraFMLPluginHelper.searchForNode(classNode, methodName, methodArgs, VarInsnNode.class, ASTORE, 2, 3);
         MethodNode m = results._methodNode;
         AbstractInsnNode targetNode = results._targetNode;
         Iterator<AbstractInsnNode> iter = results._iterator;

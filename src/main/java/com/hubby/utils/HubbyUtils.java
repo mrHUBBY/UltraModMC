@@ -771,7 +771,7 @@ public class HubbyUtils {
             public Map<String, Object> call() {
                 assert position >= 0 && position < 9 : "Invalid hotbar position specified!";
                 Integer slot = position + HubbyConstants.HOTBAR_INVENTORY_OFFSET;
-                ItemStack stack = new ItemStack(item, amount);
+                ItemStack stack = item != null ? new ItemStack(item, amount) : null;
                 HubbyUtils.getClientPlayer().inventoryContainer.putStackInSlot(slot, stack);
                 
                 Map<String, Object> args = new HashMap<String, Object>();
@@ -1015,6 +1015,26 @@ public class HubbyUtils {
             return Lists.newArrayList(iter.iterator());
         }
         return results;
+        
+//      An alternate way to do the same thing...
+//        
+//      ArrayList<Item> results = new ArrayList<Item>();
+//      List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
+//      RegistryNamespaced registry = (RegistryNamespaced) allRegistries.get(0);
+//      Set keys = registry.getKeys();
+//
+//      // Iterate over all of the item keys, looking for any
+//      // items that match the target class
+//      for (Object key : keys) {
+//          Item item = (Item) registry.getObject(key);
+//          if (klass.isInstance(item)) {
+//              results.add(item);
+//          }
+//      }
+//      
+//      // return the compiled list of items matching the class type
+//      // that was passed into this method
+//      return results;
     }
     
     /**
@@ -1033,5 +1053,19 @@ public class HubbyUtils {
      */
     public static String convertPathToPackage(String pathName) {
         return pathName.replace('/', '.');
+    }
+    
+    /**
+     * This method returns a list containing all of the custom mod
+     * items that have been created.
+     * @return List - the list of items
+     */
+    public static <T extends Item> List<Item> collectItemsOfType(final Class<T> klass) {
+        return HubbyUtils.collectAllItems(new Predicate<Item>() {
+           @Override
+           public boolean apply(Item item) {
+               return klass.isInstance(item);
+           }
+        });
     }
 }

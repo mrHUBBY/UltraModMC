@@ -114,7 +114,7 @@ public class UltraFMLPluginHelper {
      * @param skipCount - how many instructions to advance once we find our target node
      * @return UltraFMLInsnSearchResults - the search results (null if the node could not be found)
      */
-    public static <T extends AbstractInsnNode> UltraFMLMethodSearchResults<T> findMethodInstructionNode(ClassNode node, String methodName, String methodArgs, Class<T> instructionClass, Integer opcode, Integer matchCount, Integer skipCount) {
+    public static <T extends AbstractInsnNode> UltraFMLMethodSearchResults<T> searchForNode(ClassNode node, String methodName, String methodArgs, Class<T> instructionClass, Integer opcode, Integer matchCount, Integer skipCount) {
 
         // iterate over all methods
         Iterator<MethodNode> methods = node.methods.iterator();

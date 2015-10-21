@@ -162,6 +162,9 @@ public class UltraItemGlowStick extends HubbyInstancedItem implements UltraLight
         // check if we have an ItemStack key with the name passed in.
         // If we don't, then we can ignore this update for now
         NBTTagCompound compound = stack.getSubCompound(getTagName(), false);
+        if (compound == null) {
+            return;
+        }
         assert compound != null : "[UltraItemGlowStick] Attempting to update an invalid itemstack instance of a glowstick!";
         ItemStack key = getInstanceForName(compound.getString(PROPERTY_NAME));
         compound = key != null ? key.getSubCompound(getTagName(), false) : null;

@@ -1,5 +1,8 @@
 package com.hubby.ultra;
 
+import com.hubby.events.HubbyEventPlayerJoinsGame;
+import com.hubby.events.HubbyEventPlayerQuitsGame;
+import com.hubby.events.HubbyEventSender;
 import com.hubby.ultra.setup.UltraConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
 import com.hubby.utils.HubbyConstants.LightLevel;
@@ -18,11 +21,31 @@ public class UltraCommandHooks {
 
     private double lastFireArmorParticleTime = 0.0F;
 
+    /**
+     * Called when the player joins the game from interacting with
+     * the main menu flow
+     * @param event - the event that was fired
+     */
     @SubscribeEvent
-    public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        //NitroInterface.nitroPlayer = event.player;
-        //NitroInterface.nitroWorld = event.player.worldObj;
-        //NitroSuperGui.loadUtilityInventory();
+    public void onPlayerJoinsGame(PlayerEvent.PlayerLoggedInEvent event) {
+        
+        // fire this event so that others can respond to the player logging out.
+        String[] keys = HubbyEventPlayerJoinsGame.getDefaultKeySet();
+        Object[] params = new Object[] { event.player };
+        HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerJoinsGame.class, keys, params);
+    }
+    
+    /**
+     * Called when the player quits the game to return to the main menu
+     * @param event - the event that was fired
+     */
+    @SubscribeEvent
+    public void onPlayerQuitsGame(PlayerEvent.PlayerLoggedOutEvent event) {
+        
+        // fire this event so that others can respond to the player logging out.
+        String[] keys = HubbyEventPlayerQuitsGame.getDefaultKeySet();
+        Object[] params = new Object[] { event.player };
+        HubbyEventSender.getInstance().notifyEvent(HubbyEventPlayerQuitsGame.class, keys, params);
     }
     
     @SubscribeEvent

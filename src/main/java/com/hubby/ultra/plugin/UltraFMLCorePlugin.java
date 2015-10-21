@@ -17,7 +17,9 @@ public class UltraFMLCorePlugin implements IFMLLoadingPlugin {
     public String[] getASMTransformerClass()
     {
         return new String[] { "com.hubby.ultra.plugin.UltraFMLTransformerLights",
-                              "com.hubby.ultra.plugin.UltraFMLTransformerInventoryPlayer"};
+                              "com.hubby.ultra.plugin.UltraFMLTransformerInventoryPlayer",
+                              //"com.hubby.ultra.plugin.UltraFMLTransformerContainer",
+                              "com.hubby.ultra.plugin.UltraFMLTransformerPlayerControllerMP"};
     }
 
     /**
