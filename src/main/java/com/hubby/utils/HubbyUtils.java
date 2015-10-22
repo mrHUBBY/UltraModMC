@@ -34,6 +34,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -1067,5 +1068,100 @@ public class HubbyUtils {
                return klass.isInstance(item);
            }
         });
+    }
+    
+    /**
+     * This is a formatted method that guarantees to return a string that
+     * will fit in the width (in pixels) specified. If during the parsing
+     * a valid space character could not be found to divide the string, then
+     * the parsed word will be cut in two, using a hyphen to denote it is divided.
+     * @param source - the source string to fit
+     * @param maxWidth - the maximum allowed width in pixels to fit the string in
+     * @return String - the formatted string that fits the width provided
+     */
+    public static String getStringForWidth(String source, int maxWidth) {
+
+        FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
+        Integer currentIndex = 0;
+        Integer lastSpaceIndex = -1;
+        Integer originalLastSpaceIndex = -1;
+        String workingString = "";
+        String fittedString = "";
+        
+        // Check the string width for the original string passed in, and if
+        // it is less than the max width we are good to go and can return
+        // the original as is
+        Integer currentWidth = fontRender.getStringWidth(source);
+        if (currentWidth <= maxWidth) {
+            return source;
+        }
+        
+        // otherwise, we want to parse the original string and insert 
+        // newline characters into any spaces we find when the parsing the string.
+        // If no valid space could be found then we simply break the word
+        // with a hyphen and continue on.
+        
+        // keep looping until we have built a working string that is as long
+        // as it possibly can be without violating the max width requirement.
+        // Once we have that substring we then append it to our fitted string
+        // as being text that has been parsed and fitted within the max width
+        // constraint.
+        Integer workingWidth = fontRender.getStringWidth(workingString);
+        while (currentIndex < source.length()) {
+            
+            // get the current character at the specified index
+            // and note whether or not we have encountered a space
+            // character
+            char character = source.charAt(currentIndex);
+            if (character == ' ') {
+                originalLastSpaceIndex = currentIndex;
+                lastSpaceIndex = workingString.length();
+            }
+            
+            // append the character and check our current width;
+            // if we fit then we will continue the iteration and move
+            // on to the next character.
+            workingString += character;
+            workingWidth = fontRender.getStringWidth(workingString);
+            
+            // our working string is too big, we've added one too many
+            // characters and need to adjust.
+            if (workingWidth > maxWidth) {
+                
+                // if we have found a space char during our iteration then
+                // we will replace that with a newline and then adjust the current
+                // index to be the position of the replaced space character plus one.
+                if (lastSpaceIndex >= 0) {
+                    workingString = workingString.substring(0, lastSpaceIndex);
+                    workingString += "\n";
+                    currentIndex = originalLastSpaceIndex + 1;
+                    lastSpaceIndex = -1;
+                }
+                // if we don't have a space then we back up one character and
+                // insert a hyphen to break the word into two followed by a newline
+                // to make the working string fit within the bounds. Note, we also
+                // do not adjust the current index as we want to re-process that
+                // character since it did not fit.
+                else {
+                    workingString = workingString.substring(0, workingString.length() - 1);
+                    workingString += "-\n";
+                }
+
+                // append our working string to the fitted string
+                fittedString += workingString;
+                workingString = "";
+            }
+            // If we get here then we want to increment the next character.
+            // If we have reached the end of the original string then append
+            // the working string since we know it fits and its the last part
+            // of the original string that we just parsed.
+            else {
+                ++currentIndex;
+            }
+        }
+        
+        // append the remaining of the working string to complete the fitting
+        fittedString += workingString;
+        return fittedString;
     }
 }

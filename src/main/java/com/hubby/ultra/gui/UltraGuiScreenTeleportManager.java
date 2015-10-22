@@ -7,9 +7,9 @@ import org.lwjgl.input.Keyboard;
 import com.hubby.ultra.UltraTeleportWaypoint;
 import com.hubby.ultra.setup.UltraMod;
 import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyColor.ColorMode;
 import com.hubby.utils.HubbyInputFilter;
 import com.hubby.utils.HubbyUtils;
-import com.hubby.utils.HubbyColor.ColorMode;
 import com.hubby.utils.HubbyUtils.GradientMode;
 
 import net.minecraft.block.Block;
@@ -368,8 +368,7 @@ public class UltraGuiScreenTeleportManager extends GuiScreen {
      * @return boolean - should the game pause?
      */
     @Override
-    public boolean doesGuiPauseGame()
-    {
+    public boolean doesGuiPauseGame() {
         return false;
     }
 }
