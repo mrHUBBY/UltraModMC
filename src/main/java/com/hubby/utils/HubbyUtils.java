@@ -1,5 +1,9 @@
 package com.hubby.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
@@ -22,19 +26,24 @@ import java.util.concurrent.TimeUnit;
 import org.lwjgl.opengl.GL11;
 import org.reflections.Reflections;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.hubby.network.HubbyNetworkHelper;
 import com.hubby.utils.HubbyConstants.ArmorType;
 import com.hubby.utils.HubbyConstants.Direction;
 import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockColored;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -47,14 +56,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.JsonUtils;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.RegistryNamespaced;
@@ -671,27 +683,29 @@ public class HubbyUtils {
      * @param entity - the entity to check
      * @return Block - the block beneath the entity
      */
-    public static Block findBlockUnderEntity(Entity entity) {
+    public static HubbyBlockResult findBlockUnderEntity(Entity entity) {
         int blockX = MathHelper.floor_double(entity.posX);
         int blockY = MathHelper.floor_double(entity.getEntityBoundingBox().minY) - 1;
         int blockZ = MathHelper.floor_double(entity.posZ);
         BlockPos pos = new BlockPos(blockX, blockY, blockZ);
         Block block = entity.worldObj.getBlockState(pos).getBlock();
         Item blockItem = Item.getItemFromBlock(block);
+        HubbyBlockResult result = blockItem != null ? new HubbyBlockResult(pos) : new HubbyBlockResult();
         
         // search for the first non-air block below us if indeed
         // our current underneath block is air
         int yOffset = -1;
-        while (blockItem == null && yOffset > (int)-pos.getY()) {
+        while (blockItem == null && pos.getY() >= 0) {
             BlockPos offsetPos = pos.add(0, yOffset, 0.0f);
             block = HubbyUtils.getServerWorld().getBlockState(offsetPos).getBlock();
             if (block != null) {
                 blockItem = Item.getItemFromBlock(block);
+                result.setBlockPos(offsetPos);
             }
             yOffset -= 1;
         }
         
-        return block;
+        return result;
     }
 
     /**
@@ -720,7 +734,7 @@ public class HubbyUtils {
     /**
      * Returns the block that the player is currently standing on
      */
-    public static Block getStandOnBlock() {
+    public static HubbyBlockResult getStandOnBlock() {
         return HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
     }
     
@@ -1071,6 +1085,113 @@ public class HubbyUtils {
     }
     
     /**
+     * Returns the string dimensions for the string passed in,
+     * measuring both the width and the height of the string
+     * @param source - the string to measure
+     * @param spacing - the additional space to add to the calculated size
+     * @return HubbySize - the size to return
+     */
+    public static HubbySize<Integer> getStringDimensions(String source, Integer spacing) {
+        FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
+        Integer lines = getStringLineCount(source);
+        Integer width = 0;
+        Integer height = fontRender.FONT_HEIGHT * lines + (spacing * 2);
+        for (Integer i = 0; i < lines; ++i) {
+            String lineText = getStringLine(source, i);
+            Integer lineWidth = fontRender.getStringWidth(lineText) + (spacing * 2);
+            width = lineWidth >= width ? lineWidth : width;
+        }
+        return new HubbySize<Integer>(width, height);
+    }
+    
+    /**
+     * Reads a line of text from the source string. If the line
+     * is invalid then <code>null</code> is returned as we want
+     * to distinguish ourselves from the empty string since that
+     * could actually be a valid result based on user input
+     * @param source - the source string
+     * @param line - the line of text to get
+     * @return String - the discovered line of text
+     */
+    public static String getStringLine(String source, Integer line) {
+        Integer lineCount = getStringLineCount(source);
+        if (line >= lineCount || line < 0) {
+            return "";
+        }
+        
+        // return the source as it is since there is 
+        // only one line anyway
+        if (lineCount == 1) {
+            return source;
+        }
+        
+        // if we have more than one line but we only want the
+        // first line then we can do an easy calculation here
+        // to do just that
+        if (line == 0) {
+            return source.substring(0, source.indexOf('\n'));
+        }
+        
+        // here we iterate looking for the newline
+        // character so that we count the number of
+        // lines traversed until we get to the line
+        // that we care about
+        Integer startIndex = 0;
+        Integer index = 0;
+        while (line > 0) {
+            startIndex = index;
+            index = source.indexOf('\n', index) + 1;
+            if (index == 0) {
+                return "";
+            }
+            --line;
+        }
+        
+        // Returns the substring based on indices we
+        // calculated when determining which line of
+        // text to gather
+        return source.substring(startIndex, index - 1);
+    }
+    
+    /**
+     * Returns the number of lines to be considered in the source text provided
+     * @param source - the source string to calculate the line count for
+     * @return Integer - the number of lines found
+     */
+    public static Integer getStringLineCount(String source) {
+        Integer lines = source.length() > 0 ? 1 : 0;
+        Integer index = 0;
+        
+        // iterate over entire string to determine how many lines
+        // of text we have. Note, we only consider the text to have
+        // an additional line if the current index is less than the
+        // length of the string (ie. if you have a newline character
+        // as your last character in the string, that will not count
+        // as another line of text.
+        while (index < source.length()) {
+            if (source.charAt(index) == HubbyConstants.NEWLINE_CHARACTER && index < source.length() - 1) {
+                ++lines;
+            }
+            ++index;
+        }
+        
+        // return our calculated lines
+        return lines;
+    }
+    
+    /**
+     * Returns a list of all of the lines of text that
+     * exist within the source string passed in
+     * @param source - the source string to get lines
+     * @param width - the max line width (-1 is infinite)
+     * @return
+     */
+    public static List<String> getStringLinesForWidth(String source, Integer width) {
+        FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
+        return fontRender.listFormattedStringToWidth(source, width < 0 ? 100000 : width);
+    }
+    
+    /**
      * This is a formatted method that guarantees to return a string that
      * will fit in the width (in pixels) specified. If during the parsing
      * a valid space character could not be found to divide the string, then
@@ -1080,8 +1201,55 @@ public class HubbyUtils {
      * @return String - the formatted string that fits the width provided
      */
     public static String getStringForWidth(String source, int maxWidth) {
+        return getStringForWidth(source, maxWidth, false);
+    }
+    
+    /**
+     * Joins all of the strings in the list together by using the separator value as the glue
+     * @param strings - the list of strings to join
+     * @param separator - the string to link the strings together
+     * @return String - the combined string containing all of the strings passed in
+     */
+    public static String joinStrings(List<String> strings, String separator) {
+        String builder = "";
+        for (Integer i = 0; i < strings.size(); ++i) {
+            builder += strings.get(i);
+            if (i < strings.size() - 1) {
+                builder += separator;
+            }
+        }
+        return builder;
+    }
+    
+    /**
+     * This is a formatted method that guarantees to return a string that
+     * will fit in the width (in pixels) specified. If during the parsing
+     * a valid space character could not be found to divide the string, then
+     * the parsed word will be cut in two, using a hyphen to denote it is divided.
+     * @param source - the source string to fit
+     * @param maxWidth - the maximum allowed width in pixels to fit the string in
+     * @param useMcMethod - should we use the provided minecraft method for this operation?
+     * @return String - the formatted string that fits the width provided
+     */
+    public static String getStringForWidth(String source, int maxWidth, boolean useMcMethod) {
 
         FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
+        
+        // here we use the method provided by mc for breaking the 
+        // string into pieces where each string fits within the desired width
+        if (useMcMethod) {
+            String formatted = "";
+            List<String> list = getStringLinesForWidth(source, maxWidth);
+            for (int i = 0; i < list.size(); ++i) {
+                formatted += list.get(i);
+                if (i < list.size() - 1) {
+                    formatted += "\n";
+                }
+            }
+            return formatted;
+        }
+                
+        // otherwise, we use this code to achieve the same thing
         Integer currentIndex = 0;
         Integer lastSpaceIndex = -1;
         Integer originalLastSpaceIndex = -1;
@@ -1163,5 +1331,145 @@ public class HubbyUtils {
         // append the remaining of the working string to complete the fitting
         fittedString += workingString;
         return fittedString;
+    }
+    
+    /**
+     * Closes the current gui screen if one is currently open
+     * @return boolean - was a screen closed
+     */
+    public static boolean closeCurrentScreen() {
+        if (Minecraft.getMinecraft().currentScreen != null) {
+            Minecraft.getMinecraft().currentScreen = null;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Closes the current screen only if it matches the class passed in
+     * @param klass - the <code>GuiScreen</code> class to check for
+     * @return boolean - did we close the screen?
+     */
+    public static <T extends GuiScreen> boolean closeCurrentScreen(Class<T> klass) {
+        if (Minecraft.getMinecraft().currentScreen != null && klass.isInstance(Minecraft.getMinecraft().currentScreen)) {
+            Minecraft.getMinecraft().currentScreen = null;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Returns the resource location for the item passed in
+     * @param item - the <code>Item</code> to get the <code>ResourceLocation</code> for
+     * @return ResourceLocation - the items texture location
+     */
+    public static ResourceLocation getItemResourceLocation(Item item) {
+        return getItemResourceLocation(item, null);
+    }
+    
+    /**
+     * Returns the resource location for the item passed in
+     * @param item - the <code>Item</code> to get the <code>ResourceLocation</code> for
+     * @param blockResult - the result to use if we are rendering a block with multiple states
+     * @return ResourceLocation - the items texture location
+     */
+    public static ResourceLocation getItemResourceLocation(Item item, HubbyBlockResult blockResult) {
+        
+        // get the list of all keys which will be a set of ResourceLocation's.
+        // Parse these keys, looking for the object they link to to see if it
+        // matches the item that is passed in
+        Set keys = Item.itemRegistry.getKeys();
+        Iterator it = keys.iterator();
+        while (it.hasNext()) {
+            
+            // check if the item matches...?
+            ResourceLocation rl = (ResourceLocation)it.next();
+            Item registeredItem = (Item)Item.itemRegistry.getObject(rl);
+            if (item == registeredItem) {
+                
+                Block b = Block.getBlockFromItem(item);
+                if (b != null && item.getHasSubtypes()) {
+                    ItemStack is = new ItemStack(item, 1, 1);
+                    item = is.getItem();
+                    item = ItemBlock.getItemFromBlock(b);
+                }
+                
+                // check for colored blocks and if we have one, then we want to update
+                // the resource location so that it refers to the colored version of the block
+                // and not the base block which points to an invalid resource location
+                if (blockResult != null && BlockColored.class.isInstance(blockResult._block)) {
+                    EnumDyeColor dyeColor = (EnumDyeColor) blockResult._blockState.getValue(BlockColored.COLOR);
+                    rl = new ResourceLocation(rl.getResourceDomain(), dyeColor.getName() + "_" + rl.getResourcePath());
+                }
+                
+                // if the item matches then we build the name for the json location and we
+                // attempt to parse the json trying to find the resource name for the
+                // corresponding texture for the item we just matched.
+                String modID = rl.getResourceDomain();
+                ResourceLocation jsonLocation = new ResourceLocation(HubbyUtils.getResourceLocation(modID, "models/item/" + rl.getResourcePath() + ".json"));
+                try {
+                    InputStream stream = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(jsonLocation);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
+                    JsonObject json = (new JsonParser()).parse(reader).getAsJsonObject();
+                    
+                    if (JsonUtils.jsonObjectHasNamedField(json, "textures")) {
+                        JsonObject texturesObj = JsonUtils.getJsonObject(json, "textures");
+                        String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj, "layer0");
+                        Integer index = textureName.indexOf(":");
+                        textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
+                        return new ResourceLocation(textureName);
+                    }
+                    // we are most likely a block item
+                    else if (JsonUtils.jsonObjectHasNamedField(json, "parent")) {
+                       String parentName = JsonUtils.getJsonObjectStringFieldValue(json, "parent");
+                       ResourceLocation prl = new ResourceLocation(modID, "models/" + parentName + ".json");
+                       InputStream stream2 = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(prl);
+                       BufferedReader reader2 = new BufferedReader(new InputStreamReader(stream2, Charsets.UTF_8));
+                       JsonObject json2 = (new JsonParser()).parse(reader2).getAsJsonObject();
+                       if (JsonUtils.jsonObjectHasNamedField(json2, "textures")) {
+                           JsonObject texturesObj2 = JsonUtils.getJsonObject(json2, "textures");
+                           if (JsonUtils.jsonObjectHasNamedField(texturesObj2, "all")) {
+                               String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj2, "all");
+                               Integer index = textureName.indexOf(":");
+                               textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
+                               return new ResourceLocation(textureName);
+                           }
+                           else if (JsonUtils.jsonObjectHasNamedField(texturesObj2, "side")) {
+                               String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj2, "side");
+                               Integer index = textureName.indexOf(":");
+                               textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
+                               return new ResourceLocation(textureName);
+                           }
+                       }
+                    }
+                }
+                catch (IOException e) {
+                    break;
+                }
+            }
+        }
+        
+        // could not find the item or we encountered an exception when
+        // attempting to parse the json for the texture name
+        return null;
+    }
+    
+    /**
+     * Attempts to lookup an item from the item registry based on name
+     * @param name - the name (or partial name) of the item to lookup
+     * @return Item - the found item (null if no matches were found)
+     */
+    public static Item searchForItem(String name) {
+        name = name.toLowerCase();
+        Set keys = Item.itemRegistry.getKeys();
+        Iterator it = keys.iterator();
+        while (it.hasNext()) {
+            ResourceLocation rl = (ResourceLocation)it.next();
+            Item item = (Item)Item.itemRegistry.getObject(rl);
+            if (item.getUnlocalizedName().toLowerCase().contains(name) || rl.getResourcePath().toLowerCase().contains(name)) {
+                return item;
+            }  
+        }
+        return null;
     }
 }

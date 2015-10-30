@@ -5,6 +5,8 @@ import com.hubby.events.HubbyEventPlayerQuitsGame;
 import com.hubby.events.HubbyEventSender;
 import com.hubby.ultra.setup.UltraConfigPropertyListener;
 import com.hubby.ultra.setup.UltraRegistry;
+import com.hubby.utils.HubbyColor;
+import com.hubby.utils.HubbyConstants;
 import com.hubby.utils.HubbyConstants.LightLevel;
 import com.hubby.utils.HubbyUtils;
 
@@ -97,7 +99,13 @@ public class UltraCommandHooks {
     	// If the use pressed the teleport gui key then we want to show that gui
     	// to the player now
         if (HubbyUtils.isKeyPressed(UltraConfigPropertyListener.KEY_BINDING_OPEN_TELEPORT_GUI)) {
-        	Minecraft.getMinecraft().displayGuiScreen(UltraRegistry.ultraTeleportWaypointGuiScreen);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setPopupMessage("This should be an interesting test to see if the popup is working correctly, I bet it is!", 200, HubbyConstants.DEFAULT_POPUP_BORDER, HubbyConstants.DEFAULT_POPUP_BORDER);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setCenterText(false);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setDropShadow(true);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setTextColor(HubbyColor.GREY);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setItemIcon(UltraRegistry.ultraItemGlowStick);
+            UltraRegistry.hubbyPopupMessageGuiScreen.setAutoCloseTime(2000L, true);
+        	Minecraft.getMinecraft().displayGuiScreen(UltraRegistry.hubbyPopupMessageGuiScreen);
         	
         	// TODO:
         	// remove

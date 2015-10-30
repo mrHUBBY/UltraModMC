@@ -58,7 +58,6 @@ public class HubbySlicedResource {
     /**
      * The keys used for initializing this sliced resource
      */
-    public static final String CONSTRAINT_RESOURCE_LOCATION = "resourceLocation";
     public static final String CONSTRAINT_CORNER_SIZE = "cornerSize";
     public static final String CONSTRAINT_RESOURCE_STEP = "resourceStep";
     public static final String CONSTRAINT_MIN_WIDTH = "minWidth";

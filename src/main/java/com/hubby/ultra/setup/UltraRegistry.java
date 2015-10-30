@@ -1,5 +1,6 @@
 package com.hubby.ultra.setup;
 
+import com.hubby.gui.HubbyGuiScreenPopupMessage;
 import com.hubby.ultra.UltraConstants;
 import com.hubby.ultra.UltraConstants.BackpackType;
 import com.hubby.ultra.UltraLightHelper;
@@ -60,6 +61,7 @@ public class UltraRegistry {
 	 * GuiScreens
 	 */
 	public static UltraGuiScreenTeleportWaypoint ultraTeleportWaypointGuiScreen = null;
+	public static HubbyGuiScreenPopupMessage hubbyPopupMessageGuiScreen = null;
 	
 	/**
 	 * Misc items and helpers
@@ -114,6 +116,7 @@ public class UltraRegistry {
 		 * GuiScreens
 		 */
 		ultraTeleportWaypointGuiScreen = new UltraGuiScreenTeleportWaypoint();
+		hubbyPopupMessageGuiScreen = new HubbyGuiScreenPopupMessage("", 200, 6, 6);
 		
 		/**
 		 * Misc screens and helpers

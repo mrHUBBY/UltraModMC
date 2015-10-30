@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import org.lwjgl.opengl.GL11;
 
+import net.minecraft.client.renderer.GlStateManager;
+
 /**
  * This class provides a number of color converting functions
  * to give more control to the user
@@ -210,6 +212,17 @@ public class HubbyColor {
 	}
 	
 	/**
+	 * Copy constructor
+	 * @param other - the other color
+	 */
+	public HubbyColor(HubbyColor other) {
+	    _red = other._red;
+	    _green = other._green;
+	    _blue = other._blue;
+	    _alpha = other._alpha;
+	}
+	
+	/**
 	 * Converts the color from whatever it's current mode is to
 	 * the mode passed into this function
 	 * @param mode - the color mode to convert to
@@ -382,4 +395,40 @@ public class HubbyColor {
 	public void applyColorGL() {
 		GL11.glColor4f(_red, _green, _blue, _alpha);
 	}
+	
+	/**
+	 * Applies the current color values to the GlStateManager
+	 * that will affect rendering.
+	 */
+	public void applyColorStateManager() {
+	    // NOTE:
+	    // Calling this function also performs the same task
+	    // as found in the 'applyColorGL' method
+	    GlStateManager.color(_red, _blue, _green, _alpha);
+	}
+	
+    /**
+     * Returns a new instance of a color equal to ourselves
+     * @return HubbyColor - the new color object
+     */
+    @Override
+    public Object clone() {
+        return new HubbyColor(_red, _green, _blue, _alpha);
+    }
+    
+    /**
+     * Overrides the equality operator for checking if two colors are
+     * equal or not
+     * @param other - the other object to compare
+     * @return boolean - are we to be considered equal?
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() != HubbyColor.class) {
+            return false;
+        }
+        
+        HubbyColor otherColor = (HubbyColor)other;
+        return _red == otherColor._red && _green == otherColor._green && _blue == otherColor._blue && _alpha == otherColor._alpha;
+    }
 }

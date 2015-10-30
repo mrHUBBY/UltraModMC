@@ -6,6 +6,58 @@ package com.hubby.utils;
  * @author davidleistiko
  */
 public class HubbyMath {
+    
+    /**
+     * Constants
+     */
+    public static final Double ALPHA_THRESHOLD = 0.0999;
+    
+    /**
+     * Returns true if the two values are within a specific
+     * range from each other
+     * @param one - the first number
+     * @param two - the second number to compare
+     * @param precision - the precision we want
+     */
+    public static boolean almostEqual(Float one, Float two) {
+        return almostEqual(one, two, 0.0001f);
+    }
+    
+    /**
+     * Returns true if the two values are within a specific
+     * range from each other
+     * @param one - the first number
+     * @param two - the second number to compare
+     * @param precision - the precision we want
+     */
+    public static boolean almostEqual(Double one, Double two) {
+        return almostEqual(one, two, 0.0001);
+    }
+    
+    /**
+     * Returns true if the two values are within a specific
+     * range from each other
+     * @param one - the first number
+     * @param two - the second number to compare
+     * @param precision - the precision we want
+     * @return boolean - are they to be considered equal?
+     */
+    public static boolean almostEqual(Float one, Float two, Float precision) {
+        return Math.abs(one - two) <= precision;
+    }
+    
+    /**
+     * Returns true if the two values are within a specific
+     * range from each other
+     * @param one - the first number
+     * @param two - the second number to compare
+     * @param precision - the precision we want
+     * @return boolean - are they to be considered equal?
+     */
+    public static boolean almostEqual(Double one, Double two, Double precision) {
+        return Math.abs(one - two) <= precision;
+    }
+    
     /**
      * Clamps the value between the min and max values
      * @param value - the value to clamp

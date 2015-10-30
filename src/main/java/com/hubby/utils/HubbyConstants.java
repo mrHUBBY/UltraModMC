@@ -20,6 +20,12 @@ public class HubbyConstants {
     public static final Integer MAIN_INVENTORY_SIZE = 36;
     public static final Integer HOTBAR_INVENTORY_SIZE = 9;
     public static final Integer HOTBAR_INVENTORY_OFFSET = MAIN_INVENTORY_SIZE;
+    public static final Character NEWLINE_CHARACTER = '\n';
+    public static final Integer ITEM_ICON_SIZE = 13;
+    public static final Integer ITEM_ICON_MARGIN = 3;
+    public static final Integer DEFAULT_POPUP_BORDER = 3;
+    public static final Integer DEFAULT_UV_SIZE = 256;
+    public static final Integer DEFAULT_ICON_SIZE = 16;
     
     /**
      * This enum identifies the various pieces of armor as well

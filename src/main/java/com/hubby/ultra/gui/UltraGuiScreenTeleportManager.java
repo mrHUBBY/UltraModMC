@@ -6,13 +6,13 @@ import org.lwjgl.input.Keyboard;
 
 import com.hubby.ultra.UltraTeleportWaypoint;
 import com.hubby.ultra.setup.UltraMod;
+import com.hubby.utils.HubbyBlockResult;
 import com.hubby.utils.HubbyColor;
 import com.hubby.utils.HubbyColor.ColorMode;
 import com.hubby.utils.HubbyInputFilter;
 import com.hubby.utils.HubbyUtils;
 import com.hubby.utils.HubbyUtils.GradientMode;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -355,8 +355,8 @@ public class UltraGuiScreenTeleportManager extends GuiScreen {
         // draw the block we are standing on
         int sX = (width - SIZE_X) / 2 + 148;
         int sY = (height - SIZE_Y) / 2 + 6;
-        Block block = HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
-        Item itemToRender = Item.getItemFromBlock(block);        
+        HubbyBlockResult result = HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
+        Item itemToRender = Item.getItemFromBlock(result.getBlock());        
         ItemStack stack = new ItemStack(itemToRender, 1, 0);
         
         _renderItem.renderItemIntoGUI(stack, sX, sY);
