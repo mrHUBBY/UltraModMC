@@ -2,6 +2,8 @@ package com.hubby.utils;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
@@ -16,29 +18,22 @@ public class HubbyBlockResult {
     /**
      * The actual block
      */
-    protected Block _block;
+    private Block _block;
     
     /**
      * The current state for the block
      */
-    protected IBlockState _blockState;
+    private IBlockState _blockState;
     
     /**
      * The position of the block
      */
-    protected BlockPos _blockPos;
+    private BlockPos _blockPos;
     
     /**
-     * Constructor
-     * @param pos - the position for the <code>Block</code>
-     * @param state - the current state for the <code>Block</code>
-     * @param block - the actual <code>Block</code>
+     * The item corresponding to the block
      */
-    public HubbyBlockResult(BlockPos pos, IBlockState state, Block block) {
-        _block = block;
-        _blockState = state;
-        _blockPos = pos;
-    }
+    private ItemBlock _blockItem;
     
     /**
      * Constructor
@@ -56,6 +51,7 @@ public class HubbyBlockResult {
         _blockPos = null;
         _blockState = null;
         _block = null;
+        _blockItem = null;
     }
     
     /**
@@ -76,6 +72,7 @@ public class HubbyBlockResult {
         _blockPos = pos;
         _blockState = world.getBlockState(pos);
         _block = world.getBlockState(pos).getBlock();
+        _blockItem = (ItemBlock)Item.getItemFromBlock(_block);
     }
     
     /**
@@ -100,5 +97,13 @@ public class HubbyBlockResult {
      */
     public Block getBlock() {
         return _block;
+    }
+    
+    /**
+     * Access to the block item
+     * @return ItemBlock - the block item
+     */
+    public ItemBlock getBlockItem() {
+        return _blockItem;
     }
 }

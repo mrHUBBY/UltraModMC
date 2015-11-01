@@ -1,5 +1,6 @@
 package com.hubby.utils;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,9 @@ public class HubbyConstants {
     public static final Integer DEFAULT_POPUP_BORDER = 3;
     public static final Integer DEFAULT_UV_SIZE = 256;
     public static final Integer DEFAULT_ICON_SIZE = 16;
+    public static final String MINECRAFT_MOD_ID = "minecraft";
+    public static final String RESOURCE_BUILTIN_KEY = "builtin";
+    public static final Rectangle CHEST_TEXTURE_RECT = new Rectangle(28, 19, 14, 14);
     
     /**
      * This enum identifies the various pieces of armor as well
@@ -84,6 +88,127 @@ public class HubbyConstants {
          */
         public static Integer validLength() {
             return 4;
+        }
+    }
+    
+    /**
+     * This enum is to identify the various type of chests that there are
+     * @author davidleistiko
+     *
+     */
+    public enum ChestType {
+        INVALID             (-1, "invalid"),
+        NORMAL              (0, "normal"),
+        NORMALDOUBLE        (2, "noraml_double"),
+        TRAPPED             (1, "trapped"),
+        TRAPPEDDOUBLE       (3, "trapped_double"),
+        CHRISTMAS           (4, "christmas"),
+        CHRISTMASDOUBLE     (5, "christmas_double"),
+        ENDER               (9, "ender");
+        
+        /**
+         * The type of chest
+         */
+        private Integer _chestType;
+        
+        /**
+         * The base name for the chest texture
+         */
+        private String _textureName;
+        
+        /**
+         * This is the default location on disk where the chest textures live
+         */
+        public static final String CHEST_TEXTURE_FOLDER = "textures/entity/chest/";
+        
+        /**
+         * Returns the corresponding chest type based on whether or not
+         * we were able to match the resource to a chest texture name
+         * @param rl - the resource location to compare
+         * @return ChestType - the matching chest type (or <code>ChestType.INVALID</code> if there was no match)
+         */
+        public static ChestType getChestResource(HubbyResourceLocation rl) {
+            for (ChestType c : ChestType.values()) {
+                
+                // check if we have chest metadata, if we do then compare
+                // to the iterated type to see if we have a match
+                if (ChestType.class.isInstance(rl.getMetadata(null))) {
+                    ChestType type = rl.getMetadata(ChestType.class);
+                    if (type.equals(c)) {
+                        return c;
+                    }
+                }
+                
+                // otherwise, we compare the resource path to our known texture path
+                if (rl.getResourcePath().contains(c.getChestBaseTextureName())) {
+                    return c;
+                }
+            }
+            return ChestType.INVALID;
+        }
+        
+        /**
+         * Returns if the resource is a chest resource
+         * @param rl - the resource to check
+         * @return boolean - is the resource a chest?
+         */
+        public static boolean isChestResource(HubbyResourceLocation rl) {
+            
+            // check if we are a valid chest resource
+            if (getChestResource(rl) != ChestType.INVALID) {
+                return true;
+            }
+            
+            // does the path contain the "chest" word
+            if (rl.getResourcePath().contains("chest")) {
+                return true;
+            }
+            
+            // is the metadata type of ChestType?
+            if (rl.getMetadata(null) != null && ChestType.class.isInstance(rl.getMetadata(null))) {
+                return true;
+            }
+            
+            // sorry, no luck :(
+            return false;
+        }
+        
+        /**
+         * Searches through the enums looking for chest with a matching type
+         * @param type - the type to match
+         * @return ChestType - the chest to return (is <code>ChestType.INVALID</code> when no match is found)
+         */
+        public static ChestType getEnumForValue(Integer type) {
+            for (ChestType chest : ChestType.values()) {
+                if (chest.getChestType() == type) {
+                    return chest;
+                }
+            }
+            return ChestType.INVALID;
+        }
+        
+        /**
+         * Constructor
+         */
+        ChestType(Integer type, String textureName) {
+            _chestType = type;
+            _textureName = textureName;
+        }
+        
+        /**
+         * Returns the chest type
+         * @return Integer - the chest type
+         */
+        public Integer getChestType() {
+            return _chestType;
+        }
+        
+        /**
+         * Returns the base name for the chest texture
+         * @return
+         */
+        public String getChestBaseTextureName() {
+            return _textureName;
         }
     }
     

@@ -1,5 +1,6 @@
 package com.hubby.utils;
 
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,12 +35,30 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hubby.network.HubbyNetworkHelper;
 import com.hubby.utils.HubbyConstants.ArmorType;
+import com.hubby.utils.HubbyConstants.ChestType;
 import com.hubby.utils.HubbyConstants.Direction;
 import com.hubby.utils.HubbyConstants.HubbyClientPacketType;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCarpet;
+import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockDoubleWoodSlab;
+import net.minecraft.block.BlockEnderChest;
+import net.minecraft.block.BlockFlower;
+import net.minecraft.block.BlockFlowerPot;
+import net.minecraft.block.BlockNewLeaf;
+import net.minecraft.block.BlockNewLog;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.BlockOldLog;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockSapling;
+import net.minecraft.block.BlockStainedGlass;
+import net.minecraft.block.BlockStone;
+import net.minecraft.block.BlockStoneSlab;
+import net.minecraft.block.BlockWoodSlab;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
@@ -60,7 +79,6 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -102,13 +120,41 @@ public class HubbyUtils {
      */
     public static final String NORMAL_MODEL = "normal";
     public static final String INVENTORY_MODEL = "inventory";
+    public static final String DEFAULT_BLOCK_RESOURCE = "models/block/grass_normal";
+    public static final String DEFAULT_ITEM_RESOURCE = "models/item/diamond_sword";
 
     /**
      * Stores all registered key-bindings and uses these to detect when the user
      * has pressed a key
      */
     public static final HashMap<String, KeyBinding> KEY_BINDINGS = new HashMap<String, KeyBinding>(32);
+    
+    /**
+     * This value can be set to apply as a scale to the x,y,w,h values when drawing
+     * a textured rect. After this value is set, when the first call to draw a textured
+     * rect is made, the scale value is taken into account and then is reset to a value
+     * of 1 so that the next call is unaffected by the scale unless the user specifically
+     * sets it
+     */
+    private static float _drawTexturedRectScale = 1.0f;
+    
 
+    /**
+     * Sets the scale value to use with any calls made to
+     * draw a textured rect
+     * @param scale - the scale to use
+     */
+    public static void setDrawTexturedRectScale(float scale) {
+        _drawTexturedRectScale = scale;
+    }
+    
+    /**
+     * Resets the scale value to use when drawing textured rects
+     */
+    public static void clearDrawTexturedRectScale() {
+        setDrawTexturedRectScale(1.0f);
+    }
+    
     /**
      * Simple helper function to get full path for a mod item
      * @param modId - the name of the mod
@@ -178,10 +224,58 @@ public class HubbyUtils {
      * @param v1 - the top texture coord
      * @param u2 - the right texture coord
      * @param v2 - the bottom texture coord
+     * @param color - the color to apply
+     */
+    public static void drawTexturedRectHelper(float zLevel, int posX, int posY, int width, int height, int u1, int v1, int u2, int v2, HubbyColor color) {
+        float f = 0.00390625F * _drawTexturedRectScale;
+        float f1 = 0.00390625F * _drawTexturedRectScale;
+        clearDrawTexturedRectScale();
+        
+        Tessellator tessellator = Tessellator.getInstance();
+        tessellator.getWorldRenderer().startDrawingQuads();
+        tessellator.getWorldRenderer().setColorRGBA_F(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        tessellator.getWorldRenderer().addVertexWithUV((double) (posX + 0), (double) (posY + height), (double) zLevel, (double) ((float) (u1) * f), (double) ((float) (v2) * f1));
+        tessellator.getWorldRenderer().addVertexWithUV((double) (posX + width), (double) (posY + height), (double) zLevel, (double) ((float) (u2) * f), (double) ((float) (v2) * f1));
+        tessellator.getWorldRenderer().addVertexWithUV((double) (posX + width), (double) (posY + 0), (double) zLevel, (double) ((float) (u2) * f), (double) ((float) (v1) * f1));
+        tessellator.getWorldRenderer().addVertexWithUV((double) (posX + 0), (double) (posY + 0), (double) zLevel, (double) ((float) (u1) * f), (double) ((float) (v1) * f1));
+        tessellator.draw();
+    }
+    
+    /**
+     * Helper function for drawing a textured rectangle
+     * @param zLevel - the depth of the rectangle in the scene
+     * @param posX - the left most position
+     * @param posY - the top most position
+     * @param width - the width
+     * @param height - the height
+     * @param Rectangle - the uvs
+     * @param HubbyColor - the color to use
+     */
+    public static void drawTexturedRectHelper(float zLevel, int posX, int posY, int width, int height, Rectangle uvs, HubbyColor color) {
+        int u1 = (int)uvs.getMinX();
+        int u2 = (int)uvs.getMaxX();
+        int v1 = (int)uvs.getMinY();
+        int v2 = (int)uvs.getMaxY();
+        drawTexturedRectHelper(zLevel, posX, posY, width, height, u1, v1, u2, v2, color);
+    }
+    
+    /**
+     * Helper function for drawing a textured rectangle
+     * @param zLevel - the depth of the rectangle in the scene
+     * @param posX - the left most position
+     * @param posY - the top most position
+     * @param width - the width
+     * @param height - the height
+     * @param u1 - the left texture coord
+     * @param v1 - the top texture coord
+     * @param u2 - the right texture coord
+     * @param v2 - the bottom texture coord
      */
     public static void drawTexturedRectHelper(float zLevel, int posX, int posY, int width, int height, int u1, int v1, int u2, int v2) {
-        float f = 0.00390625F;
-        float f1 = 0.00390625F;
+        float f = 0.00390625F * _drawTexturedRectScale;
+        float f1 = 0.00390625F * _drawTexturedRectScale;
+        clearDrawTexturedRectScale();
+        
         Tessellator tessellator = Tessellator.getInstance();
         tessellator.getWorldRenderer().startDrawingQuads();
         tessellator.getWorldRenderer().addVertexWithUV((double) (posX + 0), (double) (posY + height), (double) zLevel, (double) ((float) (u1) * f), (double) ((float) (v2) * f1));
@@ -189,6 +283,23 @@ public class HubbyUtils {
         tessellator.getWorldRenderer().addVertexWithUV((double) (posX + width), (double) (posY + 0), (double) zLevel, (double) ((float) (u2) * f), (double) ((float) (v1) * f1));
         tessellator.getWorldRenderer().addVertexWithUV((double) (posX + 0), (double) (posY + 0), (double) zLevel, (double) ((float) (u1) * f), (double) ((float) (v1) * f1));
         tessellator.draw();
+    }
+    
+    /**
+     * Helper function for drawing a textured rectangle
+     * @param zLevel - the depth of the rectangle in the scene
+     * @param posX - the left most position
+     * @param posY - the top most position
+     * @param width - the width
+     * @param height - the height
+     * @param Rectangle - the uvs
+     */
+    public static void drawTexturedRectHelper(float zLevel, int posX, int posY, int width, int height, Rectangle uvs) {
+        int u1 = (int)uvs.getMinX();
+        int u2 = (int)uvs.getMaxX();
+        int v1 = (int)uvs.getMinY();
+        int v2 = (int)uvs.getMaxY();
+        drawTexturedRectHelper(zLevel, posX, posY, width, height, u1, v1, u2, v2);
     }
 
     /**
@@ -394,7 +505,7 @@ public class HubbyUtils {
     public static boolean isClientSide() {
         return !HubbyUtils.isServerSide();
     }
-    
+
     /**
      * Check if we are on the client based on the world passed in
      * @param world - The <code>World</code> to check
@@ -403,7 +514,7 @@ public class HubbyUtils {
     public static boolean isClientSide(World world) {
         return world.isRemote;
     }
-    
+
     /**
      * Check if we are the client world or not
      * @param world - the block access
@@ -434,7 +545,7 @@ public class HubbyUtils {
         int utcOffset = c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET);
         return c.getTimeInMillis() + utcOffset;
     }
-    
+
     /**
      * Utility function that converts a raw utc timestamp value
      * into a human readable string that expresses the value for
@@ -454,7 +565,7 @@ public class HubbyUtils {
         Calendar cal = Calendar.getInstance();
         return dateFormat.format(cal.getTime());
     }
-    
+
     /**
      * Converts a human readable date string into a utc timestamp
      * @param dateStr - the date string to parse
@@ -499,7 +610,7 @@ public class HubbyUtils {
         final List<Material> materials = new ArrayList<Material>();
         Field[] allFields = Material.class.getDeclaredFields();
 
-        // iterate over all fields and add any Materials that we find
+        // iterate over all fields and add any Materials that we
         for (Field f : allFields) {
             Class<?> fieldType = f.getType();
             if (fieldType.isAssignableFrom(Material.class)) {
@@ -609,7 +720,7 @@ public class HubbyUtils {
      */
     public static boolean addFullVanillaArmorToEntity(EntityLivingBase entity, ToolMaterial armorMaterial) {
 
-        // Find the itemRegistry that is a map containing all of the generic Minecraft items
+        // the itemRegistry that is a map containing all of the generic Minecraft items
         boolean success = false;
         List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
 
@@ -685,17 +796,17 @@ public class HubbyUtils {
      */
     public static HubbyBlockResult findBlockUnderEntity(Entity entity) {
         int blockX = MathHelper.floor_double(entity.posX);
-        int blockY = MathHelper.floor_double(entity.getEntityBoundingBox().minY) - 1;
+        int blockY = MathHelper.floor_double(entity.getEntityBoundingBox().minY);
         int blockZ = MathHelper.floor_double(entity.posZ);
         BlockPos pos = new BlockPos(blockX, blockY, blockZ);
         Block block = entity.worldObj.getBlockState(pos).getBlock();
         Item blockItem = Item.getItemFromBlock(block);
-        HubbyBlockResult result = blockItem != null ? new HubbyBlockResult(pos) : new HubbyBlockResult();
-        
+        HubbyBlockResult result = (block != null || blockItem != null) ? new HubbyBlockResult(pos) : new HubbyBlockResult();
+
         // search for the first non-air block below us if indeed
         // our current underneath block is air
         int yOffset = -1;
-        while (blockItem == null && pos.getY() >= 0) {
+        while (blockItem == null && pos.getY() >= 0 && block == Blocks.air) {
             BlockPos offsetPos = pos.add(0, yOffset, 0.0f);
             block = HubbyUtils.getServerWorld().getBlockState(offsetPos).getBlock();
             if (block != null) {
@@ -704,8 +815,35 @@ public class HubbyUtils {
             }
             yOffset -= 1;
         }
-        
+
         return result;
+    }
+
+    /**
+     * Finds the next block by offseting from the current block result position
+     * @param currentBlock - the current block to offset from
+     * @param offset - the offset to apply to the position
+     * @param allowAir - do we allow air blocks?
+     * @return HubbyBlockResult - the block result for the position with the offset
+     */
+    public static HubbyBlockResult getNextBlock(HubbyBlockResult currentBlock, BlockPos offset, boolean allowAir) {
+        // get starting pos
+        BlockPos iterPos = new BlockPos(0, 0, 0);
+        if (currentBlock != null) {
+            iterPos = currentBlock.getBlockPos();
+        }
+
+        // add the offset to the block pos
+        iterPos = iterPos.add(offset);
+
+        // get the block at the position and return result
+        IBlockState state = HubbyUtils.getClientWorld().getBlockState(iterPos);
+        Block block = state != null ? state.getBlock() : null;
+        if (block != null && (block != Blocks.air || allowAir)) {
+            HubbyBlockResult result = new HubbyBlockResult(iterPos);
+            return result;
+        }
+        return new HubbyBlockResult();
     }
 
     /**
@@ -717,7 +855,7 @@ public class HubbyUtils {
         int d = MathHelper.floor_double((double) (entity.rotationYaw * 4.0F / 360) + 0.50) & 3;
         return Direction.values()[d];
     }
-    
+
     /**
      * Attempts to get the block the user is looking at now
      * @return Block - the <code>Block</code> being looked at (null if none)
@@ -726,18 +864,18 @@ public class HubbyUtils {
         MovingObjectPosition pos = Minecraft.getMinecraft().getRenderViewEntity().rayTrace(200, 1.0F);
         if (pos != null) {
             EnumFacing blockHitSide = pos.sideHit;
-            Block blockLookingAt = HubbyUtils.getClientWorld().getBlockState(pos.getBlockPos()).getBlock(); 
+            Block blockLookingAt = HubbyUtils.getClientWorld().getBlockState(pos.getBlockPos()).getBlock();
         }
         return null;
     }
-    
+
     /**
      * Returns the block that the player is currently standing on
      */
     public static HubbyBlockResult getStandOnBlock() {
         return HubbyUtils.findBlockUnderEntity(HubbyUtils.getClientPlayer());
     }
-    
+
     /**
      * Returns the first slot of the main inventory that possesses the item with the
      * specified class
@@ -757,7 +895,7 @@ public class HubbyUtils {
         }
         return indices;
     }
-    
+
     /**
      * Returns the first item found in the inventory that matches the class passed in.
      * @param itemClass - the class of the <code>Item</code> we are searching for
@@ -774,7 +912,7 @@ public class HubbyUtils {
         }
         return items;
     }
-    
+
     /**
      * Adds an item to the player's hotbar inventory
      * @param position - the pos where to set the item (should be [0,9))
@@ -788,7 +926,7 @@ public class HubbyUtils {
                 Integer slot = position + HubbyConstants.HOTBAR_INVENTORY_OFFSET;
                 ItemStack stack = item != null ? new ItemStack(item, amount) : null;
                 HubbyUtils.getClientPlayer().inventoryContainer.putStackInSlot(slot, stack);
-                
+
                 Map<String, Object> args = new HashMap<String, Object>();
                 args.put("stack", stack);
                 args.put("slot", slot);
@@ -796,7 +934,7 @@ public class HubbyUtils {
             }
         });
     }
-    
+
     /**
      * Returns if the player is playing in creative mode
      * @return boolean - is creative mode
@@ -808,7 +946,7 @@ public class HubbyUtils {
         }
         return false;
     }
-    
+
     /**
      * Returns the elapsed time for the difference between the 2 UTC timestamps.
      * Time value returned is in seconds.
@@ -822,7 +960,7 @@ public class HubbyUtils {
         if (utcStart >= utcEnd) {
             return 0.0000f;
         }
-        
+
         // now we read the start time and calculate our elapsed time
         // for handling the packet that came down with the event
         Date startDate = new Date(utcStart);
@@ -833,15 +971,15 @@ public class HubbyUtils {
         Long minsDiff = TimeUnit.MILLISECONDS.toMinutes(duration);
         Long hoursDiff = TimeUnit.MILLISECONDS.toHours(duration);
         Long daysDiff = TimeUnit.MILLISECONDS.toDays(duration);
-        
+
         // calc elapsed seconds and return
-        float seconds = (float)secsDiff + (float)millsDiff / 1000.0f;
+        float seconds = (float) secsDiff + (float) millsDiff / 1000.0f;
         seconds += (60.0f * minsDiff);
         seconds += (60.0f * 60.0f * hoursDiff);
         seconds += (60.0f * 60.0f * 24.0f * daysDiff);
         return seconds;
     }
-    
+
     /**
      * Overwrites the value for the static final field that is identified
      * by class and name with the new value passed in
@@ -867,8 +1005,8 @@ public class HubbyUtils {
             e.printStackTrace();
         }
         return false;
-     }
-    
+    }
+
     /**
      * Enables/disables standard alpha blending
      * @param enable - turn on blending?
@@ -878,12 +1016,12 @@ public class HubbyUtils {
             GL11.glEnable(GL11.GL_BLEND);
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        } 
+        }
         else {
             GL11.glDisable(GL11.GL_BLEND);
         }
     }
-    
+
     /**
      * Checks if the specified item is in the player's inventory
      * @param item - the item to check
@@ -894,7 +1032,7 @@ public class HubbyUtils {
         List<Integer> indices = HubbyUtils.getInventoryItemLocations(item.getClass());
         return indices.size() > 0;
     }
-    
+
     /**
      * Checks if the stack matches any of the stacks that are
      * in the player's current inventory
@@ -906,7 +1044,7 @@ public class HubbyUtils {
         List<Integer> indices = HubbyUtils.getInventoryItemLocations(stack.getItem().getClass());
         return indices.size() > 0;
     }
-    
+
     /**
      * Is the item in the stack the item the player is currently using?
      * @param stack - the stack to check
@@ -917,11 +1055,11 @@ public class HubbyUtils {
         if (player == null || player.inventory == null) {
             return false;
         }
-        
+
         List<Integer> indices = HubbyUtils.getInventoryItemLocations(item.getClass());
         return indices.contains(player.inventory.currentItem);
     }
-    
+
     /**
      * Checks if the item is specified is the currently
      * equipped item on the player
@@ -933,16 +1071,16 @@ public class HubbyUtils {
         if (player == null || player.inventory == null) {
             return false;
         }
-        
+
         for (int i = 0; i < HubbyConstants.HOTBAR_INVENTORY_SIZE; ++i) {
             ItemStack inventoryStack = player.inventory.mainInventory[i];
             if (ItemStack.areItemStacksEqual(inventoryStack, stack) && i == player.inventory.currentItem) {
                 return true;
             }
         }
-         return false;
+        return false;
     }
-    
+
     /**
      * Returns the index that represents the slot that the player
      * currently has selected as their active item
@@ -955,7 +1093,7 @@ public class HubbyUtils {
         }
         return player.inventory.currentItem;
     }
-    
+
     /**
      * Forward call, get an estimated delta time for the last frame
      * @return Long - the time in milliseconds
@@ -963,7 +1101,7 @@ public class HubbyUtils {
     public static Long getDeltaTime() {
         return HubbyRefreshedObjectInterface.getDeltaTime();
     }
-    
+
     /**
      * Forward call, get an estimated elapsed time for all frames
      * @return Long - the time in milliseconds
@@ -971,7 +1109,7 @@ public class HubbyUtils {
     public static Long getElapsedTime() {
         return HubbyRefreshedObjectInterface.getElapsedTime();
     }
-    
+
     /**
      * Returns the number of elapsed ticks
      * @return Integer - the number of ticks
@@ -979,7 +1117,7 @@ public class HubbyUtils {
     public static Integer getElapsedTicks() {
         return HubbyRefreshedObjectInterface.getElapsedTicks();
     }
-    
+
     /**
      * Returns the partial ticks for the elapsed time
      * (ie the progress towards the next whole tick)
@@ -988,7 +1126,7 @@ public class HubbyUtils {
     public static Double getElapsedPartialTicks() {
         return HubbyRefreshedObjectInterface.getElapsedPartialTicks();
     }
-    
+
     /**
      * Returns the delta time in ticks (most likely this will
      * always be 0, except in the case where a frame posted
@@ -998,7 +1136,7 @@ public class HubbyUtils {
     public static Integer getDeltaTicks() {
         return HubbyRefreshedObjectInterface.getDeltaTicks();
     }
-    
+
     /**
      * Returns the number of partial ticks for the last delta time
      * @return Double - the partial ticks
@@ -1006,7 +1144,7 @@ public class HubbyUtils {
     public static Double getDeltaPartialtTicks() {
         return HubbyRefreshedObjectInterface.getDeltaPartialTicks();
     }
-    
+
     /**
      * Collects all minecraft items that satisfy the predicate passed in
      * @param predicate - the predicate used to filter the list (can be null)
@@ -1020,7 +1158,7 @@ public class HubbyUtils {
             ResourceLocation key = it.next();
             Object item = Item.itemRegistry.getObject(key);
             if (item != null && Item.class.isInstance(item)) {
-                results.add((Item)item);
+                results.add((Item) item);
             }
         }
 
@@ -1030,28 +1168,28 @@ public class HubbyUtils {
             return Lists.newArrayList(iter.iterator());
         }
         return results;
-        
-//      An alternate way to do the same thing...
-//        
-//      ArrayList<Item> results = new ArrayList<Item>();
-//      List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
-//      RegistryNamespaced registry = (RegistryNamespaced) allRegistries.get(0);
-//      Set keys = registry.getKeys();
-//
-//      // Iterate over all of the item keys, looking for any
-//      // items that match the target class
-//      for (Object key : keys) {
-//          Item item = (Item) registry.getObject(key);
-//          if (klass.isInstance(item)) {
-//              results.add(item);
-//          }
-//      }
-//      
-//      // return the compiled list of items matching the class type
-//      // that was passed into this method
-//      return results;
+
+        // An alternate way to do the same thing...
+        //
+        // ArrayList<Item> results = new ArrayList<Item>();
+        // List<RegistryNamespaced> allRegistries = HubbyUtils.searchForFieldsOfType("net.minecraft.item", Item.class, null, RegistryNamespaced.class);
+        // RegistryNamespaced registry = (RegistryNamespaced) allRegistries.get(0);
+        // Set keys = registry.getKeys();
+        //
+        // // Iterate over all of the item keys, looking for any
+        // // items that match the target class
+        // for (Object key : keys) {
+        // Item item = (Item) registry.getObject(key);
+        // if (klass.isInstance(item)) {
+        // results.add(item);
+        // }
+        // }
+        //
+        // // return the compiled list of items matching the class type
+        // // that was passed into this method
+        // return results;
     }
-    
+
     /**
      * Returns the package name converted to a path name
      * @param packageName - the package name to convert
@@ -1060,7 +1198,7 @@ public class HubbyUtils {
     public static String convertPackageToPath(String packageName) {
         return packageName.replace('.', '/');
     }
-    
+
     /**
      * Converts the path name to a package name
      * @param pathName - the name to convert
@@ -1069,7 +1207,7 @@ public class HubbyUtils {
     public static String convertPathToPackage(String pathName) {
         return pathName.replace('/', '.');
     }
-    
+
     /**
      * This method returns a list containing all of the custom mod
      * items that have been created.
@@ -1077,13 +1215,13 @@ public class HubbyUtils {
      */
     public static <T extends Item> List<Item> collectItemsOfType(final Class<T> klass) {
         return HubbyUtils.collectAllItems(new Predicate<Item>() {
-           @Override
-           public boolean apply(Item item) {
-               return klass.isInstance(item);
-           }
+            @Override
+            public boolean apply(Item item) {
+                return klass.isInstance(item);
+            }
         });
     }
-    
+
     /**
      * Returns the string dimensions for the string passed in,
      * measuring both the width and the height of the string
@@ -1103,7 +1241,7 @@ public class HubbyUtils {
         }
         return new HubbySize<Integer>(width, height);
     }
-    
+
     /**
      * Reads a line of text from the source string. If the line
      * is invalid then <code>null</code> is returned as we want
@@ -1118,20 +1256,20 @@ public class HubbyUtils {
         if (line >= lineCount || line < 0) {
             return "";
         }
-        
-        // return the source as it is since there is 
+
+        // return the source as it is since there is
         // only one line anyway
         if (lineCount == 1) {
             return source;
         }
-        
+
         // if we have more than one line but we only want the
         // first line then we can do an easy calculation here
         // to do just that
         if (line == 0) {
             return source.substring(0, source.indexOf('\n'));
         }
-        
+
         // here we iterate looking for the newline
         // character so that we count the number of
         // lines traversed until we get to the line
@@ -1146,13 +1284,13 @@ public class HubbyUtils {
             }
             --line;
         }
-        
+
         // Returns the substring based on indices we
         // calculated when determining which line of
         // text to gather
         return source.substring(startIndex, index - 1);
     }
-    
+
     /**
      * Returns the number of lines to be considered in the source text provided
      * @param source - the source string to calculate the line count for
@@ -1161,7 +1299,7 @@ public class HubbyUtils {
     public static Integer getStringLineCount(String source) {
         Integer lines = source.length() > 0 ? 1 : 0;
         Integer index = 0;
-        
+
         // iterate over entire string to determine how many lines
         // of text we have. Note, we only consider the text to have
         // an additional line if the current index is less than the
@@ -1174,11 +1312,11 @@ public class HubbyUtils {
             }
             ++index;
         }
-        
+
         // return our calculated lines
         return lines;
     }
-    
+
     /**
      * Returns a list of all of the lines of text that
      * exist within the source string passed in
@@ -1190,7 +1328,7 @@ public class HubbyUtils {
         FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
         return fontRender.listFormattedStringToWidth(source, width < 0 ? 100000 : width);
     }
-    
+
     /**
      * This is a formatted method that guarantees to return a string that
      * will fit in the width (in pixels) specified. If during the parsing
@@ -1203,7 +1341,7 @@ public class HubbyUtils {
     public static String getStringForWidth(String source, int maxWidth) {
         return getStringForWidth(source, maxWidth, false);
     }
-    
+
     /**
      * Joins all of the strings in the list together by using the separator value as the glue
      * @param strings - the list of strings to join
@@ -1220,7 +1358,7 @@ public class HubbyUtils {
         }
         return builder;
     }
-    
+
     /**
      * This is a formatted method that guarantees to return a string that
      * will fit in the width (in pixels) specified. If during the parsing
@@ -1234,8 +1372,8 @@ public class HubbyUtils {
     public static String getStringForWidth(String source, int maxWidth, boolean useMcMethod) {
 
         FontRenderer fontRender = Minecraft.getMinecraft().fontRendererObj;
-        
-        // here we use the method provided by mc for breaking the 
+
+        // here we use the method provided by mc for breaking the
         // string into pieces where each string fits within the desired width
         if (useMcMethod) {
             String formatted = "";
@@ -1248,14 +1386,14 @@ public class HubbyUtils {
             }
             return formatted;
         }
-                
+
         // otherwise, we use this code to achieve the same thing
         Integer currentIndex = 0;
         Integer lastSpaceIndex = -1;
         Integer originalLastSpaceIndex = -1;
         String workingString = "";
         String fittedString = "";
-        
+
         // Check the string width for the original string passed in, and if
         // it is less than the max width we are good to go and can return
         // the original as is
@@ -1263,12 +1401,12 @@ public class HubbyUtils {
         if (currentWidth <= maxWidth) {
             return source;
         }
-        
-        // otherwise, we want to parse the original string and insert 
-        // newline characters into any spaces we find when the parsing the string.
+
+        // otherwise, we want to parse the original string and insert
+        // newline characters into any spaces we when the parsing the string.
         // If no valid space could be found then we simply break the word
         // with a hyphen and continue on.
-        
+
         // keep looping until we have built a working string that is as long
         // as it possibly can be without violating the max width requirement.
         // Once we have that substring we then append it to our fitted string
@@ -1276,7 +1414,7 @@ public class HubbyUtils {
         // constraint.
         Integer workingWidth = fontRender.getStringWidth(workingString);
         while (currentIndex < source.length()) {
-            
+
             // get the current character at the specified index
             // and note whether or not we have encountered a space
             // character
@@ -1285,17 +1423,17 @@ public class HubbyUtils {
                 originalLastSpaceIndex = currentIndex;
                 lastSpaceIndex = workingString.length();
             }
-            
+
             // append the character and check our current width;
             // if we fit then we will continue the iteration and move
             // on to the next character.
             workingString += character;
             workingWidth = fontRender.getStringWidth(workingString);
-            
+
             // our working string is too big, we've added one too many
             // characters and need to adjust.
             if (workingWidth > maxWidth) {
-                
+
                 // if we have found a space char during our iteration then
                 // we will replace that with a newline and then adjust the current
                 // index to be the position of the replaced space character plus one.
@@ -1327,12 +1465,12 @@ public class HubbyUtils {
                 ++currentIndex;
             }
         }
-        
+
         // append the remaining of the working string to complete the fitting
         fittedString += workingString;
         return fittedString;
     }
-    
+
     /**
      * Closes the current gui screen if one is currently open
      * @return boolean - was a screen closed
@@ -1344,7 +1482,7 @@ public class HubbyUtils {
         }
         return false;
     }
-    
+
     /**
      * Closes the current screen only if it matches the class passed in
      * @param klass - the <code>GuiScreen</code> class to check for
@@ -1359,99 +1497,129 @@ public class HubbyUtils {
     }
     
     /**
-     * Returns the resource location for the item passed in
-     * @param item - the <code>Item</code> to get the <code>ResourceLocation</code> for
-     * @return ResourceLocation - the items texture location
+     * Returns the substring that occurs after the match string
+     * @param source - the source string
+     * @param match - the string to match
+     * @return String - the substring that begins after the place where the match was found
      */
-    public static ResourceLocation getItemResourceLocation(Item item) {
-        return getItemResourceLocation(item, null);
+    public static String substringAfter(String source, String match) {
+        return HubbyUtils.substringAfter(source, match, -1);
+    }
+
+    /**
+     * Returns the substring that occurs after the match string
+     * @param source - the source string
+     * @param match - the string to match
+     * @param offset - the offset to move after the match location
+     * @return String - the substring that begins after the place where the match was found
+     */
+    public static String substringAfter(String source, String match, Integer offset) {
+        Integer index = source.indexOf(match);
+        offset = match.length() + offset;
+        if (index + offset < source.length()) {
+            return source.substring(index + offset);
+        }
+        return "";
+    }
+
+    /**
+     * Returns the substring by removing all occurrences of a specific string from its self
+     * @param source - the source string
+     * @param toRemove - the string to remove
+     * @return String - the substring
+     */
+    public static String substringRemoveAll(String source, String toRemove) {
+        Integer index = source.indexOf(toRemove);
+        if (index < 0) {
+            return source;
+        }
+        String newString = source.substring(0, index) + source.substring(index + toRemove.length(), source.length());
+        return substringRemoveAll(newString, toRemove);
     }
     
     /**
-     * Returns the resource location for the item passed in
-     * @param item - the <code>Item</code> to get the <code>ResourceLocation</code> for
-     * @param blockResult - the result to use if we are rendering a block with multiple states
-     * @return ResourceLocation - the items texture location
+     * Returns the substring by removing an occurrence of a specific string from its self
+     * @param source - the source string
+     * @param toRemove - the string to remove
+     * @param startIndex - the index to start the search at
+     * @return String - the substring
      */
-    public static ResourceLocation getItemResourceLocation(Item item, HubbyBlockResult blockResult) {
-        
-        // get the list of all keys which will be a set of ResourceLocation's.
-        // Parse these keys, looking for the object they link to to see if it
-        // matches the item that is passed in
-        Set keys = Item.itemRegistry.getKeys();
-        Iterator it = keys.iterator();
-        while (it.hasNext()) {
-            
-            // check if the item matches...?
-            ResourceLocation rl = (ResourceLocation)it.next();
-            Item registeredItem = (Item)Item.itemRegistry.getObject(rl);
-            if (item == registeredItem) {
-                
-                Block b = Block.getBlockFromItem(item);
-                if (b != null && item.getHasSubtypes()) {
-                    ItemStack is = new ItemStack(item, 1, 1);
-                    item = is.getItem();
-                    item = ItemBlock.getItemFromBlock(b);
-                }
-                
-                // check for colored blocks and if we have one, then we want to update
-                // the resource location so that it refers to the colored version of the block
-                // and not the base block which points to an invalid resource location
-                if (blockResult != null && BlockColored.class.isInstance(blockResult._block)) {
-                    EnumDyeColor dyeColor = (EnumDyeColor) blockResult._blockState.getValue(BlockColored.COLOR);
-                    rl = new ResourceLocation(rl.getResourceDomain(), dyeColor.getName() + "_" + rl.getResourcePath());
-                }
-                
-                // if the item matches then we build the name for the json location and we
-                // attempt to parse the json trying to find the resource name for the
-                // corresponding texture for the item we just matched.
-                String modID = rl.getResourceDomain();
-                ResourceLocation jsonLocation = new ResourceLocation(HubbyUtils.getResourceLocation(modID, "models/item/" + rl.getResourcePath() + ".json"));
-                try {
-                    InputStream stream = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(jsonLocation);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
-                    JsonObject json = (new JsonParser()).parse(reader).getAsJsonObject();
-                    
-                    if (JsonUtils.jsonObjectHasNamedField(json, "textures")) {
-                        JsonObject texturesObj = JsonUtils.getJsonObject(json, "textures");
-                        String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj, "layer0");
-                        Integer index = textureName.indexOf(":");
-                        textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
-                        return new ResourceLocation(textureName);
-                    }
-                    // we are most likely a block item
-                    else if (JsonUtils.jsonObjectHasNamedField(json, "parent")) {
-                       String parentName = JsonUtils.getJsonObjectStringFieldValue(json, "parent");
-                       ResourceLocation prl = new ResourceLocation(modID, "models/" + parentName + ".json");
-                       InputStream stream2 = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(prl);
-                       BufferedReader reader2 = new BufferedReader(new InputStreamReader(stream2, Charsets.UTF_8));
-                       JsonObject json2 = (new JsonParser()).parse(reader2).getAsJsonObject();
-                       if (JsonUtils.jsonObjectHasNamedField(json2, "textures")) {
-                           JsonObject texturesObj2 = JsonUtils.getJsonObject(json2, "textures");
-                           if (JsonUtils.jsonObjectHasNamedField(texturesObj2, "all")) {
-                               String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj2, "all");
-                               Integer index = textureName.indexOf(":");
-                               textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
-                               return new ResourceLocation(textureName);
-                           }
-                           else if (JsonUtils.jsonObjectHasNamedField(texturesObj2, "side")) {
-                               String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj2, "side");
-                               Integer index = textureName.indexOf(":");
-                               textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
-                               return new ResourceLocation(textureName);
-                           }
-                       }
-                    }
-                }
-                catch (IOException e) {
-                    break;
+    public static String substringRemove(String source, String toRemove, Integer startIndex) {
+        Integer index = source.indexOf(toRemove, startIndex);
+        if (index < 0) {
+            return source;
+        }
+        return source.substring(0, index) + source.substring(index + toRemove.length(), source.length());
+    }
+    
+    /**
+     * Returns the substring by removing an occurrence of a specific string from its self
+     * @param source - the source string
+     * @param toRemove - the string to remove
+     * @return String - the substring
+     */
+    public static String substringRemove(String source, String toRemove) {
+        return substringRemove(source, toRemove, 0);
+    }
+
+    /**
+     * Gets the default resource for a block or an item
+     * @param blockNotItem - are we getting the resource for a block
+     * @return ResourceLocation - the resource
+     */
+    public static HubbyResourceLocation getDefaultResource(boolean blockNotItem) {
+        if (blockNotItem) {
+            return new HubbyResourceLocation(HubbyConstants.MINECRAFT_MOD_ID, DEFAULT_BLOCK_RESOURCE);
+        }
+        else {
+            return new HubbyResourceLocation(HubbyConstants.MINECRAFT_MOD_ID, DEFAULT_ITEM_RESOURCE);
+        }
+    }
+
+    /**
+     * Attempt to find the resource location for the block passed in
+     * @param blockResult - the block to search for the resource
+     * @return ResourceLocation - the resource location of the block (default block resource if not found)
+     */
+    public static HubbyResourceLocation getBlockResourceLocation(HubbyBlockResult blockResult) {
+        try {
+            ResourceLocation blockResource = null;
+            Set keys = Block.blockRegistry.getKeys();
+            Iterator it = keys.iterator();
+            while (it.hasNext()) {
+                HubbyResourceLocation rl = new HubbyResourceLocation(((ResourceLocation) it.next()));
+                Block registeredBlock = (Block) Block.blockRegistry.getObject(rl);
+                if (blockResult.getBlock() == registeredBlock) {
+                    return getResourceLocation(blockResult, rl);
                 }
             }
         }
-        
-        // could not find the item or we encountered an exception when
-        // attempting to parse the json for the texture name
-        return null;
+        catch (Exception e) {
+        }
+        return getDefaultResource(true);
+    }
+
+    /**
+     * Attempts to find the resource location for the item passed in
+     * @param item - the item to search for the resource
+     * @return ResourceLocation - the resource location of the item (default item resource if not found)
+     */
+    public static HubbyResourceLocation getItemResourceLocation(Item item) {
+        try {
+            ResourceLocation itemResource = null;
+            Set keys = Item.itemRegistry.getKeys();
+            Iterator it = keys.iterator();
+            while (it.hasNext()) {
+                HubbyResourceLocation rl = new HubbyResourceLocation(((ResourceLocation) it.next()));
+                Item registeredItem = (Item) Item.itemRegistry.getObject(rl);
+                if (item == registeredItem) {
+                    return getResourceLocation(item, rl);
+                }
+            }
+        }
+        catch (Exception e) {
+        }
+        return getDefaultResource(false);
     }
     
     /**
@@ -1464,12 +1632,282 @@ public class HubbyUtils {
         Set keys = Item.itemRegistry.getKeys();
         Iterator it = keys.iterator();
         while (it.hasNext()) {
-            ResourceLocation rl = (ResourceLocation)it.next();
-            Item item = (Item)Item.itemRegistry.getObject(rl);
+            ResourceLocation rl = (ResourceLocation) it.next();
+            Item item = (Item) Item.itemRegistry.getObject(rl);
             if (item.getUnlocalizedName().toLowerCase().contains(name) || rl.getResourcePath().toLowerCase().contains(name)) {
                 return item;
-            }  
+            }
         }
         return null;
+    }
+
+    /**
+     * Returns the resource location for the item passed in
+     * @param item - the <code>Item</code> to get the <code>ResourceLocation</code> for
+     * @param blockResult - the result to use if we are rendering a block with multiple states
+     * @return ResourceLocation - the items texture location (null if it could not be determined)
+     * @throws IOException 
+     */
+    private static HubbyResourceLocation getResourceLocation(Object obj, HubbyResourceLocation baseResource) throws IOException {
+
+        // make sure that we are working with a valid resource location...
+        // any blocks that have variants need an updated resource location
+        // that points to the variant on disk... for example, if the player
+        // is standing on a 'wool' block, the resource will simply be pointing
+        // to 'wool.json' which does not exist, rather we need it to be
+        // of the form 'blue_wool.json' which is what this method call does
+        HubbyBlockResult blockResult = HubbyBlockResult.class.isInstance(obj) ? (HubbyBlockResult) obj : null;
+        Item itemResult = Item.class.isInstance(obj) ? (Item) obj : null;
+        boolean isItemModel = itemResult != null;
+        HubbyResourceLocation finalResource = blockResult != null ? getVariantResourceForBlock(baseResource, blockResult) : baseResource;
+        HubbyResourceLocation jsonResource = null;
+        String modID = finalResource != null ? finalResource.getResourceDomain() : HubbyConstants.MINECRAFT_MOD_ID;
+
+        // check to make sure that we have valid input, if not, then
+        // we want to return the default resource to be safe
+        if ((itemResult == null && blockResult == null) || finalResource == null) {
+            return getDefaultResource(false);
+        }
+        
+        // if the item matches then we build the name for the json location and we
+        // attempt to parse the json trying to the resource name for the
+        // corresponding texture for the item we just matched.
+        jsonResource = new HubbyResourceLocation(HubbyUtils.getResourceLocation(modID, "models/item/" + finalResource.getResourcePath() + ".json"));
+        jsonResource.setMetadata(finalResource.getMetadata(null));
+        if (!Minecraft.getMinecraft().mcDefaultResourcePack.resourceExists(jsonResource)) {
+            jsonResource = new HubbyResourceLocation(HubbyUtils.getResourceLocation(modID, "models/block/" + finalResource.getResourcePath() + ".json"));
+            jsonResource.setMetadata(finalResource.getMetadata(null));
+            isItemModel = false;
+
+            // now we check the block resource, and if we can't find any then we return the default resource
+            if (!Minecraft.getMinecraft().mcDefaultResourcePack.resourceExists(jsonResource)) {
+                Block itemBlock = Block.getBlockFromItem(itemResult);
+                return getDefaultResource(itemResult != null);
+            }
+        }
+
+        // get the parent resource if we have one and we don't have a "textures" field
+        jsonResource = getParentResource(jsonResource, true);
+        if (jsonResource.isTexture()) {
+            return jsonResource;
+        }
+
+        // attempt to read the json resource, if it does not exist then we return the default
+        if (!Minecraft.getMinecraft().mcDefaultResourcePack.resourceExists(jsonResource)) {
+            return getDefaultResource(!isItemModel);
+        }
+
+        // get the json root and lets lookup the texture field
+        InputStream stream = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(jsonResource);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
+        JsonObject jsonRoot = (new JsonParser()).parse(reader).getAsJsonObject();
+
+        // look for the "textures" field (which at this point we should have a guarantee that the
+        // json object does in fact have a "textures" field
+        if (JsonUtils.jsonObjectHasNamedField(jsonRoot, "textures")) {
+
+            // get the texture object and begin checking for all of these valid entries, the entries
+            // occur in order that selects the best option first in terms of finding a texture to represent
+            // the item or block that was passed in
+            JsonObject texturesObj = JsonUtils.getJsonObject(jsonRoot, "textures");
+            String[] fieldNames = new String[] { "layer0", "side", "all", "wool", "plant", "cactus", "cross", "north", "east", "south", "west" };
+            for (String field : fieldNames) {
+                if (JsonUtils.jsonObjectHasNamedField(texturesObj, field)) {
+                    String textureName = JsonUtils.getJsonObjectStringFieldValue(texturesObj, field);
+                    Integer index = textureName.indexOf(":");
+                    textureName = textureName.substring(0, index + 1) + "textures/" + textureName.substring(index + 1, textureName.length()) + ".png";
+                    return new HubbyResourceLocation(textureName);
+                }
+            }
+
+            // if we are an item then there is nothing else we can do... let's bail and return the default
+            if (blockResult == null || isItemModel) {
+                return getDefaultResource(false);
+            }
+
+            // if we get here then that mean all of texture fields we checked for
+            // were not found, so, we will just move down to the next block until
+            // we find a block that we can use for the resource location
+            if (JsonUtils.jsonObjectHasNamedField(texturesObj, "particle")) {
+                HubbyBlockResult nextResult = new HubbyBlockResult();
+                while (!nextResult.isValid()) {
+                    nextResult = HubbyUtils.getNextBlock(blockResult, new BlockPos(0, -1, 0), false);
+                }
+                return getBlockResourceLocation(nextResult);
+            }
+        }
+
+        // if we get here then we have totally failed and
+        // we could not find anything in terms of a resource
+        // location that matches the obj passed in
+        return getDefaultResource(!isItemModel);
+    }
+
+    /**
+     * Returns the parent resource for the resource passed in
+     * @param resource - the base resource to get the parent of
+     * @param noTextureOnly - only get the parent resource if there is no texture field
+     * @param type - a simple identifier for various resources
+     * @return ResourceLocation - the parent resource location (or the resource passed in if we failed)
+     */
+    private static HubbyResourceLocation getParentResource(HubbyResourceLocation resource, boolean noTextureOnly) {
+        try {
+            String modID = resource.getResourceDomain();
+            InputStream stream = Minecraft.getMinecraft().mcDefaultResourcePack.getInputStream(resource);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
+            JsonObject json = (new JsonParser()).parse(reader).getAsJsonObject();
+
+            // make sure we allow the texture field or that the texture field is absent if we
+            // don't allow it when determining the parent resource
+            if ((!noTextureOnly || !JsonUtils.jsonObjectHasNamedField(json, "textures")) && JsonUtils.jsonObjectHasNamedField(json, "parent")) {
+                String parentName = JsonUtils.getJsonObjectStringFieldValue(json, "parent");
+                
+                // check if we are the built-in type? If we are, then we need to do a little more
+                // processing to get to the resource path that we want
+                if (parentName.contains(HubbyConstants.RESOURCE_BUILTIN_KEY)) {
+                    String builtinName = substringAfter(parentName, HubbyConstants.RESOURCE_BUILTIN_KEY, 1); 
+                    String modelName = resource.getModelName(false);
+                    return getBuiltinResource(resource, builtinName, modelName);
+                }
+
+                // this is the default case... most likely and item -> block or vice versa
+                return new HubbyResourceLocation(modID, "models/" + parentName + ".json", resource.getMetadata(null));
+            }
+        }
+        catch (Exception e) {
+        }
+
+        // we return the default if we could not find a valid parent
+        return resource;
+    }
+    
+    /**
+     * Based on the passed in resource, builds the resource location for the builtin identified by name and model
+     * @param resource - the base resource
+     * @param builtin - the name of the builtin type
+     * @param model - the model for the builtin
+     * @return HubbyResourceLocation - the builtin resource
+     */
+    private static HubbyResourceLocation getBuiltinResource(HubbyResourceLocation resource, String builtin, String model) {
+        String modID = resource.getResourceDomain();
+        
+        // Are we an ender chest?
+        if (ChestType.getChestResource(resource) == ChestType.ENDER) {
+            ChestType ct = ChestType.getChestResource(resource);
+            return new HubbyResourceLocation(modID, "textures/" + builtin + "/" + model + "/" + ct.getChestBaseTextureName() + ".png", resource.getMetadata(null));
+        }
+        // Are we a chest at all?
+        else if (ChestType.getChestResource(resource) != ChestType.INVALID) {
+            ChestType ct = ChestType.getChestResource(resource);
+            return new HubbyResourceLocation(modID, "textures/" + builtin + "/" + model + "/" + ct.getChestBaseTextureName() + ".png", resource.getMetadata(null));
+        }
+        
+        // not a valid builtin that we could determine
+        return null;
+    }
+
+    /**
+     * Returns the adjusted resource location for the block result passed in.
+     * If there is no determined variant then this function returns the resource
+     * location passed in unaffected.
+     * @param rl - the initial resource location
+     * @param blockResult - the block result to determine resource for
+     * @return ResourceLocation - the adjusted location (returns default location if the block result has no variant).
+     */
+    private static HubbyResourceLocation getVariantResourceForBlock(HubbyResourceLocation rl, HubbyBlockResult blockResult) {
+
+        // return the default location if we are invalid
+        if (rl == null || blockResult == null || !blockResult.isValid()) {
+            return rl;
+        }
+
+        // check for colored blocks and if we have one, then we want to update
+        // the resource location so that it refers to the colored version of the block
+        // and not the base block which points to an invalid resource location
+        if (blockResult != null && BlockStainedGlass.class.isInstance(blockResult.getBlock())) {
+            EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockColored.COLOR);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockChest.class.isInstance(blockResult.getBlock())) {
+            int type = ((BlockChest)blockResult.getBlock()).chestType;
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), "chest");
+            rl.setMetadata(ChestType.getEnumForValue(type));
+        }
+        else if (blockResult != null && BlockEnderChest.class.isInstance(blockResult.getBlock())) {
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), "chest");
+            rl.setMetadata(ChestType.ENDER);
+        }
+        else if (blockResult != null && BlockDoubleWoodSlab.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockWoodSlab.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
+        }
+        else if (blockResult != null && BlockCarpet.class.isInstance(blockResult.getBlock())) {
+            EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockCarpet.COLOR);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath() + "_" + variant.getName());
+        }
+        else if (blockResult != null && BlockColored.class.isInstance(blockResult.getBlock())) {
+            EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockColored.COLOR);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockWoodSlab.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockWoodSlab.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
+        }
+        else if (blockResult != null && BlockStoneSlab.class.isInstance(blockResult.getBlock())) {
+            BlockStoneSlab.EnumType variant = (BlockStoneSlab.EnumType) blockResult.getBlockState().getValue(BlockStoneSlab.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
+        }
+        else if (blockResult != null && BlockPlanks.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockPlanks.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockSapling.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockSapling.TYPE);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockOldLeaf.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockOldLeaf.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockOldLog.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockOldLog.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockNewLeaf.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockNewLeaf.VARIANT);
+            String path = rl.getResourcePath();
+            Character ch = rl.getResourcePath().charAt(rl.getResourcePath().length() - 1);
+            if (Character.isDigit(ch)) {
+                path = rl.getResourcePath().substring(0, rl.getResourcePath().length() - 1);
+            }
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + path);
+        }
+        else if (blockResult != null && BlockNewLog.class.isInstance(blockResult.getBlock())) {
+            BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockNewLog.VARIANT);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
+        }
+        else if (blockResult != null && BlockFlowerPot.class.isInstance(blockResult.getBlock())) {
+            BlockFlowerPot.EnumFlowerType variant = (BlockFlowerPot.EnumFlowerType) blockResult.getBlockState().getValue(BlockFlowerPot.CONTENTS);
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath() + "_" + variant.getName());
+        }
+        else if (blockResult != null && BlockFlower.class.isInstance(blockResult.getBlock())) {
+            BlockFlower.EnumFlowerType variant = (BlockFlower.EnumFlowerType) blockResult.getBlockState().getValue(((BlockFlower) blockResult.getBlock()).getTypeProperty());
+            rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.name().toLowerCase());
+        }
+        else if (blockResult != null && BlockStone.class.isInstance(blockResult.getBlock())) {
+            BlockStone.EnumType variant = (BlockStone.EnumType) blockResult.getBlockState().getValue(BlockStone.VARIANT);
+            String[] parts = variant.getName().split("_");
+            if (parts.length > 1) {
+                rl = new HubbyResourceLocation(rl.getResourceDomain(), parts[1] + "_" + parts[0]);
+            }
+            else if (!rl.getResourcePath().equals(variant.getName())) {
+                rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath() + "_" + variant.getName());
+            }
+            else {
+                rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath());
+            }
+        }
+
+        return rl;
     }
 }

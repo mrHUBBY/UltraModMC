@@ -11,8 +11,10 @@ import com.hubby.utils.HubbyBlockResult;
 import com.hubby.utils.HubbyColor;
 import com.hubby.utils.HubbyColor.ColorMode;
 import com.hubby.utils.HubbyConstants;
+import com.hubby.utils.HubbyConstants.ChestType;
 import com.hubby.utils.HubbyMath;
 import com.hubby.utils.HubbyRefreshedObjectInterface;
+import com.hubby.utils.HubbyResourceLocation;
 import com.hubby.utils.HubbySize;
 import com.hubby.utils.HubbySlicedResource;
 import com.hubby.utils.HubbyUtils;
@@ -25,7 +27,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * This class serves to popup a notification dialog
@@ -255,7 +256,7 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
      */
     public Integer getHeight() {
         Integer iconSize = HubbyConstants.ITEM_ICON_SIZE + 2 * HubbyConstants.ITEM_ICON_MARGIN;
-        return Math.max(_size.getHeight(), _itemIcon != null ? iconSize : 0);
+        return Math.max(_size.getHeight(), hasIcon() ? iconSize : 0);
     }
 
     /**
@@ -267,7 +268,7 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
         // on both sides of the text so we only need to account for the spacing on the left of
         // the icon if we are using one
         Integer iconSize = HubbyConstants.ITEM_ICON_SIZE + HubbyConstants.ITEM_ICON_MARGIN + _outerBorder;
-        return _size.getWidth() + (_itemIcon != null ? iconSize : 0);
+        return _size.getWidth() + (hasIcon() ? iconSize : 0);
     }
 
     /**
@@ -429,6 +430,16 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
         color.applyColorGL();
         _background.draw(this.mc, x1, y1, width, height, 0);
     }
+    
+    /**
+     * Do we have an icon to draw?
+     * @return boolean - do we have an icon
+     */
+    public boolean hasIcon() {
+        // TODO:
+        // Include BlockResult
+        return _itemIcon != null || _blockIcon != null;
+    }
 
     /**
      * Custom routine that draws all foreground elements that will
@@ -445,16 +456,24 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
         int iconY = y1 + (int) ((float) (getHeight() - HubbyConstants.ITEM_ICON_SIZE) / 2.0f);
 
         // if the player wants to show an item icon then render that now
-        if (_itemIcon != null) {
-            //_itemIcon = HubbyUtils.searchForItem("diamond");
+        if (hasIcon()) {
+            
+            // TODO:
+            // Remove this
             this.useDefaultBlockItemIcon();
 
-            //(ResourceLocation)Block.blockRegistry.getNameForObject(blockIn)
-            ResourceLocation rl = HubbyUtils.getItemResourceLocation(_itemIcon, _blockResult);
+            HubbyResourceLocation rl = (_blockResult != null && _blockResult.isValid()) ? HubbyUtils.getBlockResourceLocation(_blockResult) : HubbyUtils.getItemResourceLocation(_itemIcon);
             Integer iconSize = HubbyConstants.DEFAULT_ICON_SIZE;
             Integer uvSize = HubbyConstants.DEFAULT_UV_SIZE;
             mc.renderEngine.bindTexture(rl);
-            HubbyUtils.drawTexturedRectHelper(1, iconX - 1, iconY - 3, iconSize, iconSize, 0, 0, uvSize, uvSize);
+            
+            if (rl.isMetadataOfType(ChestType.class)) {
+                HubbyUtils.setDrawTexturedRectScale(256.0f / 64.0f);
+                HubbyUtils.drawTexturedRectHelper(1, iconX - 1, iconY - 3, iconSize, iconSize, HubbyConstants.CHEST_TEXTURE_RECT);
+            }
+            else {
+                HubbyUtils.drawTexturedRectHelper(1, iconX - 1, iconY - 3, iconSize, iconSize, 0, 0, uvSize, uvSize);
+            }
 
             //RenderHelper.enableGUIStandardItemLighting();
             //HubbyRenderItem.getInstance().useRenderColor(new HubbyColor(1.0f, 1.0f, 1.0f, _alpha), true);
@@ -463,8 +482,8 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
         }
 
         // add an additional offset if we are drawing an icon
-        x1 += _itemIcon != null ? HubbyConstants.ITEM_ICON_MARGIN + HubbyConstants.ITEM_ICON_SIZE : 0;
-        x1 += _itemIcon != null && !_centerText ? HubbyConstants.ITEM_ICON_MARGIN : 0;
+        x1 += hasIcon() ? HubbyConstants.ITEM_ICON_MARGIN + HubbyConstants.ITEM_ICON_SIZE : 0;
+        x1 += hasIcon() && !_centerText ? HubbyConstants.ITEM_ICON_MARGIN : 0;
 
         // render all strings
         if (_alpha >= HubbyMath.ALPHA_THRESHOLD) {
@@ -474,7 +493,7 @@ public class HubbyGuiScreenPopupMessage extends GuiScreen {
 
                 if (_centerText) {
                     int newX = (int) ((float) x1 + (getWidth() - fontRender.getStringWidth(s)) / 2.0f);
-                    newX -= _itemIcon != null ? _outerBorder + _innerBorder : 0;
+                    newX -= hasIcon() ? _outerBorder + _innerBorder : 0;
                     fontRender.drawString(s, newX, y1 + border, (int) _textColor.getPackedColor(ColorMode.MINECRAFT), _useDropShadow);
                 }
                 else {
