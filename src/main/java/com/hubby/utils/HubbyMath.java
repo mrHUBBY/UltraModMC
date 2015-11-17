@@ -10,7 +10,7 @@ public class HubbyMath {
     /**
      * Constants
      */
-    public static final Double ALPHA_THRESHOLD = 0.0999;
+    public static final Double ALPHA_THRESHOLD = 0.0599;
     
     /**
      * Returns true if the two values are within a specific

@@ -1561,6 +1561,44 @@ public class HubbyUtils {
     public static String substringRemove(String source, String toRemove) {
         return substringRemove(source, toRemove, 0);
     }
+    
+    /**
+     * Attempts to lookup an item from the item registry based on name
+     * @param name - the name (or partial name) of the item to lookup
+     * @return Item - the found item (null if no matches were found)
+     */
+    public static Item searchForItem(String name) {
+        name = name.toLowerCase();
+        Set keys = Item.itemRegistry.getKeys();
+        Iterator it = keys.iterator();
+        while (it.hasNext()) {
+            ResourceLocation rl = (ResourceLocation) it.next();
+            Item item = (Item) Item.itemRegistry.getObject(rl);
+            if (item.getUnlocalizedName().toLowerCase().contains(name) || rl.getResourcePath().toLowerCase().contains(name)) {
+                return item;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Attempts to lookup a block from the block registry based on name
+     * @param name - the name (or partial name) of the block to lookup
+     * @return Block - the found block (null if no matches were found)
+     */
+    public static Block searchForBlock(String name) {
+        name = name.toLowerCase();
+        Set keys = Block.blockRegistry.getKeys();
+        Iterator it = keys.iterator();
+        while (it.hasNext()) {
+            ResourceLocation rl = (ResourceLocation) it.next();
+            Block block = (Block) Block.blockRegistry.getObject(rl);
+            if (block.getUnlocalizedName().toLowerCase().contains(name) || rl.getResourcePath().toLowerCase().contains(name)) {
+                return block;
+            }
+        }
+        return null;
+    }
 
     /**
      * Gets the default resource for a block or an item
@@ -1620,25 +1658,6 @@ public class HubbyUtils {
         catch (Exception e) {
         }
         return getDefaultResource(false);
-    }
-    
-    /**
-     * Attempts to lookup an item from the item registry based on name
-     * @param name - the name (or partial name) of the item to lookup
-     * @return Item - the found item (null if no matches were found)
-     */
-    public static Item searchForItem(String name) {
-        name = name.toLowerCase();
-        Set keys = Item.itemRegistry.getKeys();
-        Iterator it = keys.iterator();
-        while (it.hasNext()) {
-            ResourceLocation rl = (ResourceLocation) it.next();
-            Item item = (Item) Item.itemRegistry.getObject(rl);
-            if (item.getUnlocalizedName().toLowerCase().contains(name) || rl.getResourcePath().toLowerCase().contains(name)) {
-                return item;
-            }
-        }
-        return null;
     }
 
     /**
@@ -1791,13 +1810,8 @@ public class HubbyUtils {
     private static HubbyResourceLocation getBuiltinResource(HubbyResourceLocation resource, String builtin, String model) {
         String modID = resource.getResourceDomain();
         
-        // Are we an ender chest?
-        if (ChestType.getChestResource(resource) == ChestType.ENDER) {
-            ChestType ct = ChestType.getChestResource(resource);
-            return new HubbyResourceLocation(modID, "textures/" + builtin + "/" + model + "/" + ct.getChestBaseTextureName() + ".png", resource.getMetadata(null));
-        }
-        // Are we a chest at all?
-        else if (ChestType.getChestResource(resource) != ChestType.INVALID) {
+        // Are we a chest of some type?
+        if (ChestType.getChestResource(resource) != ChestType.INVALID) {
             ChestType ct = ChestType.getChestResource(resource);
             return new HubbyResourceLocation(modID, "textures/" + builtin + "/" + model + "/" + ct.getChestBaseTextureName() + ".png", resource.getMetadata(null));
         }
@@ -1828,51 +1842,63 @@ public class HubbyUtils {
             EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockColored.COLOR);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we a standard chest?
         else if (blockResult != null && BlockChest.class.isInstance(blockResult.getBlock())) {
             int type = ((BlockChest)blockResult.getBlock()).chestType;
             rl = new HubbyResourceLocation(rl.getResourceDomain(), "chest");
             rl.setMetadata(ChestType.getEnumForValue(type));
         }
+        // Are we an ender chest?
         else if (blockResult != null && BlockEnderChest.class.isInstance(blockResult.getBlock())) {
             rl = new HubbyResourceLocation(rl.getResourceDomain(), "chest");
             rl.setMetadata(ChestType.ENDER);
         }
+        // Are we a double wood slab?
         else if (blockResult != null && BlockDoubleWoodSlab.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockWoodSlab.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
         }
+        // Are we carpet?
         else if (blockResult != null && BlockCarpet.class.isInstance(blockResult.getBlock())) {
             EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockCarpet.COLOR);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath() + "_" + variant.getName());
         }
+        // Are we a colored block?
         else if (blockResult != null && BlockColored.class.isInstance(blockResult.getBlock())) {
             EnumDyeColor variant = (EnumDyeColor) blockResult.getBlockState().getValue(BlockColored.COLOR);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we a wood slab?
         else if (blockResult != null && BlockWoodSlab.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockWoodSlab.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
         }
+        // Are we a stone slab?
         else if (blockResult != null && BlockStoneSlab.class.isInstance(blockResult.getBlock())) {
             BlockStoneSlab.EnumType variant = (BlockStoneSlab.EnumType) blockResult.getBlockState().getValue(BlockStoneSlab.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_slab");
         }
+        // Are we planks of wood?
         else if (blockResult != null && BlockPlanks.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockPlanks.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we a sapling?
         else if (blockResult != null && BlockSapling.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockSapling.TYPE);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we an old-leaf?
         else if (blockResult != null && BlockOldLeaf.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockOldLeaf.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we an old-log?
         else if (blockResult != null && BlockOldLog.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockOldLog.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we a new-leaf?
         else if (blockResult != null && BlockNewLeaf.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockNewLeaf.VARIANT);
             String path = rl.getResourcePath();
@@ -1882,18 +1908,22 @@ public class HubbyUtils {
             }
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + path);
         }
+        // Are we a new log?
         else if (blockResult != null && BlockNewLog.class.isInstance(blockResult.getBlock())) {
             BlockPlanks.EnumType variant = (BlockPlanks.EnumType) blockResult.getBlockState().getValue(BlockNewLog.VARIANT);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.getName() + "_" + rl.getResourcePath());
         }
+        // Are we a flower pot?
         else if (blockResult != null && BlockFlowerPot.class.isInstance(blockResult.getBlock())) {
             BlockFlowerPot.EnumFlowerType variant = (BlockFlowerPot.EnumFlowerType) blockResult.getBlockState().getValue(BlockFlowerPot.CONTENTS);
             rl = new HubbyResourceLocation(rl.getResourceDomain(), rl.getResourcePath() + "_" + variant.getName());
         }
+        // Are we a flower?
         else if (blockResult != null && BlockFlower.class.isInstance(blockResult.getBlock())) {
             BlockFlower.EnumFlowerType variant = (BlockFlower.EnumFlowerType) blockResult.getBlockState().getValue(((BlockFlower) blockResult.getBlock()).getTypeProperty());
             rl = new HubbyResourceLocation(rl.getResourceDomain(), variant.name().toLowerCase());
         }
+        // Are we stone?
         else if (blockResult != null && BlockStone.class.isInstance(blockResult.getBlock())) {
             BlockStone.EnumType variant = (BlockStone.EnumType) blockResult.getBlockState().getValue(BlockStone.VARIANT);
             String[] parts = variant.getName().split("_");

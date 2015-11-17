@@ -91,7 +91,7 @@ public class UltraUtils {
     /**
      * Returns if the entity in question has an attached light
      * @param entity - the entity to check
-     * @return boolean - the result (true if the ent has a light)
+     * @return boolean - the result (true if the ent has a light))ß
      */
     public static boolean doesEntityHaveAttachedLight(Entity entity) {
         return UltraUtils.findLightForEntity(entity) != null;
@@ -154,7 +154,7 @@ public class UltraUtils {
                 }
                 // Here we reset the slot contents to be null, effectively undoing what
                 // the player just did by dropping the ItemStack into a slot
-                HubbyUtils.getClientPlayer().inventory.setInventorySlotContents(slot, null);
+                HubbyUtils.getClientPlayer().inventory.setInventorySlotContents(slot, HubbyUtils.getClientPlayer().inventory.mainInventory[slot]);
                 
                 // Place the item that the player tried to drop in their inventory
                 // back into the player's hand (ie the drag slot)
